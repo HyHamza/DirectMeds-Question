@@ -56,7 +56,132 @@ function create_questionnaire_tables() {
     dbDelta($sql);
 }
 
-register_activation_hook(__FILE__, 'create_questionnaire_tables');
+register_activation_hook(__FILE__, 'activate_questionnaire_plugin');
+
+function activate_questionnaire_plugin() {
+    create_questionnaire_tables();
+
+    if (get_option('questionnaire_import_done') !== 'yes') {
+        import_initial_questionnaires();
+        update_option('questionnaire_import_done', 'yes');
+    }
+}
+
+function import_initial_questionnaires() {
+    global $wpdb;
+    $questionnaires_table = $wpdb->prefix . 'questionnaires';
+    $questions_table = $wpdb->prefix . 'questions';
+    $answers_table = $wpdb->prefix . 'answers';
+    $conditions_table = $wpdb->prefix . 'conditions';
+
+    $cloned_site_path = plugin_dir_path(__FILE__) . '../../cloned_site/';
+    $questionnaire_dirs = glob($cloned_site_path . 'questionnaire-*', GLOB_ONLYDIR);
+
+    if (empty($questionnaire_dirs)) {
+        return; // No directories found
+    }
+
+    $parsed_data = [];
+    libxml_use_internal_errors(true); // Suppress warnings from malformed HTML
+
+    // 1. Parse all HTML files and gather data
+    foreach ($questionnaire_dirs as $dir) {
+        $html_path = $dir . '/index.html';
+        if (!file_exists($html_path)) {
+            continue;
+        }
+
+        $dir_name = basename($dir);
+        $dom = new DOMDocument();
+        $dom->loadHTML(file_get_contents($html_path));
+        $xpath = new DOMXPath($dom);
+
+        $question_node = $xpath->query('//div[contains(@class, "card-body")]/h1')->item(0);
+        $question_text = $question_node ? trim($question_node->nodeValue) : 'Untitled Question';
+
+        $answers = [];
+        $answer_nodes = $xpath->query('//div[contains(@class, "radioselection")]/label');
+        foreach ($answer_nodes as $node) {
+            $answers[] = trim($node->nodeValue);
+        }
+
+        $next_page_node = $xpath->query('//form[@id="questionnaireForm"]/@action')->item(0);
+        $next_page_path = $next_page_node ? $next_page_node->nodeValue : '';
+        $next_dir_name = '';
+        if ($next_page_path) {
+            // ../questionnaire-1b/index.html -> questionnaire-1b
+            $next_dir_name = basename(dirname($next_page_path));
+        }
+
+        $parsed_data[$dir_name] = [
+            'question' => $question_text,
+            'answers' => array_filter($answers),
+            'next_dir' => $next_dir_name,
+        ];
+    }
+
+    libxml_clear_errors();
+
+    // 2. Insert into database
+    $db_map = []; // [dir_name => ['q_id' => X, 'question_id' => Y]]
+
+    // Insert questionnaires and questions
+    foreach ($parsed_data as $dir_name => $data) {
+        $q_title = ucwords(str_replace('-', ' ', $dir_name));
+        $wpdb->insert($questionnaires_table, ['title' => $q_title, 'created_at' => current_time('mysql')]);
+        $questionnaire_id = $wpdb->insert_id;
+
+        $wpdb->insert($questions_table, [
+            'questionnaire_id' => $questionnaire_id,
+            'question_text' => $data['question'],
+            'question_type' => 'radio', // All seem to be radio
+            'question_order' => 1,
+        ]);
+        $question_id = $wpdb->insert_id;
+        $db_map[$dir_name] = ['q_id' => $questionnaire_id, 'question_id' => $question_id, 'answer_ids' => []];
+
+        // Automatically create a WordPress page for this questionnaire
+        if (null === get_page_by_path($dir_name, OBJECT, 'page')) {
+            wp_insert_post([
+                'post_title'    => $q_title,
+                'post_name'     => $dir_name,
+                'post_content'  => '[questionnaire id="' . $questionnaire_id . '"]',
+                'post_status'   => 'publish',
+                'post_author'   => 1, // Default to admin user
+                'post_type'     => 'page',
+            ]);
+        }
+    }
+
+    // Insert answers
+    foreach ($parsed_data as $dir_name => $data) {
+        if (isset($db_map[$dir_name])) {
+            $question_id = $db_map[$dir_name]['question_id'];
+            foreach ($data['answers'] as $answer_text) {
+                $wpdb->insert($answers_table, ['question_id' => $question_id, 'answer_text' => $answer_text]);
+                $db_map[$dir_name]['answer_ids'][] = $wpdb->insert_id;
+            }
+        }
+    }
+
+    // Create conditions (link questions)
+    foreach ($parsed_data as $dir_name => $data) {
+        $next_dir = $data['next_dir'];
+        if (isset($db_map[$dir_name]) && !empty($next_dir) && isset($db_map[$next_dir])) {
+            $current_question_id = $db_map[$dir_name]['question_id'];
+            $target_question_id = $db_map[$next_dir]['question_id'];
+
+            foreach ($db_map[$dir_name]['answer_ids'] as $answer_id) {
+                $wpdb->insert($conditions_table, [
+                    'question_id' => $current_question_id,
+                    'answer_id' => $answer_id,
+                    'action' => 'show_question',
+                    'target_question_id' => $target_question_id,
+                ]);
+            }
+        }
+    }
+}
 
 function questionnaire_admin_menu() {
     add_menu_page(
@@ -344,13 +469,32 @@ function questionnaire_list_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'questionnaires';
 
+    // Handle 'Create Page' action
+    if (isset($_GET['action']) && $_GET['action'] == 'create_page' && isset($_GET['id'])) {
+        $id = intval($_GET['id']);
+        $questionnaire = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $id));
+        if ($questionnaire) {
+            $slug = sanitize_title($questionnaire->title);
+            if (null === get_page_by_path($slug, OBJECT, 'page')) {
+                wp_insert_post([
+                    'post_title'    => $questionnaire->title,
+                    'post_name'     => $slug,
+                    'post_content'  => '[questionnaire id="' . $questionnaire->id . '"]',
+                    'post_status'   => 'publish',
+                    'post_author'   => get_current_user_id(),
+                    'post_type'     => 'page',
+                ]);
+                echo "<div class='updated'><p>Page created successfully.</p></div>";
+            } else {
+                echo "<div class='error'><p>A page with this title/slug already exists.</p></div>";
+            }
+        }
+    }
+
     if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
         $id = intval($_GET['id']);
         $wpdb->delete($table_name, ['id' => $id]);
-        // Also delete associated questions, answers, and conditions
         $wpdb->delete($wpdb->prefix . 'questions', ['questionnaire_id' => $id]);
-        // Deleting questions should cascade to answers and conditions, but let's be explicit
-        // This is a simplification; a more robust solution would join tables.
         echo "<div class='updated'><p>Questionnaire deleted.</p></div>";
     }
 
@@ -360,13 +504,13 @@ function questionnaire_list_page() {
         echo "<div class='updated'><p>Questionnaire added.</p></div>";
     }
 
-    $questionnaires = $wpdb->get_results("SELECT * FROM $table_name");
+    $questionnaires = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id ASC");
     ?>
     <div class="wrap">
         <h1>Questionnaires</h1>
 
         <h2>Add New Questionnaire</h2>
-        <form method="post">
+        <form method="post" action="?page=questionnaire-plugin">
             <input type="text" name="new_questionnaire_title" placeholder="Questionnaire Title" required>
             <input type="submit" value="Add Questionnaire" class="button button-primary">
         </form>
@@ -377,6 +521,7 @@ function questionnaire_list_page() {
                 <tr>
                     <th>ID</th>
                     <th>Title</th>
+                    <th>Page Status</th>
                     <th>Created At</th>
                     <th>Actions</th>
                 </tr>
@@ -386,6 +531,17 @@ function questionnaire_list_page() {
                 <tr>
                     <td><?php echo $q->id; ?></td>
                     <td><?php echo esc_html($q->title); ?></td>
+                    <td>
+                        <?php
+                        $slug = sanitize_title($q->title);
+                        $page = get_page_by_path($slug, OBJECT, 'page');
+                        if ($page) {
+                            printf('<a href="%s" target="_blank">View Page</a>', get_permalink($page->ID));
+                        } else {
+                            printf('<a href="?page=questionnaire-plugin&action=create_page&id=%d" class="button">Create Page</a>', $q->id);
+                        }
+                        ?>
+                    </td>
                     <td><?php echo $q->created_at; ?></td>
                     <td>
                         <a href="?page=questionnaire-edit&id=<?php echo $q->id; ?>">Edit</a> |
