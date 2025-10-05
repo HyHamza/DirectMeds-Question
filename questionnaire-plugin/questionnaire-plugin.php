@@ -89,6 +89,9 @@ function qp_render_questionnaire_page($atts) {
     if (file_exists($template_path)) {
         $content = file_get_contents($template_path);
 
+        // Replace asset paths
+        $content = str_replace('../assets', plugin_dir_url(__FILE__) . 'assets', $content);
+
         // Replace page links
         preg_match_all('/href="([^"]*?\.php)"/', $content, $matches);
 
@@ -112,31 +115,6 @@ function qp_render_questionnaire_page($atts) {
     return '<!-- Template not found: ' . esc_html($atts['template']) . ' -->';
 }
 add_shortcode('questionnaire_page', 'qp_render_questionnaire_page');
-
-function qp_enqueue_questionnaire_styles() {
-    if (is_singular('page') && has_shortcode(get_post()->post_content, 'questionnaire_page')) {
-        $plugin_url = plugin_dir_url(__FILE__);
-
-        echo '<link rel="stylesheet" id="bootstrap-css" href="' . $plugin_url . 'assets/css/bootstrap.min.css" type="text/css" media="all" />';
-        echo '<link rel="stylesheet" id="bootstrap-icons-css" href="' . $plugin_url . 'assets/css/bootstrap-icons.min.css" type="text/css" media="all" />';
-        echo '<link rel="stylesheet" id="qualify-css" href="' . $plugin_url . 'assets/css/qualify.css" type="text/css" media="all" />';
-        echo '<link rel="stylesheet" id="style-css" href="' . $plugin_url . 'assets/css/style.css" type="text/css" media="all" />';
-    }
-}
-add_action('questionnaire_head', 'qp_enqueue_questionnaire_styles');
-
-function qp_enqueue_questionnaire_scripts() {
-    if (is_singular('page') && has_shortcode(get_post()->post_content, 'questionnaire_page')) {
-        $plugin_url = plugin_dir_url(__FILE__);
-
-        echo '<script type="text/javascript" src="' . $plugin_url . 'assets/js/jquery-1.12.1.min.js" id="jquery-custom-js"></script>';
-        echo '<script type="text/javascript" src="' . $plugin_url . 'assets/js/bootstrap.bundle.min.js" id="bootstrap-bundle-js"></script>';
-        echo '<script type="text/javascript" src="' . $plugin_url . 'assets/js/main.js" id="main-js"></script>';
-        echo '<script type="text/javascript" src="' . $plugin_url . 'assets/js/everflow.js" id="everflow-js"></script>';
-        echo '<script type="text/javascript" src="' . $plugin_url . 'assets/js/smartlook.js" id="smartlook-js"></script>';
-    }
-}
-add_action('questionnaire_footer', 'qp_enqueue_questionnaire_scripts');
 
 function qp_template_include($template) {
     // Check if we are on a single page that has our shortcode
