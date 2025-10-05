@@ -72,62 +72,58 @@ function qp_create_questionnaire_pages() {
 }
 
 function qp_render_questionnaire_page($atts) {
-    $atts = shortcode_atts(
-        array(
-            'template' => '',
-        ),
-        $atts,
-        'questionnaire_page'
-    );
-
-    if (empty($atts['template'])) {
-        return '<!-- Template not specified -->';
-    }
-
-    $template_path = plugin_dir_path(__FILE__) . 'templates/' . sanitize_file_name($atts['template']);
-
-    if (file_exists($template_path)) {
-        $content = file_get_contents($template_path);
-
-        // Replace asset paths
-        $content = str_replace('../assets', plugin_dir_url(__FILE__) . 'assets', $content);
-
-        // Replace page links
-        preg_match_all('/href="([^"]*?\.php)"/', $content, $matches);
-
-        if (!empty($matches[1])) {
-            foreach (array_unique($matches[1]) as $match) {
-                $page_slug = basename($match, '.php');
-                $page = get_page_by_path($page_slug);
-                if ($page) {
-                    $permalink = get_permalink($page->ID);
-                    $content = str_replace($match, $permalink, $content);
-                }
-            }
-        }
-
-        // Remove empty action attributes from forms
-        $content = str_replace('action=""', '', $content);
-
-        return $content;
-    }
-
-    return '<!-- Template not found: ' . esc_html($atts['template']) . ' -->';
+    // This shortcode now only acts as a marker for the template_redirect hook.
+    // The actual rendering is handled by qp_template_redirect().
+    return '';
 }
 add_shortcode('questionnaire_page', 'qp_render_questionnaire_page');
 
-function qp_template_include($template) {
-    // Check if we are on a single page that has our shortcode
+function qp_template_redirect() {
     if (is_singular('page') && has_shortcode(get_post()->post_content, 'questionnaire_page')) {
-        $new_template = plugin_dir_path(__FILE__) . 'page-questionnaire.php';
-        if (file_exists($new_template)) {
-            return $new_template;
+        $post = get_post();
+        $content = $post->post_content;
+
+        // Extract the template file from the shortcode
+        $pattern = get_shortcode_regex(['questionnaire_page']);
+        if (preg_match('/' . $pattern . '/s', $content, $matches) && isset($matches[3])) {
+            $shortcode_attrs = shortcode_parse_atts($matches[3]);
+            if (isset($shortcode_attrs['template'])) {
+                $template_file = sanitize_file_name($shortcode_attrs['template']);
+                $template_path = plugin_dir_path(__FILE__) . 'templates/' . $template_file;
+
+                if (file_exists($template_path)) {
+                    ob_start();
+                    include $template_path;
+                    $output = ob_get_clean();
+
+                    // Replace asset paths
+                    $output = str_replace('../assets', plugin_dir_url(__FILE__) . 'assets', $output);
+
+                    // Replace page links
+                    preg_match_all('/href="([^"]*?\.php)"/', $output, $link_matches);
+                    if (!empty($link_matches[1])) {
+                        foreach (array_unique($link_matches[1]) as $match) {
+                            $page_slug = basename($match, '.php');
+                            $page = get_page_by_path($page_slug);
+                            if ($page) {
+                                $permalink = get_permalink($page->ID);
+                                $output = str_replace($match, $permalink, $output);
+                            }
+                        }
+                    }
+
+                    // Replace form action URL
+                    $output = str_replace('action=""', 'action="' . esc_url(admin_url('admin-post.php')) . '"', $output);
+
+
+                    echo $output;
+                    exit();
+                }
+            }
         }
     }
-    return $template;
 }
-add_filter('template_include', 'qp_template_include', 99);
-
+add_action('template_redirect', 'qp_template_redirect');
 
 function qp_start_session() {
     if (!session_id()) {
