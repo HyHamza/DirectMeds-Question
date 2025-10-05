@@ -555,42 +555,6 @@ function questionnaire_list_page() {
     <?php
 }
 
-function questionnaire_enqueue_assets() {
-    global $post;
-    if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'questionnaire')) {
-        // Deregister default WP jQuery and register the custom version in the header
-        wp_deregister_script('jquery');
-        wp_register_script('jquery-custom', plugin_dir_url(__FILE__) . 'assets/js_from_site/jquery-1.12.1.min.js', [], '1.12.1', false);
-
-        // Enqueue styles from the site
-        wp_enqueue_style('bootstrap-min', plugin_dir_url(__FILE__) . 'assets/css_from_site/bootstrap.min.css');
-        wp_enqueue_style('bootstrap-icons-min', plugin_dir_url(__FILE__) . 'assets/css_from_site/bootstrap-icons.min.css');
-        wp_enqueue_style('qualify', plugin_dir_url(__FILE__) . 'assets/css_from_site/qualify.css');
-        wp_enqueue_style('utils-min-css', plugin_dir_url(__FILE__) . 'assets/css_from_site/utils.min.css');
-
-        // Enqueue scripts from the site, making them dependent on the custom jQuery
-        wp_enqueue_script('jquery-custom'); // Enqueue the registered script
-        wp_enqueue_script('bootstrap-bundle-min', plugin_dir_url(__FILE__) . 'assets/js_from_site/bootstrap.bundle.min.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('utils-min-js', plugin_dir_url(__FILE__) . 'assets/js_from_site/utils.min.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('29752987', plugin_dir_url(__FILE__) . 'assets/js_from_site/29752987.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('everflow', plugin_dir_url(__FILE__) . 'assets/js_from_site/everflow.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('gtm', plugin_dir_url(__FILE__) . 'assets/js_from_site/gtm.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('matomo', plugin_dir_url(__FILE__) . 'assets/js_from_site/matomo.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('smartlook', plugin_dir_url(__FILE__) . 'assets/js_from_site/smartlook.js', ['jquery-custom'], null, true);
-        wp_enqueue_script('tp-widget-bootstrap', plugin_dir_url(__FILE__) . 'assets/js_from_site/tp.widget.bootstrap.min.js', ['jquery-custom'], null, true);
-
-        // Enqueue the plugin's custom logic script, also dependent on custom jQuery
-        wp_enqueue_script('questionnaire-script', plugin_dir_url(__FILE__) . 'assets/js/main.js', ['jquery-custom'], '1.0', true);
-
-        // Pass data to script
-        wp_localize_script('questionnaire-script', 'questionnaire_ajax', [
-            'ajax_url' => admin_url('admin-ajax.php')
-        ]);
-    }
-}
-add_action('wp_enqueue_scripts', 'questionnaire_enqueue_assets');
-
-
 function questionnaire_shortcode($atts) {
     $atts = shortcode_atts(['id' => 0], $atts, 'questionnaire');
     $questionnaire_id = intval($atts['id']);
