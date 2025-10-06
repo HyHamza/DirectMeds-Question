@@ -109,7 +109,7 @@
 <body>
   <form id="WeightLossAdvocatesForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
     <input type="hidden" name="action" value="WeightLossAdvocates_submit">
-    <input type="hidden" name="page_slug" value="WeightLossAdvocates-6">
+    <input type="hidden" name="page_slug" value="questionnaire-6">
     <input type="hidden" name="external_customer_id" value="cid-68e274b59f290b6201477d6afc1a6edb"><input type="hidden" name="domain" value="theweightlossadvocates.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671477">    <input type="hidden" name="csrf_token" value="a175962512805399c55632f126faca4e35fcd95ff30f64ae275e8414bb2d2344d404405116" />
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
