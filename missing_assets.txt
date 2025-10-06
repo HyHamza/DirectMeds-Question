@@ -1,0 +1,16 @@
+./img/graph.png
+./img/products-mobi-2.png
+./img/t1.jpg
+./img/t2.jpg
+./img/t3.jpg
+//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js
+contact.php
+https://calendly.com/connie-direct-meds
+https://directmeds.everflowclient.io/affiliate/signup
+https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1
+https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG
+not-qualified.php
+privacy.php
+results.php
+terms.php
+terms.php#refunds
