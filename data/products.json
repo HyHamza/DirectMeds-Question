@@ -1,0 +1,54 @@
+{
+    "1":{
+        "type":"Injection",
+        "was_price":1095,
+        "portal_supplementals":[1],
+        "sub_text":"Lowest Price Injection",
+        "dosage":{
+            "default":{"package_code":"SEM_INJ_STARTER","name":"Semaglutide","name_ca":"Ozempic®","price":297,"package_price":297,"price_ca":497,"portal_product_ids":[60],"portal_charge_ids":[60],"dosage":".25mg","dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":197,"followup_price":297},
+            ".5mg":{"package_code":"SEM_INJ_P5MG","name":"Semaglutide .5mg\/week","price":297,"package_price":297,"portal_product_ids":[55],"portal_charge_ids":[55],"dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":197,"followup_price":297},
+            "1mg":{"package_code":"SEM_INJ_1MG","name":"Semaglutide 1mg\/week","price":297,"package_price":297,"portal_product_ids":[56],"portal_charge_ids":[56],"dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":197,"followup_price":297},
+            "1.5mg":{"package_code":"SEM_INJ_1P5MG","name":"Semaglutide 1.5mg\/week","price":297,"package_price":297,"portal_product_ids":[57],"portal_charge_ids":[57],"dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":197,"followup_price":297},
+            "2.5mg":{"package_code":"SEM_INJ_2P5MG","name":"Semaglutide 2.5mg\/week","price":297,"package_price":297,"portal_product_ids":[59],"portal_charge_ids":[59],"dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":197,"followup_price":297}
+        }
+    },
+    "2":{
+        "type":"Injection",
+        "was_price":1295,
+        "portal_supplementals":[],
+        "sub_text":"Best Results",
+        "dosage":{
+            "default":{"package_code":"TIR_INJ_STARTER","name":"Tirzepatide","name_ca":"Mounjaro®","price":497,"package_price":497,"price_ca":697,"portal_product_ids":[14,15],"portal_charge_ids":[14],"dosage":"2.5mg","dosage_period":"week","units":"25","coupon_discount":100,"coupon_price":397,"followup_price":497},
+            "5mg":{"package_code":"TIR_INJ_5MG","name":"Tirzepatide 5mg\/week","price":497,"package_price":497,"portal_product_ids":[15],"portal_charge_ids":[15],"dosage_period":"week","units":"50","coupon_discount":100,"coupon_price":397,"followup_price":497},
+            "7.5mg":{"package_code":"TIR_INJ_7P5MG","name":"Tirzepatide 7.5mg\/week","price":497,"package_price":497,"portal_product_ids":[49],"portal_charge_ids":[49],"dosage_period":"week","units":"75","coupon_discount":100,"coupon_price":397,"followup_price":497},
+            "10mg":{"package_code":"TIR_INJ_10MG","name":"Tirzepatide 10mg\/week","price":497,"package_price":497,"portal_product_ids":[51],"portal_charge_ids":[51],"dosage_period":"week","units":"100","coupon_discount":100,"coupon_price":397,"followup_price":497},
+            "12.5mg":{"package_code":"TIR_INJ_12P5MG","name":"Tirzepatide 12.5mg\/week","price":497,"package_price":497,"portal_product_ids":[3],"portal_charge_ids":[3],"dosage_period":"week","units":"125","coupon_discount":100,"coupon_price":397,"followup_price":497},
+            "15mg":{"package_code":"TIR_INJ_15MG","name":"Tirzepatide 15mg\/week","price":497,"package_price":497,"portal_product_ids":[7],"portal_charge_ids":[7],"dosage_period":"week","units":"150","coupon_discount":100,"coupon_price":397,"followup_price":497}
+        }
+    },
+    "4":{
+        "type":"Sublingual",
+        "description":"Compounded Sublingual Drops (30ml per shipment)",
+        "was_price":499,
+        "portal_supplementals":[],
+        "sub_text":"Lowest Price\/No Needles",
+        "dosage":{
+            "default":{"package_code":"SEM_SBL_STARTER","name":"Semaglutide","name_ca":"Semaglutide","price":249,"package_price":249,"price_ca":349,"portal_product_ids":[12],"portal_charge_ids":[12],"dosage":".25mg","dosage_period":"day","coupon_discount":50,"coupon_price":199,"followup_price":249},
+            ".5mg":{"package_code":"SEM_SBL_P5MG","name":"Semaglutide Sublingual Drops .5mg\/day","price":249,"package_price":249,"portal_product_ids":[6],"portal_charge_ids":[6],"dosage_period":"day","coupon_discount":50,"coupon_price":199,"followup_price":249},
+            ".75mg":{"package_code":"SEM_SBL_P75MG","name":"Semaglutide Sublingual Drops .75mg\/day","price":249,"package_price":249,"portal_product_ids":[13],"portal_charge_ids":[13],"dosage_period":"day","coupon_discount":50,"coupon_price":199,"followup_price":249},
+            "1mg":{"package_code":"SEM_SBL_1MG","name":"Semaglutide Sublingual Drops 1mg\/day","price":249,"package_price":249,"portal_product_ids":[2],"portal_charge_ids":[2],"dosage_period":"day","coupon_discount":50,"coupon_price":199,"followup_price":249}
+        }
+    },
+    "5":{
+        "type":"Sublingual",
+        "was_price":549,
+        "portal_supplementals":[],
+        "sub_text":"No Needles\/Better Results",
+        "dosage":{
+            "default":{"package_code":"TIR_SBL_STARTER","name":"Tirzepatide","name_ca":"Tirzepatide Sublingual Drops","price":299,"package_price":299,"price_ca":399,"portal_product_ids":[45],"portal_charge_ids":[45],"dosage":"3mg","dosage_period":"day","coupon_discount":50,"coupon_price":249,"followup_price":299},
+            "4mg":{"package_code":"TIR_SBL_4MG","name":"Tirzepatide Sublingual Drops 4mg\/day","price":299,"package_price":299,"portal_product_ids":[46],"portal_charge_ids":[46],"dosage_period":"day","coupon_discount":50,"coupon_price":249,"followup_price":299},
+            "5mg":{"package_code":"TIR_SBL_5MG","name":"Tirzepatide Sublingual Drops 5mg\/day","price":299,"package_price":299,"portal_product_ids":[47],"portal_charge_ids":[47],"dosage_period":"day","coupon_discount":50,"coupon_price":249,"followup_price":299},
+            "6mg":{"package_code":"TIR_SBL_6MG","name":"Tirzepatide Sublingual Drops 6mg\/day","price":299,"package_price":299,"portal_product_ids":[48],"portal_charge_ids":[48],"dosage_period":"day","coupon_discount":50,"coupon_price":249,"followup_price":299}
+        }
+    }
+}

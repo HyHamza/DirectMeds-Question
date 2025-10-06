@@ -17,6 +17,21 @@ function qp_activate() {
     qp_create_orders_table();
     // Function to create patient table
     qp_create_patient_table();
+
+    // Retroactively add meta to existing pages
+    $all_pages = get_posts([
+        'post_type' => 'page',
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+    ]);
+
+    foreach ($all_pages as $page) {
+        if (has_shortcode($page->post_content, 'WeightLossAdvocates_page')) {
+            if (!get_post_meta($page->ID, '_qp_page', true)) {
+                add_post_meta($page->ID, '_qp_page', true, true);
+            }
+        }
+    }
 }
 register_activation_hook(__FILE__, 'qp_activate');
 
@@ -95,7 +110,10 @@ function qp_create_WeightLossAdvocates_pages() {
                 'post_name'     => $page_slug,
             );
 
-            wp_insert_post($page_data);
+            $page_id = wp_insert_post($page_data);
+            if ($page_id) {
+                add_post_meta($page_id, '_qp_page', true, true);
+            }
         }
     }
 }
@@ -161,16 +179,6 @@ function qp_template_redirect() {
             }
         }
     }
-
-    // Calculate and store BMI when height and weight are submitted from questionnaire-6
-    if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
-        $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
-        $weight_lbs = (int)$_POST['intake_weight'];
-        if ($height_in > 0) {
-            $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
-            $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
-        }
-    }
 }
 add_action('template_redirect', 'qp_template_redirect');
 
@@ -181,12 +189,84 @@ function qp_start_session() {
 }
 add_action('init', 'qp_start_session', 1);
 
+function get_product_prices() {
+    $json_path = plugin_dir_path(__FILE__) . 'data/products.json';
+    if (file_exists($json_path)) {
+        $json_data = file_get_contents($json_path);
+        return json_decode($json_data, true);
+    }
+    return [];
+}
+
+function calculate_price($product_id, $protocol_length, $payment_plan, $dosage) {
+    $products = get_product_prices();
+    $protocol_discounts = [
+        'month-to-month' => -50,
+        '90-day' => 0,
+        '180-day' => 25,
+        '360-day' => 50,
+    ];
+    $protocol_months = [
+        'month-to-month' => 1,
+        '90-day' => 3,
+        '180-day' => 6,
+        '360-day' => 12,
+    ];
+
+    if (!isset($products[$product_id])) return 0;
+
+    $product = $products[$product_id];
+    $dosage_data = $product['dosage'][$dosage] ?? $product['dosage']['default'];
+
+    $price = $dosage_data['price'];
+    $coupon_discount = $dosage_data['coupon_discount'];
+    $coupon_price = $dosage_data['coupon_price'];
+    $followup_price = $dosage_data['followup_price'];
+    $coupon_type = ($coupon_discount > 0) ? (($coupon_price == $followup_price) ? 'lifetime' : 'one-time') : null;
+
+    $protocol_discount = $protocol_discounts[$protocol_length] ?? 0;
+    $months = $protocol_months[$protocol_length] ?? 1;
+
+    if ($payment_plan == 'upfront' && $protocol_length != 'month-to-month') {
+        $upfront_discount = 0.1;
+        $price_today = (($price - $protocol_discount - ($coupon_type == 'lifetime' ? $coupon_discount : 0)) * $months) * (1 - $upfront_discount) - ($coupon_type == 'one-time' ? $coupon_discount : 0);
+    } else {
+        $price_today = $coupon_price - $protocol_discount;
+    }
+
+    return $price_today;
+}
+
 function qp_handle_form_submission() {
     if (!isset($_POST['page_slug'])) {
         return;
     }
 
     $page_slug = sanitize_text_field($_POST['page_slug']);
+
+    if ($page_slug === 'select') {
+        $product_id = sanitize_text_field($_POST['product'] ?? '1');
+        $protocol_length = sanitize_text_field($_POST['protocol_length'] ?? '90-day');
+        $payment_plan = sanitize_text_field($_POST['payment_plan'] ?? 'monthly');
+        $dosage = sanitize_text_field($_POST['dosage'] ?? 'default');
+
+        $price = calculate_price($product_id, $protocol_length, $payment_plan, $dosage);
+        $_SESSION['WeightLossAdvocates_data']['price'] = $price;
+    }
+
+    if ($page_slug === 'questionnaire-14' && isset($_POST['intake_goal_weight'])) {
+        $_SESSION['WeightLossAdvocates_data']['intake_goal_weight'] = sanitize_text_field($_POST['intake_goal_weight']);
+    }
+
+    // Calculate and store BMI when height and weight are submitted from questionnaire-6
+    if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
+        $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
+        $weight_lbs = (int)$_POST['intake_weight'];
+        if ($height_in > 0) {
+            $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
+            $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
+        }
+    }
 
     // Handle patient creation from shipping page
     if ($page_slug === 'shipping' && isset($_POST['password']) && isset($_SESSION['WeightLossAdvocates_data']['shipping_email'])) {
@@ -271,25 +351,7 @@ function qp_get_next_page($current_slug, $data) {
         }
     }
 
-    // Page progression logic
-    if (strpos($current_slug, 'questionnaire-') === 0) {
-        $page_part = str_replace('questionnaire-', '', $current_slug);
-        if (is_numeric($page_part)) {
-            $page_number = (int) $page_part;
-
-            if ($page_number == 5) {
-                return 'questionnaire-5b';
-            }
-
-            if ($page_number > 0) {
-                if ($page_number == 14) {
-                    return 'calculating';
-                }
-                return 'questionnaire-' . ($page_number + 1);
-            }
-        }
-    }
-
+    // Page progression logic (specific cases first)
     switch ($current_slug) {
         case 'questionnaire-5b':
             if (isset($data['intake_current_wl_prescription']) && $data['intake_current_wl_prescription'] === 'yes') {
@@ -308,16 +370,38 @@ function qp_get_next_page($current_slug, $data) {
         case 'results':
             return 'register';
         case 'register':
-            return 'select'; // New flow
+            return 'select';
         case 'select':
-            return 'shipping'; // New flow
+            return 'shipping';
         case 'shipping':
-            return 'checkout'; // New flow
+            return 'checkout';
         case 'checkout':
             return 'thank-you';
         default:
-            return 'WeightLossAdvocates-1';
+            break;
     }
+
+    // Generic numeric progression
+    if (strpos($current_slug, 'questionnaire-') === 0) {
+        $page_part = str_replace('questionnaire-', '', $current_slug);
+        if (is_numeric($page_part)) {
+            $page_number = (int) $page_part;
+
+            if ($page_number == 5) {
+                return 'questionnaire-5b';
+            }
+
+            if ($page_number > 0) {
+                if ($page_number == 14) {
+                    return 'calculating';
+                }
+                return 'questionnaire-' . ($page_number + 1);
+            }
+        }
+    }
+
+    // Fallback
+    return 'questionnaire-1';
 }
 
 function qp_handle_checkout_submission() {
@@ -352,7 +436,7 @@ function qp_handle_checkout_submission() {
             'dosage' => isset($data['dosage']) ? sanitize_text_field($data['dosage']) : '',
             'payment_plan' => isset($data['payment_plan']) ? sanitize_text_field($data['payment_plan']) : '',
             'protocol_length' => isset($data['protocol_length']) ? sanitize_text_field($data['protocol_length']) : '',
-            'price'      => '297.00', // Placeholder for now
+            'price'      => isset($data['price']) ? sanitize_text_field($data['price']) : '297.00',
             'status'     => 'Completed',
             'bmi'        => isset($data['intake_bmi']) ? sanitize_text_field($data['intake_bmi']) : 0,
             'full_data'  => serialize($data),
@@ -461,25 +545,11 @@ function qp_orders_page_html() {
 }
 
 function qp_exclude_pages_from_nav($items, $args) {
-    $excluded_pages = [];
-    $all_pages = get_posts([
-        'post_type' => 'page',
-        'post_status' => 'publish',
-        'posts_per_page' => -1,
-    ]);
-
-    foreach ($all_pages as $page) {
-        if (has_shortcode($page->post_content, 'WeightLossAdvocates_page')) {
-            $excluded_pages[] = $page->ID;
-        }
-    }
-
     foreach ($items as $key => $item) {
-        if ($item->type == 'post_type' && in_array($item->object_id, $excluded_pages)) {
+        if ($item->type == 'post_type' && get_post_meta($item->object_id, '_qp_page', true)) {
             unset($items[$key]);
         }
     }
-
     return $items;
 }
 add_filter('wp_nav_menu_objects', 'qp_exclude_pages_from_nav', 10, 2);
