@@ -121,6 +121,19 @@ function qp_template_redirect() {
                 $template_file = str_replace('.html', '.php', sanitize_file_name($shortcode_attrs['template']));
                 $template_path = plugin_dir_path(__FILE__) . 'templates/' . $template_file;
 
+                // Get page slug from the template file name
+                $page_slug = basename($template_file, '.php');
+
+                // Calculate and store BMI when height and weight are submitted from questionnaire-6
+                if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
+                    $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
+                    $weight_lbs = (int)$_POST['intake_weight'];
+                    if ($height_in > 0) {
+                        $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
+                        $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
+                    }
+                }
+
                 if (file_exists($template_path)) {
                     // Make session data available to the template
                     if (isset($_SESSION['WeightLossAdvocates_data'])) {
@@ -138,9 +151,9 @@ function qp_template_redirect() {
                     preg_match_all('/href="([^"]*?\.php|[^"]*?\.html)"/', $output, $link_matches);
                     if (!empty($link_matches[1])) {
                         foreach (array_unique($link_matches[1]) as $match) {
-                            $page_slug = basename($match, '.php');
-                            $page_slug = basename($page_slug, '.html');
-                            $page = get_page_by_path($page_slug);
+                            $link_page_slug = basename($match, '.php');
+                            $link_page_slug = basename($link_page_slug, '.html');
+                            $page = get_page_by_path($link_page_slug);
                             if ($page) {
                                 $permalink = get_permalink($page->ID);
                                 // Use a more specific replacement to avoid breaking other URLs
@@ -156,16 +169,6 @@ function qp_template_redirect() {
                     exit();
                 }
             }
-        }
-    }
-
-    // Calculate and store BMI when height and weight are submitted from questionnaire-6
-    if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
-        $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
-        $weight_lbs = (int)$_POST['intake_weight'];
-        if ($height_in > 0) {
-            $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
-            $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
         }
     }
 }
