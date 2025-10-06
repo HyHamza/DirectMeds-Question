@@ -4,7 +4,7 @@ jQuery(document).ready(function($) {
         return;
     }
 
-    const questionnaireId = container.data('questionnaire-id');
+    const WeightLossAdvocatesId = container.data('WeightLossAdvocates-id');
     const firstQuestionId = container.data('first-question-id');
     let questionNumber = 0;
 
@@ -16,7 +16,7 @@ jQuery(document).ready(function($) {
                 <div class="card step">
                     <div class="card-body text-center">
                         <h1>Thank you!</h1>
-                        <p>You have completed the questionnaire.</p>
+                        <p>You have completed the WeightLossAdvocates.</p>
                     </div>
                 </div>
             `);
@@ -24,7 +24,7 @@ jQuery(document).ready(function($) {
         }
 
         $.ajax({
-            url: questionnaire_ajax.ajax_url,
+            url: WeightLossAdvocates_ajax.ajax_url,
             type: 'POST',
             data: {
                 action: 'get_question_data',
@@ -96,7 +96,7 @@ jQuery(document).ready(function($) {
         // Add a small delay to allow the user to see their selection
         setTimeout(function() {
             $.ajax({
-                url: questionnaire_ajax.ajax_url,
+                url: WeightLossAdvocates_ajax.ajax_url,
                 type: 'POST',
                 data: {
                     action: 'handle_answer_submission',

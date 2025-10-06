@@ -25,21 +25,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e34272b103b3906cc0f8ca67c61952']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -178,7 +178,7 @@
     have the best experience that you can with our website.<br>This website can help you: <a
             href="http://browsehappy.com/">browsehappy.com</a></p><![endif]--><nav class="navbar navbar-expand-lg bg-body-tertiary ">
     <div class="container justify-content-center">
-        <img src="../assets/img_from_site/logo-dk.png" alt="Direct Meds" class="img-fluid">
+        <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" class="img-fluid">
     </div>
 </nav>
 <section class="container-fluid offsetbg">
@@ -191,7 +191,7 @@
                     </div>
                 </section><section class="container-fluid offsetbg">
     <form method="post" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" class="container">
-        <input type="hidden" name="action" value="questionnaire_submit">
+        <input type="hidden" name="action" value="WeightLossAdvocates_submit">
         <input type="hidden" name="page_slug" value="select">
         <div class="row">
             <div class="col-md-6">
@@ -284,7 +284,7 @@
                                         value="360-day"
                                         data-discount="50"
                                         data-months="12"
-                                        data-benefit="The best way to maximize savings and achieve the most significant weight loss results with Direct Meds. This plan requires a 12-month commitment but allows monthly payments. Your doctor will adjust your dosage for optimal results."
+                                        data-benefit="The best way to maximize savings and achieve the most significant weight loss results with Weight Loss Advocates. This plan requires a 12-month commitment but allows monthly payments. Your doctor will adjust your dosage for optimal results."
                                         data-labels="green:Max Savings, orange:Best Results, gray:1-Year Commitment"
                                         selected>360-Day Supply Billed Monthly (-$50/mo)</option>                            </select>
                             <div class="benefit-labels" id="benefitLabels"></div>
@@ -433,7 +433,7 @@
                                 <strong>4.8</strong> <i class="bi bi-star-fill"></i><i
                                     class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                                     class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><br>
-                                <span style="font-size:12px;">Customers rate Direct Meds 5 Stars for all-inclusive pricing, speed of delivery & product effectiveness.</span>
+                                <span style="font-size:12px;">Customers rate Weight Loss Advocates 5 Stars for all-inclusive pricing, speed of delivery & product effectiveness.</span>
                                 <br><br>
                             </div>
                         </center>
@@ -446,16 +446,16 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                <img src="../assets/img_from_site/q1.jpg" alt="User Avatar" class="faq-avatar me-2"> How does Direct Meds work?
+                                <img src="../assets/img_from_site/q1.jpg" alt="User Avatar" class="faq-avatar me-2"> How does Weight Loss Advocates work?
                             </button>
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#faqs">
                             <div class="accordion-body"> <img src="../assets/img_from_site/a1.jpg?v=2" alt="User Avatar" class="faq-avatar me-3 mt-1">
                                     <div class="accordion-body d-flex align-items-start">
                                         <div>
-                                <p>Direct Meds allows you to get prescription weight loss medications such as semaglutide &amp; tirzepatide from the comfort of your home. Your pricing is one simple monthly price and includes medication, supplies, doctor review and shipping. Once you've selected and paid for the first month of your chosen medication, you will need to complete an intake form for the doctor to review and approve your prescription. Once your doctor approves your prescription, our pharmacies will ship out your medication within 2 business days.</p>
+                                <p>Weight Loss Advocates allows you to get prescription weight loss medications such as semaglutide &amp; tirzepatide from the comfort of your home. Your pricing is one simple monthly price and includes medication, supplies, doctor review and shipping. Once you've selected and paid for the first month of your chosen medication, you will need to complete an intake form for the doctor to review and approve your prescription. Once your doctor approves your prescription, our pharmacies will ship out your medication within 2 business days.</p>
                                 <p>
-                                When you run out of your medication, you simply let your doctor know in your Direct Meds Patient Portal and your Doctor will review your dosage, adjust it if needed, and write you a new prescription that gets delivered next day via UPS or FedEx.
+                                When you run out of your medication, you simply let your doctor know in your Weight Loss Advocates Patient Portal and your Doctor will review your dosage, adjust it if needed, and write you a new prescription that gets delivered next day via UPS or FedEx.
                                 </p>
 
                                 <p>*If for any reason your prescription is not approved, you will receive a full refund.</p>
@@ -475,12 +475,12 @@
                                     <div class="accordion-body d-flex align-items-start">
 
                                         <div>
-                                <p>Direct Meds has taken numerous steps to ensure compliance and safety for our patients.</p>
+                                <p>Weight Loss Advocates has taken numerous steps to ensure compliance and safety for our patients.</p>
                                 <ol>
                                     <li>All <u>doctors</u> have been properly vetted to ensure they’re licensed to prescribe GLP-1 medications in your state.</li>
                                     <li><u>Pharmacies</u> are US based 503A compounding pharmacies that are fully licensed and insured.</li>
-                                    <li>Direct Meds has its own <u>medical director</u> who is a practicing physician and has reviewed our doctor and pharmacy network to ensure your safety.</li>
-                                    <li>Direct Meds maintains <u>LegitScript certification</u> which is the telemedicine industry's most recognized compliance authority.  They have independently verified Direct Meds pharmacies, doctors network and software providers to ensure safety and privacy protection.</li>
+                                    <li>Weight Loss Advocates has its own <u>medical director</u> who is a practicing physician and has reviewed our doctor and pharmacy network to ensure your safety.</li>
+                                    <li>Weight Loss Advocates maintains <u>LegitScript certification</u> which is the telemedicine industry's most recognized compliance authority.  They have independently verified Weight Loss Advocates pharmacies, doctors network and software providers to ensure safety and privacy protection.</li>
                                 </ol>
                                 </div></div>
                             </div>
@@ -499,7 +499,7 @@
                                 <ol>
 
                                     <li>Pay for the first month of your prescription.*</li>
-                                    <li>Complete medical intake form by logging into your direct meds patient portal.</li>
+                                    <li>Complete medical intake form by logging into your Weight Loss Advocates patient portal.</li>
                                     <li>Your doctor is expected to review your chart and selected medication within 24 hrs and often less than 5 hrs.</li>
                                     <li>After a thorough medical evaluation, your provider will determine whether a prescription is appropriate.</li>
                                     <li>If your prescription is approved, our pharmacy will ship your medication using 1-day FedEx or UPS.</li>
@@ -519,7 +519,7 @@
                             <div class="accordion-body"> <img src="../assets/img_from_site/a1.jpg?v=2" alt="User Avatar" class="faq-avatar me-3 mt-1">
                                     <div class="accordion-body d-flex align-items-start">
                                         <div>
-                                <p>Direct Meds currently provides services to all US States EXCEPT Mississippi and Louisiana where prescription of weight loss medications via telehealth is prohibited.</p>
+                                <p>Weight Loss Advocates currently provides services to all US States EXCEPT Mississippi and Louisiana where prescription of weight loss medications via telehealth is prohibited.</p>
                                             </div></div>
                             </div>
                         </div>
@@ -535,7 +535,7 @@
                             <div class="accordion-body"> <img src="../assets/img_from_site/a1.jpg?v=2" alt="User Avatar" class="faq-avatar me-3 mt-1">
                                     <div class="accordion-body d-flex align-items-start">
                                         <div>
-                                            <p>With Direct Meds there are no contracts for our month to month pricing. We also offer subscribe and save discounts where customers will agree to a subscription length for stated monthly discount. Month to month customers can cancel their shipment anytime by sending an email to <a href="/cdn-cgi/l/email-protection#4b232e273b0b2f22392e283f262e2f3865282426"><span class="__cf_email__" data-cfemail="7e161b120e3e1a170c1b1d0a131b1a0d501d1113">[email&#160;protected]</span></a> or call us at <a href="tel:888-696-7176">888-696-7176</a>. We want to make sure that our customers love the results of our treatment plans so we offer a patient satisfaction guarantee. If you are unhappy with your results, let us know and we’ll make it right.</p>
+                                            <p>With Weight Loss Advocates there are no contracts for our month to month pricing. We also offer subscribe and save discounts where customers will agree to a subscription length for stated monthly discount. Month to month customers can cancel their shipment anytime by sending an email to <a href="/cdn-cgi/l/email-protection#4b232e273b0b2f22392e283f262e2f3865282426"><span class="__cf_email__" data-cfemail="7e161b120e3e1a170c1b1d0a131b1a0d501d1113">[email&#160;protected]</span></a> or call us at <a href="tel:888-696-7176">888-696-7176</a>. We want to make sure that our customers love the results of our treatment plans so we offer a patient satisfaction guarantee. If you are unhappy with your results, let us know and we’ll make it right.</p>
                             </div></div>
                             </div>
                         </div>
@@ -553,11 +553,11 @@
                                 <p>Yes, both of our GLP-1 weight loss medications are real prescription medications that are prescribed by a doctor and compounded by a real US based pharmacy. We offer only the best Semaglutide and Tirzepatide medications for weightloss management for customers that meet the qualifications required for GLP-1 medications. These are the same medications that people are talking about and getting real results with all over social media.</p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p>Direct Meds Semaglutide Purity Analysis</p>
+                                        <p>Weight Loss Advocates Semaglutide Purity Analysis</p>
                                         <img src="../assets/img_from_site/sema-cofa001.jpg" class="img-fluid"><br><br>
                                     </div>
                                     <div class="col-md-6">
-                                        <p>Direct Meds Tirzepatide Purity Analysis</p>
+                                        <p>Weight Loss Advocates Tirzepatide Purity Analysis</p>
                                         <img src="../assets/img_from_site/tirze-cofa001.jpg" class="img-fluid"><br><br>
                                     </div>
                                     </div></div>
@@ -625,7 +625,7 @@
                                                     +1 (877) 989-6128
                                                 </address>
 
-                                                <p>Direct Meds does not provide services to individuals residing in
+                                                <p>Weight Loss Advocates does not provide services to individuals residing in
                                                     Mississippi & Louisiana, where prescription of weight loss
                                                     medications via telehealth is prohibited.</p>
                                                                                     </div>
@@ -700,7 +700,7 @@
                           <div class="accordion-body"> <img src="../assets/img_from_site/a1.jpg?v=2" alt="User Avatar" class="faq-avatar me-3 mt-1">
                                   <div class="accordion-body d-flex align-items-start">
                                       <div>
-                              <p>You can reach our friendly support team by emailing <a href="/cdn-cgi/l/email-protection#375f525b4777535e455254435a5253441954585a"><span class="__cf_email__" data-cfemail="59313c3529193d302b3c3a2d343c3d2a773a3634">[email&#160;protected]</span></a> or calling us at <a href="tel:8886967176">(888) 696-7176</a>. For faster service, visit our <a href="https://directmeds.com/patient-services/" target="_blank">Patient Services</a> page to submit a message, request a refill, or check order status. We're here to help! </p>
+                              <p>You can reach our friendly support team by emailing <a href="/cdn-cgi/l/email-protection#375f525b4777535e455254435a5253441954585a"><span class="__cf_email__" data-cfemail="59313c3529193d302b3c3a2d343c3d2a773a3634">[email&#160;protected]</span></a> or calling us at <a href="tel:8886967176">(888) 696-7176</a>. For faster service, visit our <a href="https://theweightlossadvocates.com/patient-services/" target="_blank">Patient Services</a> page to submit a message, request a refill, or check order status. We're here to help! </p>
                                           </div></div>
                           </div>
                       </div>
@@ -842,7 +842,7 @@
     </div>
 </div>
 
-<div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="https://static.legitscript.com/seals/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=theweightlossadvocates.com" target="_blank" title="Verify LegitScript Approval for www.theweightlossadvocates.com"><img src="https://static.legitscript.com/seals/183773.png" alt="Verify Approval for www.theweightlossadvocates.com" width="73" height="79" /></a></div><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const intervalId = setInterval(() => {
         const el = document.querySelector('a[href^="https://www.legitscript.com"]');
         if (el) {
@@ -925,7 +925,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -946,7 +946,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;

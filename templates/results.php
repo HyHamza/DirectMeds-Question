@@ -24,21 +24,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e274b7b12a4c705a1b37d9825d2b7f']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -123,7 +123,7 @@
 <!-- End Google Tag Manager (noscript) --><form>
     <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
-            <img src="../assets/images/logo-dk.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/images/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
         </div>
     </nav>
     <section class="container intersticial">
@@ -133,7 +133,7 @@
                 <div class="spacer">&nbsp;</div>
                 <div class="spacer">&nbsp;</div>
                 <center><h1>CONGRATULATIONS!</h1></center>
-                <center><h3 style="font-weight:300;color:#c8cdfa;">Welcome to the Direct Meds GLP-1 Weight Loss Prescription
+                <center><h3 style="font-weight:300;color:#c8cdfa;">Welcome to the Weight Loss Advocates GLP-1 Weight Loss Prescription
                         plan!</h3></center>
                 <br>
                 <p class="text-center">Your authorization is reserved for: <span id="timer" class="textalt">10:00</span></p>
@@ -216,7 +216,7 @@
                                 </div>
 
                                 <div><h1><span style="color:#51B3FA">3.</span> <span style="font-size:21px;font-family:'Poppins', sans-serif;font-weight:bold;">Complete The Medical Intake:</span></h1>
-                                    <p style="font-weight:300 !important;">Once your payment is made, you will be directed to your Direct Meds patient portal and complete a few medical questions for the doctor.
+                                    <p style="font-weight:300 !important;">Once your payment is made, you will be directed to your Weight Loss Advocates patient portal and complete a few medical questions for the doctor.
                                     </p>
 
                                 </div>
@@ -273,7 +273,7 @@
                                         <strong>4.8</strong> <i class="bi bi-star-fill"></i><i
                                                 class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                                                 class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><br>
-                                         <span style="font-size:12px;color:#b8f0fa;">Customers rate Direct Meds 5 Stars for all-inclusive pricing, speed of delivery & product effectiveness.</span>
+                                         <span style="font-size:12px;color:#b8f0fa;">Customers rate Weight Loss Advocates 5 Stars for all-inclusive pricing, speed of delivery & product effectiveness.</span>
                                         <br><br>
                                     </div>
                                 </center>
@@ -726,7 +726,7 @@
                         <div class="col terms">
                             <!--<div class="row">
                                 <div class="col">
-                                    <div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://directmeds.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Direct Meds, LLC</center></div><br><br><br>                                    <br><br></div>
+                                    <div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br>                                    <br><br></div>
                             </div>-->
                             <p> *Results vary based on starting weight and program adherence. Inches lost from hips,
                                 waist, chest, thighs and arms in the first month.</p>
@@ -741,7 +741,7 @@
                                 *Based on the average weight loss in three 68-week clinical trials of patients without
                                 diabetes who reached and maintained a dose of 2.4 mg/week of treatment, along with a
                                 reduced-calorie diet and increased physical activity. See details.
-                                Medication is included in the cost of the Direct Meds Program.
+                                Medication is included in the cost of the Weight Loss Advocates Program.
                                 The trademarks, service
                                 marks, trade names (Wegovy® ,Ozempic®), and products displayed on this Internet site are
                                 protected and belong to their respetive owners.</p>
@@ -878,7 +878,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -899,7 +899,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;

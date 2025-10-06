@@ -24,21 +24,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e274b7ee2e5bcdeb1562cdb792b38d']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -161,11 +161,11 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) --><form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post">
-    <input type="hidden" name="action" value="questionnaire_submit">
+    <input type="hidden" name="action" value="WeightLossAdvocates_submit">
     <input type="hidden" name="page_slug" value="register">
     <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
-            <img src="../assets/images/logo-dk.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/images/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
         </div>
     </nav>
     <section class="container questions-stage">
@@ -253,7 +253,7 @@
                             <div class="spacer">&nbsp;</div>
                             <div class="col-12">
                                 <input type="checkbox" name="acknowledge_hipaa"
-                                       value="yes"  style="position:static;opacity:1"> By checking this box, I understand that my information is protected by HIPAA and I agree to the <a href="./terms.php">terms</a> and <a href="./privacy.php">privacy policies</a> and to be contacted as necessary by Direct Meds regarding customer care support. To opt-out, reply STOP. For support, reply HELP. Message frequency varies. Message and data rates may apply.
+                                       value="yes"  style="position:static;opacity:1"> By checking this box, I understand that my information is protected by HIPAA and I agree to the <a href="./terms.php">terms</a> and <a href="./privacy.php">privacy policies</a> and to be contacted as necessary by Weight Loss Advocates regarding customer care support. To opt-out, reply STOP. For support, reply HELP. Message frequency varies. Message and data rates may apply.
                             </div>
 
                             <div class="spacer">&nbsp;</div>
@@ -271,7 +271,7 @@
             </div>
         </div>
     </section>
-    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="../assets/images/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><script>
+    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=theweightlossadvocates.com" target="_blank" title="Verify LegitScript Approval for www.theweightlossadvocates.com"><img src="../assets/images/183773.png" alt="Verify Approval for www.theweightlossadvocates.com" width="73" height="79" /></a></div><script>
     const intervalId = setInterval(() => {
         const el = document.querySelector('a[href^="https://www.legitscript.com"]');
         if (el) {
@@ -281,7 +281,7 @@
     }, 100);
 </script>
 </form>
-<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://directmeds.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Direct Meds, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js/jquery-1.12.1.min.js"></script>
+<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js/jquery-1.12.1.min.js"></script>
 <script>
 </script>
 <script src="../assets/js/bootstrap.bundle.min.js"
@@ -360,7 +360,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -381,7 +381,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;

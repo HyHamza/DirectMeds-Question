@@ -24,21 +24,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e274b6401e423fda008c6769f03318']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -53,7 +53,7 @@
             'customer_id': 'cid-68e274b6401e423fda008c6769f03318',
             'last_touch_channel': '',
             'offer_slug': 'dm-offers',
-            'page': 'questionnaire-9'
+            'page': 'WeightLossAdvocates-9'
         });
         </script>
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -120,13 +120,13 @@
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) --><form id="questionnaireForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
-    <input type="hidden" name="action" value="questionnaire_submit">
-    <input type="hidden" name="page_slug" value="questionnaire-9">
-    <input type="hidden" name="external_customer_id" value="cid-68e274b6401e423fda008c6769f03318"><input type="hidden" name="domain" value="directmeds.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671478">    <input type="hidden" name="csrf_token" value="c6803672ca0b2498561373c2198737ee23a40528f6f8a401d19912a0f3745254dbd070f6ad" />
+<!-- End Google Tag Manager (noscript) --><form id="WeightLossAdvocatesForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
+    <input type="hidden" name="action" value="WeightLossAdvocates_submit">
+    <input type="hidden" name="page_slug" value="WeightLossAdvocates-9">
+    <input type="hidden" name="external_customer_id" value="cid-68e274b6401e423fda008c6769f03318"><input type="hidden" name="domain" value="theweightlossadvocates.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671478">    <input type="hidden" name="csrf_token" value="c6803672ca0b2498561373c2198737ee23a40528f6f8a401d19912a0f3745254dbd070f6ad" />
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
-            <img src="../assets/images/logo-dk.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/images/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
         </div>
     </nav>
     <section class="container questions-stage">
@@ -245,7 +245,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -266,7 +266,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;
@@ -284,7 +284,7 @@ function etSubmit(data) {
         'external_customer_id': 'cid-68e274b6401e423fda008c6769f03318',
         'source_id': '',
         'everflow_uid': '',
-        'page': 'questionnaire-9',
+        'page': 'WeightLossAdvocates-9',
         'ip_address': '34.46.237.233',
         'user_agent': 'curl/8.5.0',
         'noise': noise,
@@ -431,13 +431,13 @@ function etSubmit(data) {
     }
 </script>
 <script>
-    const questionnaireForm = document.getElementById("questionnaireForm");
+    const WeightLossAdvocatesForm = document.getElementById("WeightLossAdvocatesForm");
     const progressBar = document.querySelector(".progress-bar");
 
     function nextStep() {
         let passed = validateStep();
         if (passed) {
-            document.getElementById('questionnaireForm').submit();
+            document.getElementById('WeightLossAdvocatesForm').submit();
         }
     }
 
@@ -514,7 +514,7 @@ function etSubmit(data) {
         }
     }, 100); // Checks every 100ms
 </script>
-<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://directmeds.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Direct Meds, LLC</center></div><br><br><br><script>
+<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br><script>
     /*! lozad.js - v1.5.0 - 2018-07-16 https://github.com/ApoorvSaxena/lozad.js Apoorv Saxena; Licensed MIT */
     !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):t.lozad=e()}(this,function(){"use strict";function t(t){t.setAttribute("data-loaded",!0)}var e=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var r=arguments[e];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(t[n]=r[n])}return t},r=document.documentMode,n={rootMargin:"0px",threshold:0,load:function(t){if("picture"===t.nodeName.toLowerCase()){var e=document.createElement("img");r&&t.getAttribute("data-iesrc")&&(e.src=t.getAttribute("data-iesrc")),t.getAttribute("data-alt")&&(e.alt=t.getAttribute("data-alt")),t.appendChild(e)}t.getAttribute("data-src")&&(t.src=t.getAttribute("data-src")),t.getAttribute("data-srcset")&&(t.srcset=t.getAttribute("data-srcset")),t.getAttribute("data-background-image")&&(t.style.backgroundImage="url('"+t.getAttribute("data-background-image")+"')")},loaded:function(){}},o=function(t){return"true"===t.getAttribute("data-loaded")};return function(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:".lozad",a=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=e({},n,a),d=i.rootMargin,u=i.threshold,c=i.load,s=i.loaded,g=void 0;return window.IntersectionObserver&&(g=new IntersectionObserver(function(e,r){return function(n,a){n.forEach(function(n){n.intersectionRatio>0&&(a.unobserve(n.target),o(n.target)||(e(n.target),t(n.target),r(n.target)))})}}(c,s),{rootMargin:d,threshold:u})),{observe:function(){for(var e=function(t){return t instanceof Element?[t]:t instanceof NodeList?t:document.querySelectorAll(t)}(r),n=0;n<e.length;n++)o(e[n])||(g?g.observe(e[n]):(c(e[n]),t(e[n]),s(e[n])))},triggerLoad:function(e){o(e)||(c(e),t(e),s(e))}}}});
 </script>

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Questionnaire Plugin
- * Description: A plugin to create and manage questionnaires with conditional logic.
+ * Plugin Name: WeightLossAdvocates Plugin
+ * Description: A custom plugin specially made for WeightLossAdvocates site.
  * Version: 1.0
- * Author: Jules
+ * Author: Hamza
  */
 
 if (!defined('ABSPATH')) {
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 
 function qp_activate() {
     // Function to create pages
-    qp_create_questionnaire_pages();
+    qp_create_WeightLossAdvocates_pages();
     // Function to create database table
     qp_create_orders_table();
     // Function to create patient table
@@ -22,7 +22,7 @@ register_activation_hook(__FILE__, 'qp_activate');
 
 function qp_create_patient_table() {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'questionnaire_patients';
+    $table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE $table_name (
@@ -39,7 +39,7 @@ function qp_create_patient_table() {
 
 function qp_create_orders_table() {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'questionnaire_orders';
+    $table_name = $wpdb->prefix . 'WeightLossAdvocates_orders';
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE $table_name (
@@ -69,7 +69,7 @@ function qp_create_orders_table() {
     dbDelta($sql);
 }
 
-function qp_create_questionnaire_pages() {
+function qp_create_WeightLossAdvocates_pages() {
     $template_dir = plugin_dir_path(__FILE__) . 'templates/';
     $files = glob($template_dir . '*.php');
 
@@ -78,13 +78,13 @@ function qp_create_questionnaire_pages() {
         $page_title = ucfirst(str_replace('-', ' ', $page_slug));
 
         // Skip creating pages for templates that are not part of the main flow
-        if (in_array($page_slug, ['questionnaire-15', 'questionnaire-page-template'])) {
+        if (in_array($page_slug, ['WeightLossAdvocates-15', 'WeightLossAdvocates-page-template'])) {
             continue;
         }
 
         // Check if page already exists
         if (get_page_by_path($page_slug) === null) {
-            $page_content = '[questionnaire_page template="' . basename($file) . '"]';
+            $page_content = '[WeightLossAdvocates_page template="' . basename($file) . '"]';
 
             $page_data = array(
                 'post_title'    => $page_title,
@@ -100,20 +100,20 @@ function qp_create_questionnaire_pages() {
     }
 }
 
-function qp_render_questionnaire_page($atts) {
+function qp_render_WeightLossAdvocates_page($atts) {
     // This shortcode now only acts as a marker for the template_redirect hook.
     // The actual rendering is handled by qp_template_redirect().
     return '';
 }
-add_shortcode('questionnaire_page', 'qp_render_questionnaire_page');
+add_shortcode('WeightLossAdvocates_page', 'qp_render_WeightLossAdvocates_page');
 
 function qp_template_redirect() {
-    if (is_singular('page') && has_shortcode(get_post()->post_content, 'questionnaire_page')) {
+    if (is_singular('page') && has_shortcode(get_post()->post_content, 'WeightLossAdvocates_page')) {
         $post = get_post();
         $content = $post->post_content;
 
         // Extract the template file from the shortcode
-        $pattern = get_shortcode_regex(['questionnaire_page']);
+        $pattern = get_shortcode_regex(['WeightLossAdvocates_page']);
         if (preg_match('/' . $pattern . '/s', $content, $matches) && isset($matches[3])) {
             $shortcode_attrs = shortcode_parse_atts($matches[3]);
             if (isset($shortcode_attrs['template'])) {
@@ -123,8 +123,8 @@ function qp_template_redirect() {
 
                 if (file_exists($template_path)) {
                     // Make session data available to the template
-                    if (isset($_SESSION['questionnaire_data'])) {
-                        extract($_SESSION['questionnaire_data']);
+                    if (isset($_SESSION['WeightLossAdvocates_data'])) {
+                        extract($_SESSION['WeightLossAdvocates_data']);
                     }
 
                     ob_start();
@@ -176,10 +176,10 @@ function qp_handle_form_submission() {
     $page_slug = sanitize_text_field($_POST['page_slug']);
 
     // Handle patient creation from shipping page
-    if ($page_slug === 'shipping' && isset($_POST['password']) && isset($_SESSION['questionnaire_data']['shipping_email'])) {
+    if ($page_slug === 'shipping' && isset($_POST['password']) && isset($_SESSION['WeightLossAdvocates_data']['shipping_email'])) {
         global $wpdb;
-        $patient_table_name = $wpdb->prefix . 'questionnaire_patients';
-        $email = sanitize_email($_SESSION['questionnaire_data']['shipping_email']);
+        $patient_table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
+        $email = sanitize_email($_SESSION['WeightLossAdvocates_data']['shipping_email']);
         $password = wp_hash_password(sanitize_text_field($_POST['password']));
 
         // Check if user already exists
@@ -197,22 +197,22 @@ function qp_handle_form_submission() {
         }
     }
 
-    if (!isset($_SESSION['questionnaire_data'])) {
-        $_SESSION['questionnaire_data'] = array();
+    if (!isset($_SESSION['WeightLossAdvocates_data'])) {
+        $_SESSION['WeightLossAdvocates_data'] = array();
     }
 
     // Sanitize all POST data, including arrays
     foreach ($_POST as $key => $value) {
         if ($key !== 'page_slug' && $key !== 'action') {
             if (is_array($value)) {
-                $_SESSION['questionnaire_data'][$key] = array_map('sanitize_text_field', $value);
+                $_SESSION['WeightLossAdvocates_data'][$key] = array_map('sanitize_text_field', $value);
             } else {
-                $_SESSION['questionnaire_data'][$key] = sanitize_text_field($value);
+                $_SESSION['WeightLossAdvocates_data'][$key] = sanitize_text_field($value);
             }
         }
     }
 
-    $next_page_slug = qp_get_next_page($page_slug, $_SESSION['questionnaire_data']);
+    $next_page_slug = qp_get_next_page($page_slug, $_SESSION['WeightLossAdvocates_data']);
     $redirect_url = get_permalink(get_page_by_path($next_page_slug));
 
     if ($redirect_url) {
@@ -224,8 +224,8 @@ function qp_handle_form_submission() {
         exit;
     }
 }
-add_action('admin_post_nopriv_questionnaire_submit', 'qp_handle_form_submission');
-add_action('admin_post_questionnaire_submit', 'qp_handle_form_submission');
+add_action('admin_post_nopriv_WeightLossAdvocates_submit', 'qp_handle_form_submission');
+add_action('admin_post_WeightLossAdvocates_submit', 'qp_handle_form_submission');
 
 function qp_get_next_page($current_slug, $data) {
     // Disqualification logic
@@ -259,12 +259,12 @@ function qp_get_next_page($current_slug, $data) {
     }
 
     // Page progression logic
-    $page_number = (int) str_replace('questionnaire-', '', $current_slug);
+    $page_number = (int) str_replace('WeightLossAdvocates-', '', $current_slug);
     if ($page_number > 0) {
         if ($page_number == 14) {
             return 'calculating';
         }
-        return 'questionnaire-' . ($page_number + 1);
+        return 'WeightLossAdvocates-' . ($page_number + 1);
     }
 
     switch ($current_slug) {
@@ -281,20 +281,20 @@ function qp_get_next_page($current_slug, $data) {
         case 'checkout':
             return 'thank-you';
         default:
-            return 'questionnaire-1';
+            return 'WeightLossAdvocates-1';
     }
 }
 
 function qp_handle_checkout_submission() {
-    if (!isset($_SESSION['questionnaire_data'])) {
+    if (!isset($_SESSION['WeightLossAdvocates_data'])) {
         wp_redirect(home_url());
         exit;
     }
 
     global $wpdb;
-    $order_table_name = $wpdb->prefix . 'questionnaire_orders';
-    $patient_table_name = $wpdb->prefix . 'questionnaire_patients';
-    $data = $_SESSION['questionnaire_data'];
+    $order_table_name = $wpdb->prefix . 'WeightLossAdvocates_orders';
+    $patient_table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
+    $data = $_SESSION['WeightLossAdvocates_data'];
 
     $email = sanitize_email($data['shipping_email']);
     $patient = $wpdb->get_row($wpdb->prepare("SELECT id FROM $patient_table_name WHERE email = %s", $email));
@@ -324,7 +324,7 @@ function qp_handle_checkout_submission() {
         )
     );
 
-    unset($_SESSION['questionnaire_data']);
+    unset($_SESSION['WeightLossAdvocates_data']);
 
     $redirect_url = get_permalink(get_page_by_path('thank-you'));
     if ($redirect_url) {
@@ -337,10 +337,10 @@ add_action('admin_post_checkout_submit', 'qp_handle_checkout_submission');
 
 function qp_admin_menu() {
     add_menu_page(
-        'Questionnaire Orders',
-        'Questionnaire',
+        'WeightLossAdvocates Orders',
+        'WeightLossAdvocates',
         'manage_options',
-        'questionnaire-orders',
+        'WeightLossAdvocates-orders',
         'qp_orders_page_html',
         'dashicons-clipboard',
         20
@@ -350,12 +350,12 @@ add_action('admin_menu', 'qp_admin_menu');
 
 function qp_orders_page_html() {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'questionnaire_orders';
+    $table_name = $wpdb->prefix . 'WeightLossAdvocates_orders';
 
     $orders = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
     ?>
     <div class="wrap">
-        <h1>Questionnaire Orders</h1>
+        <h1>WeightLossAdvocates Orders</h1>
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>

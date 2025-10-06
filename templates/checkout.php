@@ -25,21 +25,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e34489de137c9b2f02b06e51d626a3']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -311,7 +311,7 @@
     <input type="hidden" name="page_slug" value="checkout">
     <nav class="navbar navbar-expand-lg bannerbar">
         <div class="container justify-content-center">
-            <img src="../assets/img_from_site/logo.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/img_from_site/logo.png" alt="Weight Loss Advocates" class="img-fluid">
         </div>
     </nav>
     <div class="container-fluid">
@@ -377,7 +377,7 @@
                     <div class="spacer">&nbsp;</div>
                     <div class="row">
                         <div class="col">
-                            <center>That's it! With Direct meds, our pricing is All-Inclusive and comes with our Customer Weight Loss Satisfaction Guarantee!</center>
+                            <center>That's it! With Weight Loss Advocates, our pricing is All-Inclusive and comes with our Customer Weight Loss Satisfaction Guarantee!</center>
                         </div>
                     </div>
                     <div class="spacer">&nbsp;</div>
@@ -473,7 +473,7 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <input type="checkbox" name="acknowledge_0"
-                                                   value="yes"                                                    required> <span style="font-size:14px;font-weight:normal;">I agree to the <a href="terms.php" target="_blank" style="color:#000;">Terms and Conditions</a>, <a href="terms.php#refunds" target="_blank" style="color:#000;">Refund Policy</a>, <a href="privacy.php" target="_blank" style="color:#000;">Privacy Policy</a>, and I understand and acknowledge the risks and benefits of the prescribed drug. I acknowledge that my prescription will be reviewed by a medical practitioner for final approval before being shipped to me. Charges will appear from Direct-Meds.com.
+                                                   value="yes"                                                    required> <span style="font-size:14px;font-weight:normal;">I agree to the <a href="terms.php" target="_blank" style="color:#000;">Terms and Conditions</a>, <a href="terms.php#refunds" target="_blank" style="color:#000;">Refund Policy</a>, <a href="privacy.php" target="_blank" style="color:#000;">Privacy Policy</a>, and I understand and acknowledge the risks and benefits of the prescribed drug. I acknowledge that my prescription will be reviewed by a medical practitioner for final approval before being shipped to me. Charges will appear from theweightlossadvocates.com.
                                                    <br><br>
                                                    <input type="checkbox" name="acknowledge_1" value="yes" checked required> I confirm that I understand <strong>I will need to upload a valid photo ID</strong> for my doctor to verify my identity and prescribe medication in compliance with federal law.</span>
                                         </div>
@@ -543,7 +543,7 @@
             </div>
         </div>
     </div>
-    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><div class="footer-badge" ><a href="https://cardinsight.com" target="_blank" ><img src="img/ci-badge.png" class="img-fluid d-block mx-auto" style="max-width:150px;margin-top:40px;"></a></div><script>
+    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=theweightlossadvocates.com" target="_blank" title="Verify LegitScript Approval for www.theweightlossadvocates.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.theweightlossadvocates.com" width="73" height="79" /></a></div><div class="footer-badge" ><a href="https://cardinsight.com" target="_blank" ><img src="img/ci-badge.png" class="img-fluid d-block mx-auto" style="max-width:150px;margin-top:40px;"></a></div><script>
     const intervalId = setInterval(() => {
         const el = document.querySelector('a[href^="https://www.legitscript.com"]');
         if (el) {
@@ -675,7 +675,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -696,7 +696,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;

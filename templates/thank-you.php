@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
-            <img src="../assets/images/logo-dk.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/images/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
         </div>
     </nav>
     <section class="container questions-stage">

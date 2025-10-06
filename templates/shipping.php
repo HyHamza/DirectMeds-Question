@@ -23,21 +23,21 @@
     var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.direct-meds.com"]);
-    _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
+    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
+    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
                 _paq.push(['setCustomDimension', 4, 'cid-68e3438ce3de3d970b61d3eb557e9cea']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function() {
-        var u="https://directmeds.matomo.cloud/";
+        var u="https://Weight Loss Advocates.matomo.cloud/";
         _paq.push(['setTrackerUrl', u+'matomo.php']);
         _paq.push(['setSiteId', '1']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/directmeds.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
     })();
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://directmeds.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -160,11 +160,11 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post">
-    <input type="hidden" name="action" value="questionnaire_submit">
+    <input type="hidden" name="action" value="WeightLossAdvocates_submit">
     <input type="hidden" name="page_slug" value="shipping">
     <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
-            <img src="../assets/img_from_site/logo-dk.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" class="img-fluid">
         </div>
     </nav>
     <section class="container questions-stage">
@@ -362,7 +362,7 @@
 </script>                            <div class="spacer">&nbsp;</div>
                             <div class="col">
                                 <input type="checkbox" name="dm_mailing_list" value="yes" style="opacity:1;position:relative;">
-                                                                    I would like to join the Direct Meds mailing list for email updates &amp; special offers.
+                                                                    I would like to join the Weight Loss Advocates mailing list for email updates &amp; special offers.
                                                             </div>
 
                             <div class="spacer">&nbsp;</div>
@@ -380,7 +380,7 @@
             </div>
         </div>
     </section>
-    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><script>
+    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=theweightlossadvocates.com" target="_blank" title="Verify LegitScript Approval for www.theweightlossadvocates.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.theweightlossadvocates.com" width="73" height="79" /></a></div><script>
     const intervalId = setInterval(() => {
         const el = document.querySelector('a[href^="https://www.legitscript.com"]');
         if (el) {
@@ -390,7 +390,7 @@
     }, 100);
 </script>
 </form>
-<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://directmeds.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Direct Meds, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js_from_site/jquery-1.12.1.min.js"></script>
+<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js_from_site/jquery-1.12.1.min.js"></script>
 <script>
 </script>
 <script src="../assets/js_from_site/bootstrap.bundle.min.js"
@@ -469,7 +469,7 @@ const etAllowedKeys = [
     'ip_address',
     'user_agent'
 ];
-const etEndpoint = "https://directmeds.com/api-dm/s";
+const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
 function etSubmit(data) {
     if (typeof data != 'object') {
@@ -490,7 +490,7 @@ function etSubmit(data) {
 </script>
 <script type="text/javascript">
     var sub5Override = null;
-    EF.configure({tld: "direct-meds.com"});
+    EF.configure({tld: "theweightlossadvocates.com"});
     var previousId = EF.getTransactionId();
     var pageEventsFired = false;
     var waitForClick = false;
@@ -642,7 +642,7 @@ function etSubmit(data) {
                         setTimeout(firePageEvents,500,transId);
                     }
                 });
-                etSubmitData['event_key'] = 'questionnaire_started';
+                etSubmitData['event_key'] = 'WeightLossAdvocates_started';
                 etSubmitData['event_type'] = 'everflow_' + (advEventId == null && eventId == null ? 'conversion' : 'event');
                 etSubmitData['everflow_transaction_id'] = efTransactionId ? efTransactionId : (transId ? transId : '');
                 etSubmitData['noise'] = noise;

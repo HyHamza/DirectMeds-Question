@@ -12,5 +12,5 @@ if (!window.location.pathname.includes('/admin') && !window.location.pathname.in
         h.appendChild(c);
     })(document);
     smartlook('init', '02bb1c8e1a611edbf76a7c00349247194ca3eb07', {region: 'eu'});
-    smartlook('cookieDomain', '.direct-meds.com');
+    smartlook('cookieDomain', '.theweightlossadvocates.com');
 }
