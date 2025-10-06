@@ -31,15 +31,9 @@
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
-    (function() {
-        var u="https://Weight Loss Advocates.matomo.cloud/";
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '1']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='https://cdn.matomo.cloud/Weight Loss Advocates.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
-    })();
+    
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://Weight Loss Advocates.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript><!-- Google Tag Manager -->
+ 
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -57,11 +51,7 @@
             'page': 'select'
         });
         </script>
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KQ2ZVDZG');</script>
+          
 <!-- End Google Tag Manager -->
 <script>
     var fbBrowserIdAttempt = 0;
@@ -170,10 +160,7 @@
     </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) --><!--[if lte IE 9]><p class="browsehappy">Hi, we really want to show you our website, but you are using an outdated
+  <!--[if lte IE 9]><p class="browsehappy">Hi, we really want to show you our website, but you are using an outdated
     browser that our website cannot communicate with. Please visit us again after you have upgraded your browser and
     have the best experience that you can with our website.<br>This website can help you: <a
             href="http://browsehappy.com/">browsehappy.com</a></p><![endif]--><nav class="navbar navbar-expand-lg bg-body-tertiary ">
