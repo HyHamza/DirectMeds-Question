@@ -109,7 +109,7 @@
 <body>
   <form id="WeightLossAdvocatesForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
     <input type="hidden" name="action" value="WeightLossAdvocates_submit">
-    <input type="hidden" name="page_slug" value="WeightLossAdvocates-7">
+    <input type="hidden" name="page_slug" value="questionnaire-7">
     <input type="hidden" name="external_customer_id" value="cid-68e274b5ceb6b8c2c17faea7b858ba2e"><input type="hidden" name="domain" value="theweightlossadvocates.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671477">    <input type="hidden" name="csrf_token" value="e8aa572e322fb0302a386d17deda387b35fe7ca6e1e1a4e4628d0e532e811e785153037111" />
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
@@ -124,12 +124,14 @@
         <section class="container intersticial">
             <div class="row">
                 <div class="col-lg-12 col-md-12" style="text-align:center">
-                    <center><h1>So far so good!</h1></center>
+                    <h1>So far so good!</h1>
                     <br>
-                    <div class="col-12 bmi" style="display:inline-block;margin:0 auto;width:auto;"> <center> YOUR BMI:<br> <h1 id="bmiH1"><?php echo isset($intake_bmi) ? esc_html($intake_bmi) : ''; ?></h1></center></div>
+                    <div class="bmi-display" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; display: inline-block;">
+                        <p style="margin: 0; font-size: 1.1em; color: #555;">YOUR BMI:</p>
+                        <h1 id="bmiH1" style="margin: 5px 0; font-size: 3.5em; font-weight: 700;"><?php echo isset($_SESSION['WeightLossAdvocates_data']['intake_bmi']) ? esc_html($_SESSION['WeightLossAdvocates_data']['intake_bmi']) : 'N/A'; ?></h1>
+                    </div>
                     <br><br>
-
-                    <br><br>
+                    <br>
                     <h4 style="font-weight:300;">You look like a great fit for GLP-1 medications! Next, we will need to confirm a few details.</h4>
 
                     <div class="spacer">&nbsp;</div>

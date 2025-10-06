@@ -124,16 +124,6 @@ function qp_template_redirect() {
                 // Get page slug from the template file name
                 $page_slug = basename($template_file, '.php');
 
-                // Calculate and store BMI when height and weight are submitted from questionnaire-6
-                if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
-                    $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
-                    $weight_lbs = (int)$_POST['intake_weight'];
-                    if ($height_in > 0) {
-                        $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
-                        $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
-                    }
-                }
-
                 if (file_exists($template_path)) {
                     // Make session data available to the template
                     if (isset($_SESSION['WeightLossAdvocates_data'])) {
@@ -169,6 +159,16 @@ function qp_template_redirect() {
                     exit();
                 }
             }
+        }
+    }
+
+    // Calculate and store BMI when height and weight are submitted from questionnaire-6
+    if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
+        $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
+        $weight_lbs = (int)$_POST['intake_weight'];
+        if ($height_in > 0) {
+            $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
+            $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
         }
     }
 }
@@ -272,17 +272,19 @@ function qp_get_next_page($current_slug, $data) {
     }
 
     // Page progression logic
-    $page_number = (int) str_replace('WeightLossAdvocates-', '', $current_slug);
+    if (strpos($current_slug, 'questionnaire-') === 0) {
+        $page_number = (int) str_replace('questionnaire-', '', $current_slug);
 
-    if ($page_number == 5) {
-        return 'questionnaire-5b';
-    }
-
-    if ($page_number > 0) {
-        if ($page_number == 14) {
-            return 'calculating';
+        if ($page_number == 5) {
+            return 'questionnaire-5b';
         }
-        return 'WeightLossAdvocates-' . ($page_number + 1);
+
+        if ($page_number > 0) {
+            if ($page_number == 14) {
+                return 'calculating';
+            }
+            return 'questionnaire-' . ($page_number + 1);
+        }
     }
 
     switch ($current_slug) {
@@ -454,3 +456,27 @@ function qp_orders_page_html() {
     </script>
     <?php
 }
+
+function qp_exclude_pages_from_nav($items, $args) {
+    $excluded_pages = [];
+    $all_pages = get_posts([
+        'post_type' => 'page',
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+    ]);
+
+    foreach ($all_pages as $page) {
+        if (has_shortcode($page->post_content, 'WeightLossAdvocates_page')) {
+            $excluded_pages[] = $page->ID;
+        }
+    }
+
+    foreach ($items as $key => $item) {
+        if ($item->type == 'post_type' && in_array($item->object_id, $excluded_pages)) {
+            unset($items[$key]);
+        }
+    }
+
+    return $items;
+}
+add_filter('wp_nav_menu_objects', 'qp_exclude_pages_from_nav', 10, 2);
