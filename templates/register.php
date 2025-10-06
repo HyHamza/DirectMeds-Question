@@ -160,8 +160,9 @@
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) --><form action="" method="post">
-    <input type="hidden" name="external_customer_id" value="cid-68e274b7ee2e5bcdeb1562cdb792b38d"><input type="hidden" name="domain" value="directmeds.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671479">    <input type="hidden" name="csrf_token" value="b70b03ff1ff9bc682a8a2014a450ba147c0c0f295d956fa20c084bbc1434da6f79047cb5a3"/>
+<!-- End Google Tag Manager (noscript) --><form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post">
+    <input type="hidden" name="action" value="questionnaire_submit">
+    <input type="hidden" name="page_slug" value="register">
     <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
             <img src="../assets/images/logo-dk.png" alt="Direct Meds" class="img-fluid">
