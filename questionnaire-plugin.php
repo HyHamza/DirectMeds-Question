@@ -553,3 +553,24 @@ function qp_exclude_pages_from_nav($items, $args) {
     return $items;
 }
 add_filter('wp_nav_menu_objects', 'qp_exclude_pages_from_nav', 10, 2);
+
+function qp_exclude_from_page_list($args) {
+    $qp_pages = get_posts(array(
+        'post_type' => 'page',
+        'meta_key' => '_qp_page',
+        'meta_value' => true,
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+    ));
+
+    if (!empty($qp_pages)) {
+        if (isset($args['exclude'])) {
+            $args['exclude'] = $args['exclude'] . ',' . implode(',', $qp_pages);
+        } else {
+            $args['exclude'] = implode(',', $qp_pages);
+        }
+    }
+
+    return $args;
+}
+add_filter('wp_list_pages_args', 'qp_exclude_from_page_list');
