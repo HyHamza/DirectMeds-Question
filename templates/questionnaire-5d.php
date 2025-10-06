@@ -16,7 +16,7 @@
     <link href="../assets/css/qualify.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bootstrap-icons.min.css">
     <link rel="icon" type="image/png" href="../assets/images/favicon.png">
-    <link rel="stylesheet" type="text/css" href="https://utils.webimghost.com/scripts/css/utils.min.css">
+    <link rel="stylesheet" type="text/css" href="../assets/css/utils.min.css">
     <script type="text/javascript" src="../assets/js/everflow.js"></script>
 <script src="../assets/js/smartlook.js"></script>
 <!-- Matomo -->
@@ -26,13 +26,13 @@
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
     _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
     _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
-                _paq.push(['setCustomDimension', 4, 'cid-68e274b5ceb6b8c2c17faea7b858ba2e']);    _paq.push(["enableCrossDomainLinking"]);
+                _paq.push(['setCustomDimension', 4, 'cid-68e274b56d696bf02637d98ff606c3ce']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
-    
+
 </script>
- 
+
 
         <script>
         window.dataLayer = window.dataLayer || [];
@@ -44,13 +44,13 @@
             'converted': '',
             'ip_address': '34.46.237.233',
             'user_agent': 'curl/8.5.0',
-            'customer_id': 'cid-68e274b5ceb6b8c2c17faea7b858ba2e',
+            'customer_id': 'cid-68e274b56d696bf02637d98ff606c3ce',
             'last_touch_channel': '',
             'offer_slug': 'dm-offers',
-            'page': 'WeightLossAdvocates-7'
+            'page': 'WeightLossAdvocates-5d'
         });
         </script>
-          
+
 <!-- End Google Tag Manager -->
 <script>
     var fbBrowserIdAttempt = 0;
@@ -109,8 +109,12 @@
 <body>
   <form id="WeightLossAdvocatesForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
     <input type="hidden" name="action" value="WeightLossAdvocates_submit">
-    <input type="hidden" name="page_slug" value="WeightLossAdvocates-7">
-    <input type="hidden" name="external_customer_id" value="cid-68e274b5ceb6b8c2c17faea7b858ba2e"><input type="hidden" name="domain" value="theweightlossadvocates.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671477">    <input type="hidden" name="csrf_token" value="e8aa572e322fb0302a386d17deda387b35fe7ca6e1e1a4e4628d0e532e811e785153037111" />
+    <input type="hidden" name="page_slug" value="questionnaire-5d">
+    <input type="hidden" name="external_customer_id" value="<?php echo isset($external_customer_id) ? esc_attr($external_customer_id) : ''; ?>">
+    <input type="hidden" name="domain" value="<?php echo isset($domain) ? esc_attr($domain) : 'theweightlossadvocates.com'; ?>">
+    <input type="hidden" name="offer_slug" value="<?php echo isset($offer_slug) ? esc_attr($offer_slug) : 'dm-offers'; ?>">
+    <input type="hidden" name="external_created_at" value="<?php echo isset($external_created_at) ? esc_attr($external_created_at) : time(); ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo isset($csrf_token) ? esc_attr($csrf_token) : ''; ?>" />
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
             <img src="../assets/images/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
@@ -120,27 +124,30 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 col-md-12" id="card-master">
                     <div class="card step">
-    <div class="card-body intersticial">
-        <section class="container intersticial">
-            <div class="row">
-                <div class="col-lg-12 col-md-12" style="text-align:center">
-                    <center><h1>So far so good!</h1></center>
-                    <br>
-                    <div class="col-12 bmi" style="display:inline-block;margin:0 auto;width:auto;"> <center> YOUR BMI:<br> <h1 id="bmiH1"><?php echo isset($intake_bmi) ? esc_html($intake_bmi) : ''; ?></h1></center></div>
-                    <br><br>
+    <div class="progress-container">
+        <p class="progressnotice">Your Progress</p>
+        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <h1>Who prescribed your weight loss medication?</h1>
+        <p>Select Provider: </p>
+        <div class="col-auto">
+            <select name="intake_who_prescribed" class="select form-control form-control-lg">
+                <option disabled selected value="">-- Select Provider --</option><option value='Personal Doctor' >Personal Doctor</option><option value='Weight Loss Clinic' >Weight Loss Clinic</option><option value='Henry Meds' >Henry Meds</option><option value='Hims/Hers' >Hims/Hers</option><option value='Future Health' >Future Health</option><option value='Ro' >Ro</option><option value='Remedy Meds' >Remedy Meds</option><option value='Mochi' >Mochi</option><option value='Medvi' >Medvi</option><option value='Eden' >Eden</option><option value='Noom' >Noom</option><option value='Other' >Other</option>
+            </select>
+            <br>
+            <label> If other, please describe</label><br>
+            <textarea class="form-control" name="intake_who_prescribed_other"></textarea>
+        </div>
 
-                    <br><br>
-                    <h4 style="font-weight:300;">You look like a great fit for GLP-1 medications! Next, we will need to confirm a few details.</h4>
+        <div class="spacer">&nbsp;</div>
 
-                    <div class="spacer">&nbsp;</div>
-                    <div class="spacer">&nbsp;</div>
-                    <div class="row g-3 justify-content-center">
-                        <button type="button" class="btn btn-lg ctaBtn1" onclick="nextStep()">Continue</button>
-                    </div>
-                    <div class="spacer"></div>
-                </div>
-            </div>
-        </section>
+        <div class="row g-3 justify-content-center">
+            <button type="button" class="btn btn-lg ctaBtn1" onclick="nextStep()">Next</button>
+        </div>
+        <div class="spacer"></div>
     </div>
 </div>            </div>
         </div>
@@ -194,7 +201,7 @@
             <h4 style="font-weight:300;">Based on your answers, your medical history you're not a great candidate for telemedicine.  The safest course of action would have you consider working with a local doctor or clinic as certain complications may need closer monitoring or response times than telemedicine may allow.
             </h4>
 <br><br>
-            <p class="textalt3">If you believe you're an exception and would like to have someone from our medical staff review more details or provide additional advice regarding your specific circumstances, you can schedule a call here <a href="https://calendly.com/connie-direct-meds">Schedule a call with a Nurse</a></p>
+            <p class="textalt3">If you believe you're an exception and would like to have someone from our medical staff review more details or provide additional advice regarding your specific circumstances, you can schedule a call here <a href="https://calendly.com/connie-Weight Loss Advocates">Schedule a call with a Nurse</a></p>
 
             <div class="spacer">&nbsp;</div>
             <div class="spacer">&nbsp;</div>
@@ -268,10 +275,10 @@ function etSubmit(data) {
         'sub_aff_id': '',
         'everflow_offer_id': '',
         'offer_id': 'dm-offers',
-        'external_customer_id': 'cid-68e274b5ceb6b8c2c17faea7b858ba2e',
+        'external_customer_id': 'cid-68e274b56d696bf02637d98ff606c3ce',
         'source_id': '',
         'everflow_uid': '',
-        'page': 'WeightLossAdvocates-7',
+        'page': 'WeightLossAdvocates-5d',
         'ip_address': '34.46.237.233',
         'user_agent': 'curl/8.5.0',
         'noise': noise,
@@ -308,7 +315,7 @@ function etSubmit(data) {
             sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
             uid: EF.urlParameter('uid'),
             transaction_id: EF.urlParameter('_ef_transaction_id'),
-            Adv1: 'cid-68e274b5ceb6b8c2c17faea7b858ba2e',
+            Adv1: 'cid-68e274b56d696bf02637d98ff606c3ce',
             // coupon_code: EF.urlParameter('coupon_code'),//Note: caused intermittent tracking issues when present
             parameters: {
                 sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
@@ -359,8 +366,8 @@ function etSubmit(data) {
 
         let efOfferId = null;
         let efTransactionId = null;
-        let eventId = 7;
-        let advEventId = 5;
+        let eventId = null;
+        let advEventId = null;
         let oidEventExclusions = [];
         let exclusionMatched = false;
         let couponCode = null;
@@ -371,7 +378,7 @@ function etSubmit(data) {
         }
         let conversionDetails = {
             offer_id: '',
-            adv1: 'cid-68e274b5ceb6b8c2c17faea7b858ba2e',
+            adv1: 'cid-68e274b56d696bf02637d98ff606c3ce',
             adv2: '',
             adv3: '',
             adv4: null ?? (typeof getCookie === "function" ? getCookie('_fbp') : null),
@@ -405,7 +412,7 @@ function etSubmit(data) {
                         setTimeout(firePageEvents,500,transId);
                     }
                 });
-                etSubmitData['event_key'] = 'bmi_confirmation';
+                etSubmitData['event_key'] = 'invalid_event';
                 etSubmitData['event_type'] = 'everflow_' + (advEventId == null && eventId == null ? 'conversion' : 'event');
                 etSubmitData['everflow_transaction_id'] = efTransactionId ? efTransactionId : (transId ? transId : '');
                 etSubmitData['noise'] = noise;
@@ -472,7 +479,7 @@ function etSubmit(data) {
         return false;
     }
 
-    setProgressValues(7);
+    setProgressValues(5);
 
     function hideElement(id) {
         document.getElementById(id).style.display = 'none';
@@ -483,13 +490,25 @@ function etSubmit(data) {
     document.getElementById('closeWarning').addEventListener('click',function(){
         hideElement('generalWarning');
     });
-        function validateStep() {
+    function validateStep() {
+        let whoSelection = document.querySelector('[name="intake_who_prescribed"]');
+        let other = document.querySelector('[name="intake_who_prescribed_other"]');
+        removePulse([whoSelection,other]);
+        if (whoSelection.value == '') {
+            addPulse(whoSelection);
+            return false;
+        }
+        if (whoSelection.value == 'Other' && other.value == '') {
+            addPulse(other);
+            return false;
+        }
         return true;
-    }</script>
+    }
+</script>
 <script src="../assets/js/bootstrap.bundle.min.js"
 
        ></script>
-<script src="https://utils.webimghost.com/scripts/js/utils.min.js"></script>
+<script src="../assets/js/utils.min.js"></script>
 <div class="footer-badge"><script src="https://static.legitscript.com/seals/29752987.js"></script></div>
 <script>
     const intervalId = setInterval(() => {
@@ -509,7 +528,7 @@ function etSubmit(data) {
     window.lazyLoad = lozad('.lazyload' );
     window.lazyLoad.observe();
 </script><script>
-    smartlook('identify', 'cid-68e274b5ceb6b8c2c17faea7b858ba2e', {
+    smartlook('identify', 'cid-68e274b56d696bf02637d98ff606c3ce', {
         "offer": "dm-offers",
         "click_id": "",
         "affiliate": "",

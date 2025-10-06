@@ -158,6 +158,16 @@ function qp_template_redirect() {
             }
         }
     }
+
+    // Calculate and store BMI when height and weight are submitted from questionnaire-6
+    if ($page_slug === 'questionnaire-6' && isset($_POST['intake_height_ft']) && isset($_POST['intake_height_in']) && isset($_POST['intake_weight'])) {
+        $height_in = ((int)$_POST['intake_height_ft'] * 12) + (int)$_POST['intake_height_in'];
+        $weight_lbs = (int)$_POST['intake_weight'];
+        if ($height_in > 0) {
+            $bmi = ($weight_lbs / ($height_in * $height_in)) * 703;
+            $_SESSION['WeightLossAdvocates_data']['intake_bmi'] = round($bmi, 2);
+        }
+    }
 }
 add_action('template_redirect', 'qp_template_redirect');
 
@@ -260,6 +270,11 @@ function qp_get_next_page($current_slug, $data) {
 
     // Page progression logic
     $page_number = (int) str_replace('WeightLossAdvocates-', '', $current_slug);
+
+    if ($page_number == 5) {
+        return 'questionnaire-5b';
+    }
+
     if ($page_number > 0) {
         if ($page_number == 14) {
             return 'calculating';
@@ -268,6 +283,18 @@ function qp_get_next_page($current_slug, $data) {
     }
 
     switch ($current_slug) {
+        case 'questionnaire-5b':
+            if (isset($data['intake_current_wl_prescription']) && $data['intake_current_wl_prescription'] === 'yes') {
+                return 'questionnaire-5c';
+            } else {
+                return 'questionnaire-6';
+            }
+        case 'questionnaire-5c':
+            return 'questionnaire-5d';
+        case 'questionnaire-5d':
+            return 'questionnaire-5e';
+        case 'questionnaire-5e':
+            return 'questionnaire-6';
         case 'calculating':
             return 'results';
         case 'results':
