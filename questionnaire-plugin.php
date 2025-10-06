@@ -553,3 +553,18 @@ function qp_exclude_pages_from_nav($items, $args) {
     return $items;
 }
 add_filter('wp_nav_menu_objects', 'qp_exclude_pages_from_nav', 10, 2);
+
+function qp_exclude_from_get_pages($pages) {
+    // This function is hooked into 'get_pages' to filter out pages
+    // created by this plugin from any queries that use get_pages().
+    // This is a broad approach to prevent them from appearing in theme menus.
+    foreach ($pages as $key => $page) {
+        // Check if the page has our custom meta field.
+        if (get_post_meta($page->ID, '_qp_page', true)) {
+            // If it does, remove it from the array of pages.
+            unset($pages[$key]);
+        }
+    }
+    return $pages;
+}
+add_filter('get_pages', 'qp_exclude_from_get_pages');
