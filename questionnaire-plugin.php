@@ -33,6 +33,8 @@ function qp_create_orders_table() {
         medication varchar(255) NOT NULL,
         price decimal(10, 2) NOT NULL,
         status varchar(50) DEFAULT '' NOT NULL,
+        bmi decimal(5,2) DEFAULT 0.00 NOT NULL,
+        full_data text NOT NULL,
         PRIMARY KEY  (id)
     ) $charset_collate;";
 
@@ -42,14 +44,14 @@ function qp_create_orders_table() {
 
 function qp_create_questionnaire_pages() {
     $template_dir = plugin_dir_path(__FILE__) . 'templates/';
-    $files = glob($template_dir . '*.html');
+    $files = glob($template_dir . '*.php');
 
     foreach ($files as $file) {
-        $page_slug = basename($file, '.html');
+        $page_slug = basename($file, '.php');
         $page_title = ucfirst(str_replace('-', ' ', $page_slug));
 
-        // Skip creating a page for questionnaire-15
-        if ($page_slug === 'questionnaire-15') {
+        // Skip creating a page for questionnaire-15 and the template itself
+        if ($page_slug === 'questionnaire-15' || $page_slug === 'questionnaire-page-template') {
             continue;
         }
 
@@ -88,10 +90,14 @@ function qp_template_redirect() {
         if (preg_match('/' . $pattern . '/s', $content, $matches) && isset($matches[3])) {
             $shortcode_attrs = shortcode_parse_atts($matches[3]);
             if (isset($shortcode_attrs['template'])) {
-                $template_file = sanitize_file_name($shortcode_attrs['template']);
+                $template_file = str_replace('.html', '.php', sanitize_file_name($shortcode_attrs['template']));
                 $template_path = plugin_dir_path(__FILE__) . 'templates/' . $template_file;
 
                 if (file_exists($template_path)) {
+                    if (isset($_SESSION['questionnaire_data'])) {
+                        extract($_SESSION['questionnaire_data']);
+                    }
+
                     ob_start();
                     include $template_path;
                     $output = ob_get_clean();
@@ -100,14 +106,15 @@ function qp_template_redirect() {
                     $output = str_replace('../assets', plugin_dir_url(__FILE__) . 'assets', $output);
 
                     // Replace page links
-                    preg_match_all('/href="([^"]*?\.php)"/', $output, $link_matches);
+                    preg_match_all('/href="([^"]*?\.php|[^"]*?\.html)"/', $output, $link_matches);
                     if (!empty($link_matches[1])) {
                         foreach (array_unique($link_matches[1]) as $match) {
-                            $page_slug = basename($match, '.php');
+                             $page_slug = basename($match, '.php');
+                             $page_slug = basename($page_slug, '.html');
                             $page = get_page_by_path($page_slug);
                             if ($page) {
                                 $permalink = get_permalink($page->ID);
-                                $output = str_replace($match, $permalink, $output);
+                                $output = str_replace('"' . $match . '"', '"' . $permalink . '"', $output);
                             }
                         }
                     }
@@ -145,7 +152,11 @@ function qp_handle_form_submission() {
 
     foreach ($_POST as $key => $value) {
         if ($key !== 'page_slug' && $key !== 'action') {
-            $_SESSION['questionnaire_data'][$key] = sanitize_text_field($value);
+            if (is_array($value)) {
+                $_SESSION['questionnaire_data'][$key] = array_map('sanitize_text_field', $value);
+            } else {
+                $_SESSION['questionnaire_data'][$key] = sanitize_text_field($value);
+            }
         }
     }
 
@@ -162,6 +173,10 @@ add_action('admin_post_questionnaire_submit', 'qp_handle_form_submission');
 
 function qp_get_next_page($current_slug, $data) {
     // Disqualification logic
+    if (isset($data['intake_health']) && (!in_array('none', $data['intake_health']) || count($data['intake_health']) > 1)) {
+        return 'not-qualified';
+    }
+
     if (isset($data['intake_disqualify'])) {
         if ($data['intake_disqualify'] !== 'None') {
             return 'not-qualified';
@@ -240,6 +255,8 @@ function qp_handle_checkout_submission() {
             'medication' => 'Semaglutide', // Placeholder
             'price'      => '297.00', // Placeholder
             'status'     => 'Pending Payment',
+            'bmi'        => isset($data['intake_bmi']) ? sanitize_text_field($data['intake_bmi']) : 0,
+            'full_data'  => serialize($data),
         )
     );
 
@@ -286,13 +303,14 @@ function qp_orders_page_html() {
                     <th scope="col" class="manage-column">Phone</th>
                     <th scope="col" class="manage-column">Medication</th>
                     <th scope="col" class="manage-column">Price</th>
+                    <th scope="col" class="manage-column">BMI</th>
                     <th scope="col" class="manage-column">Status</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($orders)) : ?>
                     <tr>
-                        <td colspan="8">No orders found.</td>
+                        <td colspan="9">No orders found.</td>
                     </tr>
                 <?php else : ?>
                     <?php foreach ($orders as $order) : ?>
@@ -304,6 +322,7 @@ function qp_orders_page_html() {
                             <td><?php echo esc_html($order->phone); ?></td>
                             <td><?php echo esc_html($order->medication); ?></td>
                             <td>$<?php echo esc_html($order->price); ?></td>
+                            <td><?php echo esc_html($order->bmi); ?></td>
                             <td><?php echo esc_html($order->status); ?></td>
                         </tr>
                     <?php endforeach; ?>
