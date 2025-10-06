@@ -146,14 +146,14 @@
         <div class="row g-3 justify-content-center">
             <div class="col-auto">
                 Feet
-                <select name="intake_feet" class="select form-control form-control-lg">
+                <select name="intake_height_ft" class="select form-control form-control-lg">
                     <option disabled selected value="">Ft</option><option value='4' >4</option><option value='5' >5</option><option value='6' >6</option><option value='7' >7</option>
                 </select>
             </div>
 
             <div class="col-auto">
                 Inches
-                <select name="intake_inches" class="select form-control form-control-lg">
+                <select name="intake_height_in" class="select form-control form-control-lg">
                     <option disabled selected value="">In</option><option value='0' selected>0</option><option value='1' >1</option><option value='2' >2</option><option value='3' >3</option><option value='4' >4</option><option value='5' >5</option><option value='6' >6</option><option value='7' >7</option><option value='8' >8</option><option value='9' >9</option><option value='10' >10</option><option value='11' >11</option>
                 </select>
             </div>
@@ -163,6 +163,10 @@
                 <input type="tel" name="intake_weight" class="form-control form-control-lg" value="" max="999">
             </div>
             <div class="spacer">&nbsp;</div>
+            <div class="col-12 bmi" style="display:inline-block;margin:0 auto;width:auto;">
+                <center> YOUR BMI:<br>
+                    <h1 id="bmiH1"></h1></center>
+            </div>
 
             <input type="hidden" name="intake_bmi" id="bmi" value="" />
             <div class="row g-3 justify-content-center">
@@ -513,8 +517,8 @@ function etSubmit(data) {
         hideElement('generalWarning');
     });
         function validateStep() {
-        let feet = document.querySelector('[name="intake_feet"]');
-        let inches = document.querySelector('[name="intake_inches"]');
+        let feet = document.querySelector('[name="intake_height_ft"]');
+        let inches = document.querySelector('[name="intake_height_in"]');
         let weight = document.querySelector('[name="intake_weight"]');
         let elements = [feet,inches,weight];
         removePulse(elements);
@@ -525,10 +529,15 @@ function etSubmit(data) {
                 passed = false;
             }
         });
-        if (passed && calcBmi((Number(feet.value) * 12) + Number(inches.value), Number(weight.value)) < 27) {
-            triggerBadBmi();
-            return false;
+
+        if(passed) {
+            let bmi = calcBmi((Number(feet.value) * 12) + Number(inches.value), Number(weight.value));
+            if (bmi < 27) {
+                triggerBadBmi();
+                return false;
+            }
         }
+
         return passed;
     }
 
@@ -541,10 +550,22 @@ function etSubmit(data) {
         let bmi = (Number(weight) * 703) / (Number(inches) * Number(inches));
         bmi = Math.round(bmi * 100) / 100;
         document.getElementById("bmi").value = bmi;
-        // document.getElementById("bmiH1").innerHTML = bmi;
+        document.getElementById("bmiH1").innerHTML = bmi;
         document.getElementById("bmiCorrectionH1").innerHTML = bmi;
         return bmi;
-    }</script>
+    }
+
+    document.querySelectorAll('[name="intake_height_ft"], [name="intake_height_in"], [name="intake_weight"]').forEach((el) => {
+        el.addEventListener('change', function () {
+            let feet = document.querySelector('[name="intake_height_ft"]');
+            let inches = document.querySelector('[name="intake_height_in"]');
+            let weight = document.querySelector('[name="intake_weight"]');
+            if (feet.value && inches.value && weight.value) {
+                calcBmi((Number(feet.value) * 12) + Number(inches.value), Number(weight.value));
+            }
+        });
+    });
+    </script>
 <script src="../assets/js/bootstrap.bundle.min.js"
 
        ></script>

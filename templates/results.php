@@ -142,34 +142,53 @@
                     <div class="col stats-item">
                         <center>
                             Current Wght<br>
-                            <h1>lbs</h1>
+                            <h1><?php echo isset($intake_weight) ? $intake_weight : ''; ?> lbs</h1>
                         </center>
                     </div>
                     <div class="col stats-item">
                         <center>
                             Your Age<br>
-                            <h1></h1>
+                            <h1>
+                                <?php
+                                if (isset($intake_dob_year) && isset($intake_dob_month) && isset($intake_dob_day)) {
+                                    $dob = new DateTime($intake_dob_year . '-' . $intake_dob_month . '-' . $intake_dob_day);
+                                    $today = new DateTime();
+                                    echo $today->diff($dob)->y;
+                                }
+                                ?>
+                            </h1>
                         </center>
                     </div>
                     <div class="col stats-item">
                         <center>
                             Goal Wght<br>
-                            <h1>lbs</h1>
+                            <h1>
+                                <?php
+                                if (isset($intake_weight)) {
+                                    $goal_weight = round($intake_weight * 0.85);
+                                    echo $goal_weight;
+                                }
+                                ?> lbs
+                            </h1>
                         </center>
                     </div>
                 </div>
-                <img src="img/graph-product.png" class="img-fluid">
+                <img src="../assets/images/graph-product.png" class="img-fluid">
                 <br><br>
                 <div class="row stats">
-
                     <div class="col stats-item">
                         <center>
                             You're all set to lose<br>
-                            <h1>0 lbs!</h1>
-
+                            <h1>
+                                <?php
+                                if (isset($intake_weight)) {
+                                    $weight_to_lose = $intake_weight - $goal_weight;
+                                    echo $weight_to_lose;
+                                }
+                                ?> lbs!
+                            </h1>
                         </center>
                     </div>
-
                 </div>
 
                 <br><br>
