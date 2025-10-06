@@ -151,8 +151,8 @@
                             Goal Wght<br>
                             <h1>
                                 <?php
-                                if (isset($intake_weight)) {
-                                    $goal_weight = round($intake_weight * 0.85);
+                                if (isset($intake_goal_weight)) {
+                                    $goal_weight = $intake_goal_weight;
                                     echo $goal_weight;
                                 }
                                 ?> lbs
@@ -168,7 +168,7 @@
                             You're all set to lose<br>
                             <h1>
                                 <?php
-                                if (isset($intake_weight)) {
+                                if (isset($intake_weight) && isset($goal_weight)) {
                                     $weight_to_lose = $intake_weight - $goal_weight;
                                     echo $weight_to_lose;
                                 }
