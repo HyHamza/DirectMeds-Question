@@ -136,15 +136,18 @@
         <br>
         <div class="radioselection2 row">
            <!-- if no is selected then go to questionaire-6.php -->
-            <input type="radio" name="intake_current_wl_prescription" id="intake_current_wl_prescriptionno" value="no" onclick="nextStep()" >
+            <input type="radio" name="intake_current_wl_prescription" id="intake_current_wl_prescriptionno" value="no">
             <label for="intake_current_wl_prescriptionno" class="col">
                 No
             </label>
 
-            <input type="radio" name="intake_current_wl_prescription" id="intake_current_wl_prescriptionyes" value="yes" onclick="nextStep()" >
+            <input type="radio" name="intake_current_wl_prescription" id="intake_current_wl_prescriptionyes" value="yes">
             <label for="intake_current_wl_prescriptionyes" class="col">
                 Yes
             </label>
+        </div>
+        <div class="row g-3 justify-content-center mt-4">
+            <button type="button" class="btn btn-lg ctaBtn1" onclick="nextStep()">Continue</button>
         </div>
     </div>
 </div>            </div>

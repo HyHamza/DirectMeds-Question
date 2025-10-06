@@ -353,7 +353,7 @@
                                 <div class="col" style="padding-left:25px;">
                                     <h2>Total</h2></div>
                                 <div class="col text-end" style="padding-right:25px;">
-                                    <h4><b style="font-size:1.5rem;">$297.00</b></h4>
+                                    <h4><b style="font-size:1.5rem;">$<?php echo isset($price) ? number_format($price, 2) : '297.00'; ?></b></h4>
                                 </div>
                             </div>
                             <!--<div class="row" style="margin-bottom:0"><center><small style="font-size:12px;font-weight:300;color:#999">And then $/mo starting next month</small></center></div>-->
