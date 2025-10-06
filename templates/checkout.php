@@ -298,7 +298,7 @@
     <input type="hidden" name="page_slug" value="checkout">
     <nav class="navbar navbar-expand-lg bannerbar">
         <div class="container justify-content-center">
-            <img src="../assets/img_from_site/logo.png" alt="Weight Loss Advocates" class="img-fluid">
+            <img src="../assets/img_from_site/logo.png" width='60px' alt="Weight Loss Advocates" class="img-fluid"> 
         </div>
     </nav>
     <div class="container-fluid">

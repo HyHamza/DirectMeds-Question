@@ -165,7 +165,7 @@
     have the best experience that you can with our website.<br>This website can help you: <a
             href="http://browsehappy.com/">browsehappy.com</a></p><![endif]--><nav class="navbar navbar-expand-lg bg-body-tertiary ">
     <div class="container justify-content-center">
-        <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" class="img-fluid">
+        <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" witdth='60px' class="img-fluid">
     </div>
 </nav>
 <section class="container-fluid offsetbg">
