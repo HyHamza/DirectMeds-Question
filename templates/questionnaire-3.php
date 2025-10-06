@@ -110,7 +110,7 @@
   <div id="couponBannerFiller" style="display:block;visibility:hidden;opacity:0;width:100%;padding:5px 10px;font-weight:700;">A coupon has been applied to your order! Complete your order for up to $100 off your first month!</div></div>
 <div id="couponBanner" style="position:fixed;top:0;z-index:100;width:100%;padding:5px 10px;background-color:#0094FF;color:#fff;text-align:center;font-weight:700;">A coupon has been applied to your order! Complete your order for up to $100 off your first month!</div></div><form id="WeightLossAdvocatesForm" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" >
     <input type="hidden" name="action" value="WeightLossAdvocates_submit">
-    <input type="hidden" name="page_slug" value="WeightLossAdvocates-3">
+    <input type="hidden" name="page_slug" value="questionnaire-3">
     <input type="hidden" name="external_customer_id" value="cid-68e274a04aad16f17c54460a0db870e7"><input type="hidden" name="domain" value="theweightlossadvocates.com"><input type="hidden" name="offer_slug" value="dm-offers"><input type="hidden" name="external_created_at" value="1759671456">    <input type="hidden" name="csrf_token" value="90f978d63ca8cf0fd9145e2e0df6f72e4038135f93879283b8a957f3fc31128b17537b7125" />
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container justify-content-center">
