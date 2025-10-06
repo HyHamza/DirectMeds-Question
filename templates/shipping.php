@@ -10,14 +10,12 @@
 <meta name="author" content="">
 <!--[if lt IE 9]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Payment Info</title>
+    <title>Get Qualified</title>
     <link href="../assets/css_from_site/bootstrap.min.css" rel="stylesheet">
-    <link href="../assets/css_from_site/qualify-v2.css" rel="stylesheet">
-    <link href="../assets/css_from_site/chat.css" rel="stylesheet">
+    <link href="../assets/css_from_site/qualify.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css_from_site/bootstrap-icons.min.css">
     <link rel="icon" type="image/png" href="../assets/img_from_site/favicon.png">
-    <script src="../assets/js_from_site/confetti.bundle.min.js"></script>
-    <link type="text/css" rel="stylesheet" href="../assets/css_from_site/utils.min.css">
+    <link rel="stylesheet" type="text/css" href="../assets/css_from_site/utils.min.css">
     <script type="text/javascript" src="../assets/js_from_site/everflow.js"></script>
 <script src="../assets/js_from_site/smartlook.js"></script>
 <!-- Matomo -->
@@ -27,7 +25,7 @@
     _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
     _paq.push(["setCookieDomain", "*.direct-meds.com"]);
     _paq.push(["setDomains", ["*.direct-meds.com","*.app.direct-meds.com"]]);
-                _paq.push(['setCustomDimension', 4, 'cid-68e34489de137c9b2f02b06e51d626a3']);    _paq.push(["enableCrossDomainLinking"]);
+                _paq.push(['setCustomDimension', 4, 'cid-68e3438ce3de3d970b61d3eb557e9cea']);    _paq.push(["enableCrossDomainLinking"]);
     _paq.push(["setExcludedQueryParams", ["\/admin"]]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
@@ -51,10 +49,10 @@
             'converted': '',
             'ip_address': '34.46.237.233',
             'user_agent': 'curl/8.5.0',
-            'customer_id': 'cid-68e34489de137c9b2f02b06e51d626a3',
+            'customer_id': 'cid-68e3438ce3de3d970b61d3eb557e9cea',
             'last_touch_channel': '',
             'offer_slug': 'dm-offers',
-            'page': 'checkout'
+            'page': 'shipping'
         });
         </script>
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -117,433 +115,272 @@
     }
 </script>
         <style>
-        @font-face {
-            font-family: 'InterNew';
-            src: url('https://res.cloudinary.com/spiralyze/raw/upload/v1723652652/FONTS/InterNew/Inter-Regular.ttf');
-            font-weight: 400;
-            font-style: normal;
+        /* The message box is shown when the user clicks on the password field */
+        #message {
+            display:none;
+            color: #000;
+            position: relative;
+            padding: 10px;
+            margin-top: 0px;
+        }
+        #message.show { display: block !important; }
+
+        #message p {
+            padding: 0px 35px;
+            font-size: 12px;
         }
 
-        @font-face {
-            font-family: 'InterNew';
-            src: url('https://res.cloudinary.com/spiralyze/raw/upload/v1723652652/FONTS/InterNew/Inter-Medium.ttf');
-            font-weight: 500;
-            font-style: normal;
+        /* Add a green text color and a checkmark when the requirements are right */
+        .valid {
+            color: green;
         }
 
-        @font-face {
-            font-family: 'InterNew';
-            src: url('https://res.cloudinary.com/spiralyze/raw/upload/v1723652651/FONTS/InterNew/Inter-Bold.ttf');
-            font-weight: 700;
-            font-style: normal;
+        .valid:before {
+            font: normal 1em/1 Arial, sans-serif;
+            position: relative;
+            left: -15px;
+            content: "\2714";
         }
 
-        .timer-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #013468;
-            color: #fff;
-            font-size: 16px;
-            line-height: 24px;
-            font-weight: 600;
-            padding: 12px 16px 12px 15px;
-            height: 61px;
-            gap: 12px;
+        /* Add a red text color and an "x" icon when the requirements are wrong */
+        .invalid {
+            color: red;
         }
 
-        .discount-text strong {
-            color: #FFD991;
-            font-weight: 600;
-        }
-
-        .timer {
-            border-radius: 8px;
-            background: rgba(0, 17, 52, 0.50);
-            color: #FFF;
-            text-align: center;
-            leading-trim: both;
-            text-edge: cap;
-            font-family: "InterNew";
-            font-size: 18px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: 140%;
-            color: #385375;
-            width: 91px;
-            height: 37px;
-            display: flex;
-            align-items: center;
-            padding: 0 11px 3px;
-        }
-
-        .timer span {
-            color: #FFF;
-        }
-
-        .timer span:first-child {
-            margin-right: 7px;
-            margin-top: 3px;
-        }
-
-        .timer span:last-child {
-            margin-left: 7px;
-            margin-top: 3px;
-        }
-        .discount-text-mobile {
-            display: none;
-        }
-        @media(max-width: 1023.98px){
-            .timer-container {
-                gap: 24px !important;
-            }
-
-        }
-        @media screen and (max-width: 767.98px) {
-            .discount-text {
-                display: none !important;
-            }
-            .discount-text-mobile {
-                display: block !important;
-            }
-            .navbar {
-                padding: 12px 0 16px;
-            }
-
-            .questions-stage {
-                overflow: hidden;
-            }
-
-            .timer-container {
-                justify-content: space-between;
-                font-size: 14px;
-                line-height: 22px;
-                padding: 12px 16px 12px 16px;
-                gap: 49px !important;
-            }
-
-            .discount-text strong {
-                font-weight: 800;
-            }
-        }
-    </style>
-    <script>
-        (function () {
-            var elemWaitnew = setInterval(() => {
-                if (document.querySelector('nav')) {
-                    clearInterval(elemWaitnew);
-
-                    document.querySelector('nav').insertAdjacentHTML('beforebegin', `
-                        <div class="timerContainer">
-                            <div class="timer-container">
-                                <span class="discount-text">Your up to <strong>$100 off</strong> discount has been applied!</span>
-                                <span class="discount-text discount-text-mobile">Your up to <strong>$100 off</strong> discount has been applied!</span>
-                                <span class="timer"><span id="minutes">10</span> : <span id="seconds">00</span></span>
-                            </div>
-                        </div>
-                    `);
-
-                    function startCountdown(durationInMinutes) {
-                        let endTime = localStorage.getItem('endTime');
-                        let timerExpired = localStorage.getItem('timerExpired');
-
-                        if (timerExpired === "true") {
-                            document.getElementById("minutes").textContent = "00";
-                            document.getElementById("seconds").textContent = "00";
-                            return;
-                        }
-
-                        if (!endTime) {
-                            endTime = Date.now() + durationInMinutes * 60 * 1000;
-                            localStorage.setItem('endTime', endTime);
-                        } else {
-                            endTime = parseInt(endTime, 10);
-                        }
-
-                        const minutesElement = document.getElementById("minutes");
-                        const secondsElement = document.getElementById("seconds");
-
-                        function updateTimer() {
-                            const remainingTime = Math.max(0, endTime - Date.now());
-                            const minutes = Math.floor(remainingTime / 60000);
-                            const seconds = Math.floor((remainingTime % 60000) / 1000);
-
-                            minutesElement.textContent = minutes.toString().padStart(2, '0');
-                            secondsElement.textContent = seconds.toString().padStart(2, '0');
-
-                            if (remainingTime > 0) {
-                                requestAnimationFrame(updateTimer);
-                            } else {
-                                minutesElement.textContent = "00";
-                                secondsElement.textContent = "00";
-                                localStorage.setItem('timerExpired', "true"); // Prevent resetting on navigation
-                            }
-                        }
-                        updateTimer();
-                    }
-                    startCountdown(10);
-                }
-            });
-        })();
-    </script>
-    <style>
-        #shipping-divider {
-            display: none;
-        }
-        @media (max-width:500px) {
-            #shipping-divider {
-                display: block;
-                margin: 12px;
-                max-width: calc(100% - 24px);
-            }
+        .invalid:before {
+            font: normal 1em/1 Arial, sans-serif;
+            position: relative;
+            left: -15px;
+            content: "\2716";
         }
     </style>
 </head>
-<body style="background-color:#f8f8f7;">
+<body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
                   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) --><!--[if lte IE 9]><p class="browsehappy">Hi, we really want to show you our website, but you are using an outdated
-    browser that our website cannot communicate with. Please visit us again after you have upgraded your browser and
-    have the best experience that you can with our website.<br>This website can help you: <a
-            href="http://browsehappy.com/">browsehappy.com</a></p><![endif]--><form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post" id="ccForm">
-    <input type="hidden" name="action" value="checkout_submit">
-    <input type="hidden" name="page_slug" value="checkout">
-    <nav class="navbar navbar-expand-lg bannerbar">
+<form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post">
+    <input type="hidden" name="action" value="questionnaire_submit">
+    <input type="hidden" name="page_slug" value="shipping">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
-            <img src="../assets/img_from_site/logo.png" alt="Direct Meds" class="img-fluid">
+            <img src="../assets/img_from_site/logo-dk.png" alt="Direct Meds" class="img-fluid">
         </div>
     </nav>
-    <div class="container-fluid">
-        <section class="container">
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2 col-md-12">
-                    <div class="spacer">&nbsp;</div>
-                    <div class="spacer">&nbsp;</div>
-                    <div class="spacer">&nbsp;</div>
-
-                    <center><h2>Your order is ready for payment.</h2></center>
-                    <br>
-                    <br>
-                    <div class="row">
-                        <div class="col stats-item inversebg offsetbg">
-                            <div class="row">
-                                <div class="col-4">
-                                    <img src="../assets/img_from_site/select-product0.png" class="img-fluid">
-                                </div>
-                                <div class="col my-auto" style="font-size:14px">
-                                         Medication & Supplies<br/>
-                                        Payment Plan: Monthly<br/>
-                                        <small style="font-weight:400;">Your doctor will review and revise your dosage as needed.</small>
-                                </div>
-                                <hr id="shipping-divider">
-                                <div class="col my-auto">
-                                    <b>Shipping to:</b><br>
-                                    <?php echo esc_html($shipping_address1 ?? ''); ?><br>
-                                    <?php echo esc_html($shipping_city ?? ''); ?>, <?php echo esc_html($shipping_state ?? ''); ?> <?php echo esc_html($shipping_zipcode ?? ''); ?>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col  text-end">
-                                    Telemed Visits with Doctor/Evaluation
-                                </div>
-                                <div class="col-4 my-auto  text-end" style="padding-right:25px;">
-                                    FREE
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col  text-end">
-                                    Next-day UPS Rush Delivery <br><span class="textalt2">(All medications are ice-packed and insured.)</span>
-                                </div>
-                                <div class="col-4 my-auto  text-end" style="padding-right:25px;">
-                                    FREE
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row d-flex totals">
-                                <div class="col" style="padding-left:25px;">
-                                    <h2>Total</h2></div>
-                                <div class="col text-end" style="padding-right:25px;">
-                                    <h4><b style="font-size:1.5rem;">$297.00</b></h4>
-                                </div>
-                            </div>
-                            <!--<div class="row" style="margin-bottom:0"><center><small style="font-size:12px;font-weight:300;color:#999">And then $/mo starting next month</small></center></div>-->
+    <section class="container questions-stage">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-12">
+                <div class="card">
+                    <div class="progress-container">
+                        <p class="progressnotice">Your Progress</p>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
-
-
-                    <div class="spacer">&nbsp;</div>
-                    <div class="row">
-                        <div class="col">
-                            <center>That's it! With Direct meds, our pricing is All-Inclusive and comes with our Customer Weight Loss Satisfaction Guarantee!</center>
-                        </div>
-                    </div>
-                    <div class="spacer">&nbsp;</div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="inversebg" style="border:1px solid #ccc;">
-                                <div class="inversehdr"><i class="bi bi-shield-lock-fill"></i> Secure Payment</div>
-                                <div class="pcinner">
-
-                                    <div class="row">
-                                        <div class="col"><h3>Payment Info</h3></div>
-                                        <div class="col text-end">
-                                            <img src="../assets/img_from_site/cards.png" style="width:150px;" class="img-fluid">
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label for="billing_cardnumber">Card Number</label><br>
-                                            <input type="tel" name="billing_cardnumber" required id="CreditCardNumber"
-                                                   alt="Credit Card Number"
-                                                   value=""
-                                                   data-validation="required"
-                                                   class="form-control required" placeholder="••••••••••••••••"
-                                                   maxlength="16"/>
-                                        </div>
-                                        <div class="col">
-                                            <label for="billing_cardexp_month">Exp Month</label><br>
-                                            <select name="billing_cardexp_month" id="ExpMonth"
-                                                    class=" form-control  input-lg required">
-                                                                                                    <option value="01" >
-                                                        01 - January                                                    </option>
-                                                                                                    <option value="02" >
-                                                        02 - February                                                    </option>
-                                                                                                    <option value="03" >
-                                                        03 - March                                                    </option>
-                                                                                                    <option value="04" >
-                                                        04 - April                                                    </option>
-                                                                                                    <option value="05" >
-                                                        05 - May                                                    </option>
-                                                                                                    <option value="06" >
-                                                        06 - June                                                    </option>
-                                                                                                    <option value="07" >
-                                                        07 - July                                                    </option>
-                                                                                                    <option value="08" >
-                                                        08 - August                                                    </option>
-                                                                                                    <option value="09" >
-                                                        09 - September                                                    </option>
-                                                                                                    <option value="10" >
-                                                        10 - October                                                    </option>
-                                                                                                    <option value="11" >
-                                                        11 - November                                                    </option>
-                                                                                                    <option value="12" >
-                                                        12 - December                                                    </option>
-                                                                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <label for="billing_cardexp_year">Exp Year</label><br>
-                                            <select alt="Exp Year" name="billing_cardexp_year" id="ExpYear" required
-                                                    class="form-control  input-lg  required">
-                                                                                                    <option value="2025" >2025</option>
-                                                                                                    <option value="2026" >2026</option>
-                                                                                                    <option value="2027" >2027</option>
-                                                                                                    <option value="2028" >2028</option>
-                                                                                                    <option value="2029" >2029</option>
-                                                                                                    <option value="2030" >2030</option>
-                                                                                                    <option value="2031" >2031</option>
-                                                                                                    <option value="2032" >2032</option>
-                                                                                                    <option value="2033" >2033</option>
-                                                                                                    <option value="2034" >2034</option>
-                                                                                                    <option value="2035" >2035</option>
-                                                                                                    <option value="2036" >2036</option>
-                                                                                                    <option value="2037" >2037</option>
-                                                                                                    <option value="2038" >2038</option>
-                                                                                                    <option value="2039" >2039</option>
-                                                                                                    <option value="2040" >2040</option>
-                                                                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row d-flex mb-3">
-                                        <div class="col-4 col-sm-3">
-                                            <label for="billing_cardcvv">Cvv</label><br>
-                                            <input type="text"
-                                                   alt="CVV"
-                                                   class="form-control ub-input-item single text form_elem_first_name required"
-                                                   maxlength="4"
-                                                   required name="billing_cardcvv"
-                                                   value=""
-                                                   placeholder="&bull;&bull;&bull;" data-toggle="tooltip"
-                                                   data-placement="auto left"
-                                                   title="First Name" data-validation="required"
-                                            >
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <input type="checkbox" name="acknowledge_0"
-                                                   value="yes"                                                    required> <span style="font-size:14px;font-weight:normal;">I agree to the <a href="terms.php" target="_blank" style="color:#000;">Terms and Conditions</a>, <a href="terms.php#refunds" target="_blank" style="color:#000;">Refund Policy</a>, <a href="privacy.php" target="_blank" style="color:#000;">Privacy Policy</a>, and I understand and acknowledge the risks and benefits of the prescribed drug. I acknowledge that my prescription will be reviewed by a medical practitioner for final approval before being shipped to me. Charges will appear from Direct-Meds.com.
-                                                   <br><br>
-                                                   <input type="checkbox" name="acknowledge_1" value="yes" checked required> I confirm that I understand <strong>I will need to upload a valid photo ID</strong> for my doctor to verify my identity and prescribe medication in compliance with federal law.</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-grid gap-2">
-                                        <button class="btn ctaBtn1 btnsubmit">
-                                            Continue
-                                        </button>
-                                    </div>
-                                    <br>
-                                    <center><img src="../assets/img_from_site/securicons.png" class="img-fluid"></center>
-                                    <br>
-                                    <hr>
-
-                                    <div>
-                                        <div><i class="bi bi-ban icopk"></i> No Monthly Membership Fees</div>
-                                        <div><i class="bi bi-ban icopk"></i> No Insurance Required</div>
-                                        <div><i class="bi bi-ban icopk"></i> No Monthly Access Fees</div>
-                                        <div><i class="bi bi-check icopk"></i> HSA Accepted</div>                                        <div><i class="bi bi-check icopk"></i> Includes Medication & Telemed Visits</div>
-                                        <div><i class="bi bi-check icopk"></i> Price Lock Guarantee</div>
-                                        <div><i class="bi bi-check icopk"></i> Patient Satisfaction Guarantee</div>
-                                        <div><i class="bi bi-check icopk"></i> All Medications Compounded in the USA</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <section class="container">
-                            <div class="row">
-                                <div class="col-xl-6 offset-xl-3">
-                                    <center>
-                                        <div class="spacer">&nbsp;</div>
-                                        <div class="col-sm-12 rating-wht">
-                                            <strong>4.8</strong> <i class="bi bi-star-fill"></i><i
-                                                class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                                class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><br>
-                                            <span style="font-size:12px;">Rated for all-inclusive pricing, delivery & effectiveness.</span>
-                                            <br><br>
-                                        </div>
-                                    </center>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <div class="container-fluid">
-            <div class="squares bannerbar">
-                <div class="row">
-                    <div class="col-lg-6 offset-lg-3 col-md-12">
+                    <div class="card-body">
+                        <h1>Where do we send your medication?</h1>
+                        <br>
                         <div class="row">
-                            <div class="col-3">
-                                <center>
-                                    <img src="../assets/img_from_site/guarantee.png" class="img-fluid">
-                                </center>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="col-12">
+                                <label for="shipping_address1">Address</label><br>
+                                <input type="text" id="shipping_address1"
+                                       class="form-control ub-input-item single text form_elem_address"
+                                       required name="shipping_address1"
+                                       value=""
+                                       placeholder="Street Address*"
+                                       data-toggle="tooltip" data-placement="auto left"
+                                       title="Address" data-validation="required" maxlength="35">
+                                <div id="poBoxWarning" style="display:none;color:red;font-weight:700;">Please enter an address that is not a PO Box.</div>
                             </div>
-                            <div class="col my-auto">
-                                <h4>Patient Satisfaction Guarantee</h4>
-                                <p class="textalt2" style="font-size:12px;">Your satisfaction and success are our priority. If you decide before your prescription ships that our program isn't for you, we'll cancel your order and provide a full refund. While we cannot process refunds once your prescription has been shipped, our expert staff has lots of options at their disposal to help you hit your weightloss goal and you can cancel future shipments at any time. </p>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="col-12">
+                                <label for="shipping_city">City</label><br>
+                                <input type="text"
+                                       class="form-control ub-input-item single text form_elem_city"
+                                       required
+                                       name="shipping_city"
+                                       value=""
+                                       placeholder="City/Town*"
+                                       data-toggle="tooltip" data-placement="auto left"
+                                       title="City"
+                                       data-validation="required">
                             </div>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="col">
+                                <label for="shipping_state">State</label><br>
+                                <select name="shipping_state"
+                                        data-value=""
+                                        required id="ShippingState"
+                                        class="form-control ub-input-item single text form_elem_state"
+                                        data-toggle="tooltip" data-placement="auto left"
+                                        title="State" data-validation="required">
+                                    <option value="" disabled selected>Select State</option>
+                                    <option value='AL' >Alabama</option><option value='AK' >Alaska</option><option value='AZ' >Arizona</option><option value='AR' >Arkansas</option><option value='CA' >California</option><option value='CO' >Colorado</option><option value='CT' >Connecticut</option><option value='DE' >Delaware</option><option value='DC' >District of Columbia</option><option value='FL' >Florida</option><option value='GA' >Georgia</option><option value='HI' >Hawaii</option><option value='ID' >Idaho</option><option value='IL' >Illinois</option><option value='IN' >Indiana</option><option value='IA' >Iowa</option><option value='KS' >Kansas</option><option value='KY' >Kentucky</option><option value='ME' >Maine</option><option value='MD' >Maryland</option><option value='MA' >Massachusetts</option><option value='MI' >Michigan</option><option value='MN' >Minnesota</option><option value='MO' >Missouri</option><option value='MT' >Montana</option><option value='NE' >Nebraska</option><option value='NV' >Nevada</option><option value='NH' >New Hampshire</option><option value='NJ' >New Jersey</option><option value='NM' >New Mexico</option><option value='NY' >New York</option><option value='NC' >North Carolina</option><option value='ND' >North Dakota</option><option value='OH' >Ohio</option><option value='OK' >Oklahoma</option><option value='OR' >Oregon</option><option value='PA' >Pennsylvania</option><option value='RI' >Rhode Island</option><option value='SC' >South Carolina</option><option value='SD' >South Dakota</option><option value='TN' >Tennessee</option><option value='TX' >Texas</option><option value='UT' >Utah</option><option value='VT' >Vermont</option><option value='VA' >Virginia</option><option value='WA' >Washington</option><option value='WV' >West Virginia</option><option value='WI' >Wisconsin</option><option value='WY' >Wyoming</option>                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="shipping_zipcode">Zipcode</label><br>
+                                <input id="zip" type="text"
+                                       class="form-control ub-input-item single text form_elem_zip_code"
+                                       required
+                                       name="shipping_zipcode"
+                                       value=""
+                                       placeholder="Zipcode*"
+                                       data-toggle="tooltip" data-placement="auto left"
+                                       title="00000 or 00000-0000" data-validation="required"
+                                       minlength="5" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?">
+                                <input type="hidden" name="shipping_country" value="US" />
+                            </div>
+                            <div class="spacer"></div><div class="spacer"></div><h4>Create your Patient Portal Password:</h4>
+<div class="spacer"></div>
+<div class="col">
+    <label for="password">Create Password</label><br>
+    <input type="text" class="form-control duplicated-input" id="psw" name="password" data-pair="psw2" data-warning="passWarning" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*])[A-Za-z\d!@#$%^*]{8,}" title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters" value="" required>
+</div>
+<div class="col">
+    <label for="password_verification">Confirm Password</label><br>
+    <input type="text" id="psw2" name="password_verification" class="form-control duplicated-input" data-pair="psw" data-warning="passWarning" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*])[A-Za-z\d!@#$%^*]{8,}" title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters" value="" required>
+</div>
+
+<div id="message">
+    <span>Password must contain the following:</span><br><br>
+    <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+    <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+    <p id="number" class="invalid">A <b>number</b></p>
+    <p id="special" class="invalid">A <b>special character</b> (!@#$%^*)</p>
+    <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+    <p id="invalidChars" class="valid"><b>Invalid characters found:</b> <span id="invalidCharsFound">None</span></p>
+</div>
+<div id="passWarning" style="display:none;color:red;font-weight:700;">The passwords you entered do not match. Please check and ensure both entries are the same.</div>
+<script>
+    var passwordInput = document.getElementById("psw");
+    var letter = document.getElementById("letter");
+    var capital = document.getElementById("capital");
+    var number = document.getElementById("number");
+    var special = document.getElementById("special");
+    var length = document.getElementById("length");
+    var invalidChars = document.getElementById("invalidChars");
+    var invalidCharsFound = document.getElementById("invalidCharsFound");
+    var submitButton = document.getElementById('btnSubmit');
+    var passwordMessage = document.getElementById("message");
+
+
+    // When the user clicks on the password field, show the message box
+    passwordInput.onfocus = function() {
+        passwordMessage.style.display = "block";
+    }
+
+    // When the user clicks outside of the password field, hide the message box
+    passwordInput.onblur = function() {
+        passwordMessage.style.display = "none";
+    }
+
+    // When the user starts to type something inside the password field
+    passwordInput.onkeyup = function() {
+        var valid = true;
+        // Validate lowercase letters
+        var lowerCaseLetters = /[a-z]/g;
+        if(passwordInput.value.match(lowerCaseLetters)) {
+            letter.classList.remove("invalid");
+            letter.classList.add("valid");
+        } else {
+            valid = false;
+            letter.classList.remove("valid");
+            letter.classList.add("invalid");
+        }
+
+        // Validate capital letters
+        var upperCaseLetters = /[A-Z]/g;
+        if(passwordInput.value.match(upperCaseLetters)) {
+            capital.classList.remove("invalid");
+            capital.classList.add("valid");
+        } else {
+            valid = false;
+            capital.classList.remove("valid");
+            capital.classList.add("invalid");
+        }
+
+        // Validate numbers
+        var numbers = /[0-9]/g;
+        if(passwordInput.value.match(numbers)) {
+            number.classList.remove("invalid");
+            number.classList.add("valid");
+        } else {
+            valid = false;
+            number.classList.remove("valid");
+            number.classList.add("invalid");
+        }
+
+        // Validate special characters
+        var specials = /[!@#$%^*]/g;
+        if(passwordInput.value.match(specials)) {
+            special.classList.remove("invalid");
+            special.classList.add("valid");
+        } else {
+            valid = false;
+            special.classList.remove("valid");
+            special.classList.add("invalid");
+        }
+
+        // Validate length
+        if(passwordInput.value.length >= 8) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            valid = false;
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+
+        // Display any invalid characters
+        var allowedCharacters = /[a-zA-Z0-9!@#$%^*]/g;
+        var invalidCharactersFound = passwordInput.value;
+        invalidCharactersFound = invalidCharactersFound.replace(allowedCharacters, '');
+        if (invalidCharactersFound.length > 0) {
+            valid = false;
+            invalidCharsFound.innerHTML = invalidCharactersFound;
+            invalidChars.classList.remove("valid");
+            invalidChars.classList.add("invalid");
+        } else {
+            invalidCharsFound.innerHTML = 'None';
+            invalidChars.classList.remove("invalid");
+            invalidChars.classList.add("valid");
+        }
+
+        if (valid) {
+            passwordMessage.classList.remove('show');
+            if (submitButton.classList.contains('disabled-by-password')) {
+                submitButton.disabled = false;
+                submitButton.classList.contains('disabled-by-password');
+            }
+        } else {
+            passwordMessage.classList.add('show');
+            submitButton.classList.add('disabled-by-password');
+            submitButton.disabled = true;
+        }
+    }
+</script>                            <div class="spacer">&nbsp;</div>
+                            <div class="col">
+                                <input type="checkbox" name="dm_mailing_list" value="yes" style="opacity:1;position:relative;">
+                                                                    I would like to join the Direct Meds mailing list for email updates &amp; special offers.
+                                                            </div>
+
+                            <div class="spacer">&nbsp;</div>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="spacer">&nbsp;</div>
+                            <button type="submit" id="btnSubmit" class="btn btn-lg ctaBtn1 btnsubmit">
+                                Save & Continue <i class="bi bi-arrow-right-short"></i>
+                            </button>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="spacer">&nbsp;</div>
+                            <div class="spacer">&nbsp;</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><div class="footer-badge" ><a href="https://cardinsight.com" target="_blank" ><img src="img/ci-badge.png" class="img-fluid d-block mx-auto" style="max-width:150px;margin-top:40px;"></a></div><script>
+    </section>
+    <div class="footer-badge"><a href="https://www.legitscript.com/websites/?checker_keywords=directmeds.com" target="_blank" title="Verify LegitScript Approval for www.directmeds.com"><img src="../assets/img_from_site/183773.png" alt="Verify Approval for www.directmeds.com" width="73" height="79" /></a></div><script>
     const intervalId = setInterval(() => {
         const el = document.querySelector('a[href^="https://www.legitscript.com"]');
         if (el) {
@@ -553,49 +390,13 @@
     }, 100);
 </script>
 </form>
-<script src="../assets/js_from_site/utils.min.js"></script>
+<div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://directmeds.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Direct Meds, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js_from_site/jquery-1.12.1.min.js"></script>
 <script>
-    function startTimer(duration, display) {
-        let timer = duration, minutes, seconds;
-        setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            display.textContent = minutes + ":" + seconds;
-
-            if (--timer < 0) {
-                timer = 0;
-            }
-        }, 1000);
-    }
-
-    window.onload = () => {
-        const tenMinutes = 60 * 10,
-            display = document.querySelector('#timer');
-        startTimer(tenMinutes, display);
-    };
-
-
 </script>
 <script src="../assets/js_from_site/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-
-<script>
-    window.addEventListener('DOMContentLoaded', function () {
-        OSForm.cardFormatter()
-        OSForm.prefetchGateway('prefetch-gateway.php', (productArray, body) => {
-    if (productArray.length === 0) {
-        return;
-    }
-
-    body.append(`product`, productArray[0]);
-})    });
-</script>
-
+<script src="../assets/js_from_site/utils.min.js"></script>
 <script>
     /*! lozad.js - v1.5.0 - 2018-07-16 https://github.com/ApoorvSaxena/lozad.js Apoorv Saxena; Licensed MIT */
     !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):t.lozad=e()}(this,function(){"use strict";function t(t){t.setAttribute("data-loaded",!0)}var e=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var r=arguments[e];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(t[n]=r[n])}return t},r=document.documentMode,n={rootMargin:"0px",threshold:0,load:function(t){if("picture"===t.nodeName.toLowerCase()){var e=document.createElement("img");r&&t.getAttribute("data-iesrc")&&(e.src=t.getAttribute("data-iesrc")),t.getAttribute("data-alt")&&(e.alt=t.getAttribute("data-alt")),t.appendChild(e)}t.getAttribute("data-src")&&(t.src=t.getAttribute("data-src")),t.getAttribute("data-srcset")&&(t.srcset=t.getAttribute("data-srcset")),t.getAttribute("data-background-image")&&(t.style.backgroundImage="url('"+t.getAttribute("data-background-image")+"')")},loaded:function(){}},o=function(t){return"true"===t.getAttribute("data-loaded")};return function(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:".lozad",a=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=e({},n,a),d=i.rootMargin,u=i.threshold,c=i.load,s=i.loaded,g=void 0;return window.IntersectionObserver&&(g=new IntersectionObserver(function(e,r){return function(n,a){n.forEach(function(n){n.intersectionRatio>0&&(a.unobserve(n.target),o(n.target)||(e(n.target),t(n.target),r(n.target)))})}}(c,s),{rootMargin:d,threshold:u})),{observe:function(){for(var e=function(t){return t instanceof Element?[t]:t instanceof NodeList?t:document.querySelectorAll(t)}(r),n=0;n<e.length;n++)o(e[n])||(g?g.observe(e[n]):(c(e[n]),t(e[n]),s(e[n])))},triggerLoad:function(e){o(e)||(c(e),t(e),s(e))}}}});
@@ -604,13 +405,6 @@
     window.lazyLoad = lozad('.lazyload' );
     window.lazyLoad.observe();
 </script><script>
-    window.OfferConfig = {
-        use_three_secure: true,
-        show_three_secure_challenges: false,
-    };
-    window.cid = 'cid-68e34489de137c9b2f02b06e51d626a3';
-</script>
-<script>
         function setCountryState(map, country, name) {
         if (country != null && country.value != null && ['US', 'CA'].indexOf(country.value) !== -1) {
             var sSelects = document.getElementsByTagName('select');
@@ -650,7 +444,7 @@
         }
     };
 </script><script>
-    smartlook('identify', 'cid-68e34489de137c9b2f02b06e51d626a3', {
+    smartlook('identify', 'cid-68e3438ce3de3d970b61d3eb557e9cea', {
         "offer": "dm-offers",
         "click_id": "",
         "affiliate": "",
@@ -711,10 +505,10 @@ function etSubmit(data) {
         'sub_aff_id': '',
         'everflow_offer_id': '',
         'offer_id': 'dm-offers',
-        'external_customer_id': 'cid-68e34489de137c9b2f02b06e51d626a3',
+        'external_customer_id': 'cid-68e3438ce3de3d970b61d3eb557e9cea',
         'source_id': '',
         'everflow_uid': '',
-        'page': 'checkout',
+        'page': 'shipping',
         'ip_address': '34.46.237.233',
         'user_agent': 'curl/8.5.0',
         'noise': noise,
@@ -751,7 +545,7 @@ function etSubmit(data) {
             sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
             uid: EF.urlParameter('uid'),
             transaction_id: EF.urlParameter('_ef_transaction_id'),
-            Adv1: 'cid-68e34489de137c9b2f02b06e51d626a3',
+            Adv1: 'cid-68e3438ce3de3d970b61d3eb557e9cea',
             // coupon_code: EF.urlParameter('coupon_code'),//Note: caused intermittent tracking issues when present
             parameters: {
                 sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
@@ -814,7 +608,7 @@ function etSubmit(data) {
         }
         let conversionDetails = {
             offer_id: '',
-            adv1: 'cid-68e34489de137c9b2f02b06e51d626a3',
+            adv1: 'cid-68e3438ce3de3d970b61d3eb557e9cea',
             adv2: '',
             adv3: '',
             adv4: null ?? (typeof getCookie === "function" ? getCookie('_fbp') : null),
@@ -848,7 +642,7 @@ function etSubmit(data) {
                         setTimeout(firePageEvents,500,transId);
                     }
                 });
-                etSubmitData['event_key'] = 'add_to_cart';
+                etSubmitData['event_key'] = 'questionnaire_started';
                 etSubmitData['event_type'] = 'everflow_' + (advEventId == null && eventId == null ? 'conversion' : 'event');
                 etSubmitData['everflow_transaction_id'] = efTransactionId ? efTransactionId : (transId ? transId : '');
                 etSubmitData['noise'] = noise;
@@ -860,6 +654,42 @@ function etSubmit(data) {
         firePageEvents();
     }
 </script>
-<script src="../assets/js_from_site/checkout.js"></script>
+<script>
+    var submitButton = document.getElementById('btnSubmit');
+    $(".progress-bar").animate({
+        width: "81.25%"
+    }, 500);
+    document.getElementById('shipping_phone').addEventListener('input', function (e) {
+        var x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+    document.getElementById('shipping_address1').addEventListener('input', function (e) {
+        const poBoxPattern = /(?:P\.? ?O\.?\s*Box|Post\s*Office\s*Box)/i;
+        let poBoxWarning = document.getElementById('poBoxWarning');
+        let addressInput = document.getElementById('shipping_address1');
+
+        if (poBoxPattern.test(addressInput.value)) {
+            poBoxWarning.style.display = 'inline'; // Show warning
+            submitButton.disabled = true; // Disable submit button
+        } else {
+            poBoxWarning.style.display = 'none'; // Hide warning
+            submitButton.disabled = false; // Enable submit button
+        }
+    });
+    $(document).ready(function() {
+        $('.duplicated-input').on('input change', function() {
+            let warning = $('#'+$(this).data('warning'));
+            let pair = $('#'+$(this).data('pair'));
+            console.log([warning,pair,$(this)])
+            if ($(this).val() != pair.val()) {
+                warning.css('display','inline');
+                submitButton.disabled = true;
+            } else {
+                warning.css('display','none');
+                submitButton.disabled = false;
+            }
+        });
+    });
+</script>
 </body>
 </html>
