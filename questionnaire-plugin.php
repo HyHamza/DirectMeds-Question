@@ -273,17 +273,20 @@ function qp_get_next_page($current_slug, $data) {
 
     // Page progression logic
     if (strpos($current_slug, 'questionnaire-') === 0) {
-        $page_number = (int) str_replace('questionnaire-', '', $current_slug);
+        $page_part = str_replace('questionnaire-', '', $current_slug);
+        if (is_numeric($page_part)) {
+            $page_number = (int) $page_part;
 
-        if ($page_number == 5) {
-            return 'questionnaire-5b';
-        }
-
-        if ($page_number > 0) {
-            if ($page_number == 14) {
-                return 'calculating';
+            if ($page_number == 5) {
+                return 'questionnaire-5b';
             }
-            return 'questionnaire-' . ($page_number + 1);
+
+            if ($page_number > 0) {
+                if ($page_number == 14) {
+                    return 'calculating';
+                }
+                return 'questionnaire-' . ($page_number + 1);
+            }
         }
     }
 
