@@ -495,7 +495,6 @@ function qp_handle_checkout_submission() {
     // Set payment gateway and other order details
     $order->set_total($price);
 
-    $order->calculate_totals();
     $order->save();
 
     // Set payment gateway
@@ -520,7 +519,8 @@ function qp_handle_checkout_submission() {
         $order->payment_complete();
         unset($_SESSION['WeightLossAdvocates_data']);
         unset($_SESSION['WeightLossAdvocates_order_id']);
-        wp_redirect($result['redirect']);
+        // Redirect to the WooCommerce standard thank you page
+        wp_redirect($order->get_checkout_order_received_url());
         exit;
     } else {
         $order->update_status('failed', 'Payment failed.');
