@@ -154,7 +154,7 @@
     <input type="hidden" name="page_slug" value="shipping">
     <nav class="navbar navbar-expand-lg bg-body-tertiary ">
         <div class="container justify-content-center">
-            <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" witdth='60px' class="img-fluid">
+            <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
         </div>
     </nav>
     <section class="container questions-stage">

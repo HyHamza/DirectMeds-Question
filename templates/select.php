@@ -21,91 +21,7 @@
     <script type="text/javascript" src="../assets/js_from_site/everflow.js"></script>
 <script src="../assets/js_from_site/smartlook.js"></script>
 <!-- Matomo -->
-<script>
-    var _paq = window._paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(["setCookieDomain", "*.theweightlossadvocates.com"]);
-    _paq.push(["setDomains", ["*.theweightlossadvocates.com","*.app.theweightlossadvocates.com"]]);
-                _paq.push(['setCustomDimension', 4, 'cid-68e34272b103b3906cc0f8ca67c61952']);    _paq.push(["enableCrossDomainLinking"]);
-    _paq.push(["setExcludedQueryParams", ["\/admin"]]);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    
-</script>
- 
 
-        <script>
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-            'aff_id': '',
-            'source_id': '',
-            'oid': '',
-            'uid': '',
-            'converted': '',
-            'ip_address': '34.46.237.233',
-            'user_agent': 'curl/8.5.0',
-            'customer_id': 'cid-68e34272b103b3906cc0f8ca67c61952',
-            'last_touch_channel': '',
-            'offer_slug': 'dm-offers',
-            'page': 'select'
-        });
-        </script>
-          
-<!-- End Google Tag Manager -->
-<script>
-    var fbBrowserIdAttempt = 0;
-    function storeFBBrowserIdOnServer() {
-        fbBrowserIdAttempt++;
-        if (fbBrowserIdAttempt == 10) {
-            return;
-        }
-        var browserId = getCookie('_fbp');
-        if (document.body == null) {
-            document.addEventListener("DOMContentLoaded", function() {
-                setTimeout(storeFBBrowserIdOnServer,500);
-            });
-            return;
-        } else if (browserId == null) {
-            setTimeout(storeFBBrowserIdOnServer,500);
-            return;
-        }
-
-        if (browserId != "" && browserId != null && browserId != undefined) {
-            var url = new URL(window.location.href);
-            var img = document.createElement('img');
-            var pathname = url.pathname.split("/").filter((value) => value)[0] ?? '';
-            if (pathname != "") {
-                pathname = pathname + '/';
-            }
-            if (pathname.indexOf('.php') > -1) {
-                pathname = '';
-            }
-            img.src = url.origin + '/' + pathname + 'storeTransId.php?fb_browser_id=' + browserId;
-            img.style.visibility = 'hidden';
-            img.style.height = '0px';
-            img.style.width = '0px';
-            document.body.appendChild(img);
-        }
-    }
-
-    function getCookie(name) {
-        var nameEQ = name + "=";
-        var cookies = document.cookie.split(';');
-
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i];
-            while (cookie.charAt(0) === ' ') {
-                cookie = cookie.substring(1);
-            }
-            if (cookie.indexOf(nameEQ) === 0) {
-                return cookie.substring(nameEQ.length, cookie.length);
-            }
-        }
-
-        return null;
-    }
-</script>
     <style>
         .benefit-labels {
             display: flex;
@@ -165,7 +81,7 @@
     have the best experience that you can with our website.<br>This website can help you: <a
             href="http://browsehappy.com/">browsehappy.com</a></p><![endif]--><nav class="navbar navbar-expand-lg bg-body-tertiary ">
     <div class="container justify-content-center">
-        <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" witdth='60px' class="img-fluid">
+        <img src="../assets/img_from_site/logo-dk.png" alt="Weight Loss Advocates" width='60px' class="img-fluid">
     </div>
 </nav>
 <section class="container-fluid offsetbg">
