@@ -339,6 +339,11 @@
 </form>
 <div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br><script type="text/javascript" src="../assets/js_from_site/jquery-1.12.1.min.js"></script>
 <script>
+</script>
+<script src="../assets/js_from_site/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script>
     function initAutocomplete() {
         var addressInput = document.getElementById('shipping_address1');
         var autocomplete = new google.maps.places.Autocomplete(addressInput, {
@@ -379,9 +384,6 @@
     }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
-<script src="../assets/js_from_site/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 
 <script>
     var submitButton = document.getElementById('btnSubmit');
