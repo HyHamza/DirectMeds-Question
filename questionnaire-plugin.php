@@ -514,13 +514,16 @@ function qp_handle_checkout_submission() {
         $order->save();
         $result = $nmi_gateway->process_payment($order->get_id());
 
-        if ($result['result'] == 'success') {
+        if (is_array($result) && !empty($result['result']) && $result['result'] === 'success') {
             $order->payment_complete();
             unset($_SESSION['WeightLossAdvocates_data']);
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         } else {
-            $error_message = !empty($result['messages']) ? $result['messages'] : 'Payment failed. Please check your payment details and try again.';
+            $error_message = 'Payment failed. Please check your payment details and try again.';
+            if (is_array($result) && !empty($result['messages'])) {
+                $error_message = $result['messages'];
+            }
             throw new Exception(strip_tags($error_message));
         }
 
