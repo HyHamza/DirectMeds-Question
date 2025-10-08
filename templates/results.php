@@ -120,7 +120,7 @@
                                 </div>
 
                                 <div><h1><span style="color:#51B3FA">4.</span> <span style="font-size:21px;font-family:'Poppins', sans-serif;font-weight:bold;">Doctor's Review:</span></h1>
-                                    <p style="font-weight:300 !important;">The doctor will review your chart by <strong style="font-weight:600;color:#9638c2">10/06/2025                                        </strong>. (Usually within 5 hours including weekends.)
+                                    <p style="font-weight:300 !important;">The doctor will review your chart by <strong id="review-date" style="font-weight:600;color:#9638c2"></strong>. (Usually within 5 hours including weekends.)
 
                                     </p>
 
@@ -132,7 +132,7 @@
 
                                 </div>
 
-                                <div><center><h2><span style="color:#51B3FA;font-size:80%;font-family:Poppins;">YOUR EXPECTED DELIVERY DATE IS</span><br/> <span style="font-size:21px;">Wednesday, October 8!</span></h2></center>
+                                <div><center><h2><span style="color:#51B3FA;font-size:80%;font-family:Poppins;">YOUR EXPECTED DELIVERY DATE IS</span><br/> <span id="delivery-date" style="font-size:21px;"></span></h2></center>
                                     <p style="font-weight:300 !important;">
                                     </p>
 
@@ -757,6 +757,33 @@
         "affiliate": "",
         "sub_affiliate": "",
         "aff_click_id": ""
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate and display the review date
+        const reviewDateElement = document.getElementById('review-date');
+        if (reviewDateElement) {
+            const now = new Date();
+            now.setHours(now.getHours() + 5);
+            const reviewDate = now.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            });
+            reviewDateElement.textContent = reviewDate;
+        }
+
+        // Calculate and display the delivery date
+        const deliveryDateElement = document.getElementById('delivery-date');
+        if (deliveryDateElement) {
+            const deliveryDate = new Date();
+            deliveryDate.setDate(deliveryDate.getDate() + 5);
+            const deliveryDay = deliveryDate.toLocaleDateString('en-US', { weekday: 'long' });
+            const deliveryMonth = deliveryDate.toLocaleDateString('en-US', { month: 'long' });
+            const deliveryDayOfMonth = deliveryDate.getDate();
+            deliveryDateElement.textContent = `${deliveryDay}, ${deliveryMonth} ${deliveryDayOfMonth}!`;
+        }
     });
 </script>
 <script>
