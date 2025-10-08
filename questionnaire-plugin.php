@@ -532,7 +532,7 @@ function qp_handle_checkout_submission() {
             $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
         }
         wc_add_notice(sprintf('An error occurred: %s', $e->getMessage()), 'error');
-        wp_redirect(get_permalink(get_page_by_path('checkout')));
+        wp_redirect(wc_get_checkout_url());
         exit;
     }
 }
