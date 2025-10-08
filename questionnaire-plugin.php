@@ -446,86 +446,97 @@ function qp_handle_checkout_submission() {
         exit;
     }
 
+    // Server-side validation and fallback for CC expiration
+    if (isset($_POST['billing_cardexp_month']) && isset($_POST['billing_cardexp_year'])) {
+        $exp_month = sanitize_text_field($_POST['billing_cardexp_month']);
+        $exp_year = sanitize_text_field($_POST['billing_cardexp_year']);
+        // Format to MMYY
+        $_POST['ccexp'] = $exp_month . substr($exp_year, -2);
+    }
+
+
     $data = $_SESSION['WeightLossAdvocates_data'];
     $product_id = sanitize_text_field($data['product'] ?? '1');
     $dosage = sanitize_text_field($data['dosage'] ?? 'default');
 
-    // Get the SKU from product data
     $products = get_product_prices();
     $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
 
     if (!$sku) {
-        // Handle error: SKU not found
-        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=product_not_found');
+        wc_add_notice('Error: Product configuration not found. Please try again.', 'error');
+        wp_redirect(get_permalink(get_page_by_path('checkout')));
         exit;
     }
 
     $product_id_wc = wc_get_product_id_by_sku($sku);
 
     if (!$product_id_wc) {
-        // Handle error: Product not found in WooCommerce
-        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=product_not_found_wc');
+        wc_add_notice('Error: Product not found in the store. Please contact support.', 'error');
+        wp_redirect(get_permalink(get_page_by_path('checkout')));
         exit;
     }
 
     $product = wc_get_product($product_id_wc);
     $price = $data['price'] ?? $product->get_price();
-
-    // Create a new WooCommerce order
     $order = wc_create_order();
 
-    // Add product to the order
-    $order->add_product($product, 1);
+    try {
+        $order->add_product($product, 1);
+        $address = array(
+            'first_name' => sanitize_text_field($data['shipping_firstname']),
+            'last_name'  => sanitize_text_field($data['shipping_lastname']),
+            'email'      => sanitize_email($data['shipping_email']),
+            'phone'      => sanitize_text_field($data['shipping_phone']),
+            'address_1'  => sanitize_text_field($data['shipping_address1']),
+            'city'       => sanitize_text_field($data['shipping_city']),
+            'state'      => sanitize_text_field($data['shipping_state']),
+            'postcode'   => sanitize_text_field($data['shipping_zipcode']),
+            'country'    => 'US'
+        );
+        $order->set_address($address, 'billing');
+        $order->set_address($address, 'shipping');
+        $order->set_total($price);
+        $order->save();
 
-    // Set customer address
-    $address = array(
-        'first_name' => sanitize_text_field($data['shipping_firstname']),
-        'last_name'  => sanitize_text_field($data['shipping_lastname']),
-        'email'      => sanitize_email($data['shipping_email']),
-        'phone'      => sanitize_text_field($data['shipping_phone']),
-        'address_1'  => sanitize_text_field($data['shipping_address1']),
-        'city'       => sanitize_text_field($data['shipping_city']),
-        'state'      => sanitize_text_field($data['shipping_state']),
-        'postcode'   => sanitize_text_field($data['shipping_zipcode']),
-        'country'    => 'US'
-    );
-    $order->set_address($address, 'billing');
-    $order->set_address($address, 'shipping');
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        $nmi_gateway = $payment_gateways['nmi'] ?? null;
 
-    // Set payment gateway and other order details
-    $order->set_total($price);
+        if (!$nmi_gateway) {
+            throw new Exception('NMI payment gateway not available.');
+        }
 
-    $order->save();
+        // Check if NMI is in test mode
+        if ($nmi_gateway->get_option('test_mode') === 'yes') {
+            // Test mode: complete order without payment processing
+            $order->payment_complete();
+            $order->update_status('processing', 'Test mode payment completed.');
+            unset($_SESSION['WeightLossAdvocates_data']);
+            wp_redirect($order->get_checkout_order_received_url());
+            exit;
+        }
 
-    // Set payment gateway
-    $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-    $nmi_gateway = $payment_gateways['nmi'] ?? null;
+        // Live mode: process payment
+        $order->set_payment_method($nmi_gateway);
+        $order->save();
+        $result = $nmi_gateway->process_payment($order->get_id());
 
-    if (!$nmi_gateway) {
-        // Handle error: NMI gateway not available
-        $order->update_status('failed', 'NMI payment gateway not available.');
-        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=payment_gateway_unavailable');
-        exit;
-    }
+        if ($result['result'] == 'success') {
+            $order->payment_complete();
+            unset($_SESSION['WeightLossAdvocates_data']);
+            wp_redirect($order->get_checkout_order_received_url());
+            exit;
+        } else {
+            // Throw an exception with the failure message from the gateway if available
+            $error_message = !empty($result['messages']) ? $result['messages'] : 'Payment failed. Please check your payment details and try again.';
+            throw new Exception(strip_tags($error_message));
+        }
 
-    $order->set_payment_method($nmi_gateway);
-    $order->save();
-
-    // Process the payment
-    $result = $nmi_gateway->process_payment($order->get_id());
-
-    // Handle the result
-    if ($result['result'] == 'success') {
-        $order->payment_complete();
-        unset($_SESSION['WeightLossAdvocates_data']);
-        unset($_SESSION['WeightLossAdvocates_order_id']);
-        // Redirect to the WooCommerce standard thank you page
-        wp_redirect($order->get_checkout_order_received_url());
-        exit;
-    } else {
-        $order->update_status('failed', 'Payment failed.');
-        // Redirect back to checkout with an error message
-        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=payment_failed');
+    } catch (Exception $e) {
+        if ($order && $order->get_id()) {
+            $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
+        }
+        wc_add_notice(sprintf('An error occurred: %s', $e->getMessage()), 'error');
+        wp_redirect(get_permalink(get_page_by_path('checkout')));
         exit;
     }
 }
