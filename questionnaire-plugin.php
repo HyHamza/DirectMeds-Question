@@ -411,8 +411,6 @@ function qp_get_next_page($current_slug, $data) {
             return 'shipping';
         case 'shipping':
             return 'checkout';
-        case 'checkout':
-            return 'thank-you';
         default:
             break;
     }
@@ -446,41 +444,40 @@ function qp_handle_checkout_submission() {
         exit;
     }
 
-    // Server-side validation and fallback for CC expiration
-    if (isset($_POST['billing_cardexp_month']) && isset($_POST['billing_cardexp_year'])) {
-        $exp_month = sanitize_text_field($_POST['billing_cardexp_month']);
-        $exp_year = sanitize_text_field($_POST['billing_cardexp_year']);
-        // Format to MMYY
-        $_POST['ccexp'] = $exp_month . substr($exp_year, -2);
-    }
-
-
-    $data = $_SESSION['WeightLossAdvocates_data'];
-    $product_id = sanitize_text_field($data['product'] ?? '1');
-    $dosage = sanitize_text_field($data['dosage'] ?? 'default');
-
-    $products = get_product_prices();
-    $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
-
-    if (!$sku) {
-        wc_add_notice('Error: Product configuration not found. Please try again.', 'error');
-        wp_redirect(get_permalink(get_page_by_path('checkout')));
-        exit;
-    }
-
-    $product_id_wc = wc_get_product_id_by_sku($sku);
-
-    if (!$product_id_wc) {
-        wc_add_notice('Error: Product not found in the store. Please contact support.', 'error');
-        wp_redirect(get_permalink(get_page_by_path('checkout')));
-        exit;
-    }
-
-    $product = wc_get_product($product_id_wc);
-    $price = $data['price'] ?? $product->get_price();
-    $order = wc_create_order();
+    $order = null; // Initialize order variable
 
     try {
+        // Server-side validation and fallback for CC expiration
+        if (isset($_POST['billing_cardexp_month']) && isset($_POST['billing_cardexp_year'])) {
+            $exp_month = sanitize_text_field($_POST['billing_cardexp_month']);
+            $exp_year = sanitize_text_field($_POST['billing_cardexp_year']);
+            $_POST['ccexp'] = $exp_month . substr($exp_year, -2);
+        }
+
+        $data = $_SESSION['WeightLossAdvocates_data'];
+        $product_id = sanitize_text_field($data['product'] ?? '1');
+        $dosage = sanitize_text_field($data['dosage'] ?? 'default');
+
+        $products = get_product_prices();
+        $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
+
+        if (!$sku) {
+            throw new Exception('Product configuration not found. Please try again.');
+        }
+
+        $product_id_wc = wc_get_product_id_by_sku($sku);
+        if (!$product_id_wc) {
+            throw new Exception('Product not found in the store. Please contact support.');
+        }
+
+        $product = wc_get_product($product_id_wc);
+        $price = $data['price'] ?? $product->get_price();
+
+        $order = wc_create_order();
+        if (!$order || is_wp_error($order)) {
+            throw new Exception('We were unable to create your order. Please try again or contact us for assistance.');
+        }
+
         $order->add_product($product, 1);
         $address = array(
             'first_name' => sanitize_text_field($data['shipping_firstname']),
@@ -505,9 +502,7 @@ function qp_handle_checkout_submission() {
             throw new Exception('NMI payment gateway not available.');
         }
 
-        // Check if NMI is in test mode
         if ($nmi_gateway->get_option('test_mode') === 'yes') {
-            // Test mode: complete order without payment processing
             $order->payment_complete();
             $order->update_status('processing', 'Test mode payment completed.');
             unset($_SESSION['WeightLossAdvocates_data']);
@@ -515,7 +510,6 @@ function qp_handle_checkout_submission() {
             exit;
         }
 
-        // Live mode: process payment
         $order->set_payment_method($nmi_gateway);
         $order->save();
         $result = $nmi_gateway->process_payment($order->get_id());
@@ -526,13 +520,12 @@ function qp_handle_checkout_submission() {
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         } else {
-            // Throw an exception with the failure message from the gateway if available
             $error_message = !empty($result['messages']) ? $result['messages'] : 'Payment failed. Please check your payment details and try again.';
             throw new Exception(strip_tags($error_message));
         }
 
     } catch (Exception $e) {
-        if ($order && $order->get_id()) {
+        if ($order && is_a($order, 'WC_Order') && $order->get_id()) {
             $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
         }
         wc_add_notice(sprintf('An error occurred: %s', $e->getMessage()), 'error');
