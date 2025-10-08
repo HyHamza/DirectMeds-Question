@@ -184,7 +184,7 @@
 
                         <div class="col-3">
                             <center>
-                                <img src="img/guarantee.png" class="img-fluid">
+                                <img src="../assets/images/guarantee.png" class="img-fluid">
                             </center>
                         </div>
                         <div class="col my-auto">
@@ -199,7 +199,7 @@
                 </div>
 
                 <div class="squares">
-                    <img src="img/products-mobi-2.png" class="img-fluid">
+                    <img src="../assets/images/products-mobi-2.png" class="img-fluid">
                     <div class="spacer">&nbsp;</div>
                     <div class="row">
                         <div class="col sq1">

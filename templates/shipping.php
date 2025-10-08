@@ -113,9 +113,6 @@
     </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KQ2ZVDZG"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="post">
     <input type="hidden" name="action" value="WeightLossAdvocates_submit">
     <input type="hidden" name="page_slug" value="shipping">
