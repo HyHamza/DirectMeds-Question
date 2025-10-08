@@ -121,8 +121,8 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="billing_cardnumber">Card Number</label><br>
-                                            <input type="tel" name="billing_cardnumber" required id="CreditCardNumber"
+                                            <label for="ccnumber">Card Number</label><br>
+                                            <input type="tel" name="ccnumber" required id="CreditCardNumber"
                                                    alt="Credit Card Number"
                                                    value=""
                                                    data-validation="required"
@@ -181,19 +181,20 @@
                                                                                                     <option value="2040" >2040</option>
                                                                                             </select>
                                         </div>
+                                        <input type="hidden" name="ccexp" id="ccexp" value="">
                                     </div>
                                     <div class="row d-flex mb-3">
                                         <div class="col-4 col-sm-3">
-                                            <label for="billing_cardcvv">Cvv</label><br>
+                                            <label for="cvv">Cvv</label><br>
                                             <input type="text"
                                                    alt="CVV"
                                                    class="form-control ub-input-item single text form_elem_first_name required"
                                                    maxlength="4"
-                                                   required name="billing_cardcvv"
+                                                   required name="cvv"
                                                    value=""
                                                    placeholder="&bull;&bull;&bull;" data-toggle="tooltip"
                                                    data-placement="auto left"
-                                                   title="First Name" data-validation="required"
+                                                   title="CVV" data-validation="required"
                                             >
                                         </div>
                                     </div>
@@ -287,5 +288,24 @@
 })    });
 </script>
 <script src="../assets/js_from_site/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const expMonthEl = document.getElementById('ExpMonth');
+        const expYearEl = document.getElementById('ExpYear');
+        const ccexpEl = document.getElementById('ccexp');
+
+        function updateCcexp() {
+            const month = expMonthEl.value;
+            const year = expYearEl.value.slice(-2); // Get last two digits of the year
+            ccexpEl.value = month + year;
+        }
+
+        expMonthEl.addEventListener('change', updateCcexp);
+        expYearEl.addEventListener('change', updateCcexp);
+
+        // Initial update
+        updateCcexp();
+    });
+</script>
 </body>
 </html>

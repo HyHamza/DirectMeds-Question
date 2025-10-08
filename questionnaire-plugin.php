@@ -13,10 +13,16 @@ if (!defined('ABSPATH')) {
 function qp_activate() {
     // Function to create pages
     qp_create_WeightLossAdvocates_pages();
+    // Function to create pages
+    qp_create_WeightLossAdvocates_pages();
     // Function to create database table
     qp_create_orders_table();
     // Function to create patient table
     qp_create_patient_table();
+    // Sync products with WooCommerce
+    if (function_exists('wc_get_product_id_by_sku')) {
+        qp_sync_woocommerce_products();
+    }
 
     // Retroactively add meta to existing pages
     $all_pages = get_posts([
@@ -34,6 +40,36 @@ function qp_activate() {
     }
 }
 register_activation_hook(__FILE__, 'qp_activate');
+
+function qp_sync_woocommerce_products() {
+    $products_json_path = plugin_dir_path(__FILE__) . 'data/products.json';
+    if (!file_exists($products_json_path)) {
+        return;
+    }
+
+    $products_data = json_decode(file_get_contents($products_json_path), true);
+    if (empty($products_data)) {
+        return;
+    }
+
+    foreach ($products_data as $product_group) {
+        foreach ($product_group['dosage'] as $dosage_details) {
+            $sku = $dosage_details['package_code'];
+            $product_id = wc_get_product_id_by_sku($sku);
+
+            if (!$product_id) {
+                $product = new WC_Product_Simple();
+                $product->set_name($dosage_details['name']);
+                $product->set_sku($sku);
+                $product->set_regular_price($dosage_details['price']);
+                $product->set_price($dosage_details['price']);
+                $product->set_status('publish');
+                $product->set_catalog_visibility('visible');
+                $product->save();
+            }
+        }
+    }
+}
 
 function qp_create_patient_table() {
     global $wpdb;
@@ -405,49 +441,91 @@ function qp_get_next_page($current_slug, $data) {
 }
 
 function qp_handle_checkout_submission() {
-    if (!isset($_SESSION['WeightLossAdvocates_data'])) {
+    if (!isset($_SESSION['WeightLossAdvocates_data']) || !function_exists('wc_create_order')) {
         wp_redirect(home_url());
         exit;
     }
 
-    global $wpdb;
-    $order_table_name = $wpdb->prefix . 'WeightLossAdvocates_orders';
-    $patient_table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
     $data = $_SESSION['WeightLossAdvocates_data'];
+    $product_id = sanitize_text_field($data['product'] ?? '1');
+    $dosage = sanitize_text_field($data['dosage'] ?? 'default');
 
-    $email = sanitize_email($data['shipping_email']);
-    $patient = $wpdb->get_row($wpdb->prepare("SELECT id FROM $patient_table_name WHERE email = %s", $email));
-    $patient_id = $patient ? $patient->id : 0;
+    // Get the SKU from product data
+    $products = get_product_prices();
+    $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
 
-    $wpdb->insert(
-        $order_table_name,
-        array(
-            'patient_id' => $patient_id,
-            'created_at' => current_time('mysql'),
-            'first_name' => sanitize_text_field($data['shipping_firstname']),
-            'last_name'  => sanitize_text_field($data['shipping_lastname']),
-            'phone'      => sanitize_text_field($data['shipping_phone']),
-            'email'      => $email,
-            'shipping_address1' => sanitize_text_field($data['shipping_address1']),
-            'shipping_city'     => sanitize_text_field($data['shipping_city']),
-            'shipping_state'    => sanitize_text_field($data['shipping_state']),
-            'shipping_zipcode'  => sanitize_text_field($data['shipping_zipcode']),
-            'medication' => isset($data['product']) ? sanitize_text_field($data['product']) : '',
-            'dosage' => isset($data['dosage']) ? sanitize_text_field($data['dosage']) : '',
-            'payment_plan' => isset($data['payment_plan']) ? sanitize_text_field($data['payment_plan']) : '',
-            'protocol_length' => isset($data['protocol_length']) ? sanitize_text_field($data['protocol_length']) : '',
-            'price'      => isset($data['price']) ? sanitize_text_field($data['price']) : '297.00',
-            'status'     => 'Completed',
-            'bmi'        => isset($data['intake_bmi']) ? sanitize_text_field($data['intake_bmi']) : 0,
-            'full_data'  => serialize($data),
-        )
+    if (!$sku) {
+        // Handle error: SKU not found
+        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=product_not_found');
+        exit;
+    }
+
+    $product_id_wc = wc_get_product_id_by_sku($sku);
+
+    if (!$product_id_wc) {
+        // Handle error: Product not found in WooCommerce
+        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=product_not_found_wc');
+        exit;
+    }
+
+    $product = wc_get_product($product_id_wc);
+    $price = $data['price'] ?? $product->get_price();
+
+    // Create a new WooCommerce order
+    $order = wc_create_order();
+
+    // Add product to the order
+    $order->add_product($product, 1);
+
+    // Set customer address
+    $address = array(
+        'first_name' => sanitize_text_field($data['shipping_firstname']),
+        'last_name'  => sanitize_text_field($data['shipping_lastname']),
+        'email'      => sanitize_email($data['shipping_email']),
+        'phone'      => sanitize_text_field($data['shipping_phone']),
+        'address_1'  => sanitize_text_field($data['shipping_address1']),
+        'city'       => sanitize_text_field($data['shipping_city']),
+        'state'      => sanitize_text_field($data['shipping_state']),
+        'postcode'   => sanitize_text_field($data['shipping_zipcode']),
+        'country'    => 'US'
     );
+    $order->set_address($address, 'billing');
+    $order->set_address($address, 'shipping');
 
-    unset($_SESSION['WeightLossAdvocates_data']);
+    // Set payment gateway and other order details
+    $order->set_total($price);
 
-    $redirect_url = get_permalink(get_page_by_path('thank-you'));
-    if ($redirect_url) {
-        wp_redirect($redirect_url);
+    $order->calculate_totals();
+    $order->save();
+
+    // Set payment gateway
+    $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+    $nmi_gateway = $payment_gateways['nmi'] ?? null;
+
+    if (!$nmi_gateway) {
+        // Handle error: NMI gateway not available
+        $order->update_status('failed', 'NMI payment gateway not available.');
+        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=payment_gateway_unavailable');
+        exit;
+    }
+
+    $order->set_payment_method($nmi_gateway);
+    $order->save();
+
+    // Process the payment
+    $result = $nmi_gateway->process_payment($order->get_id());
+
+    // Handle the result
+    if ($result['result'] == 'success') {
+        $order->payment_complete();
+        unset($_SESSION['WeightLossAdvocates_data']);
+        unset($_SESSION['WeightLossAdvocates_order_id']);
+        wp_redirect($result['redirect']);
+        exit;
+    } else {
+        $order->update_status('failed', 'Payment failed.');
+        // Redirect back to checkout with an error message
+        wp_redirect(get_permalink(get_page_by_path('checkout')) . '?error=payment_failed');
         exit;
     }
 }
