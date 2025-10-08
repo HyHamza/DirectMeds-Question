@@ -56,7 +56,7 @@
                         <div class="col stats-item inversebg offsetbg">
                             <div class="row">
                                 <div class="col-4">
-                                    <img src="../assets/img_from_site/select-product0.png" class="img-fluid">
+                                    <img src="../assets/img_from_site/v2/product_<?php echo esc_attr($product ?? '1'); ?>.jpg" class="img-fluid">
                                 </div>
                                 <div class="col my-auto" style="font-size:14px">
                                          Medication & Supplies<br/>
