@@ -566,38 +566,44 @@ function qp_handle_checkout_submission() {
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         } else {
-            qp_log_message('=== STEP 12 FAILED: Payment failed ===');
-            $error_message = 'Payment failed. Please check your payment details and try again.';
+            qp_log_message('=== STEP 12 FAILED: Payment failed. Full gateway response below. ===');
+            qp_log_message($result); // Log the entire result object/array
+
+            $error_message = 'An unknown payment error occurred. Please try again or contact support.';
+
+            // Attempt to extract a more specific error message from the gateway response
             if (is_array($result) && !empty($result['messages'])) {
+                // This is the WooCommerce standard way of passing messages
                 $error_message = $result['messages'];
+            } elseif (isset($result['responsetext'])) {
+                // NMI often uses 'responsetext' for the human-readable error
+                $error_message = $result['responsetext'];
             }
+
+            qp_log_message('Extracted error message to be thrown: ' . $error_message);
             throw new Exception(strip_tags($error_message));
         }
 
     } catch (Exception $e) {
         qp_log_message('=== EXCEPTION CAUGHT: ' . $e->getMessage() . ' ===');
 
+        // Add the specific error message to be displayed on the checkout page.
+        if (function_exists('wc_add_notice')) {
+            wc_add_notice($e->getMessage(), 'error');
+        }
+
         if ($order && is_a($order, 'WC_Order') && $order->get_id()) {
             qp_log_message('=== Updating order ' . $order->get_id() . ' to failed ===');
             $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
-
-            // CRITICAL: Redirect to order received page even on error
-            qp_log_message('=== Redirecting to order page after error ===');
-            unset($_SESSION['WeightLossAdvocates_data']);
-            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            wp_redirect($order->get_checkout_order_received_url());
-            exit;
         }
 
-        qp_log_message('=== No order found, redirecting to checkout ===');
-        // Redirect back to checkout page
+        // Always redirect back to the checkout page on payment failure.
+        qp_log_message('=== Redirecting back to checkout page after payment failure ===');
         unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-        $checkout_page = get_page_by_path('checkout');
-        if ($checkout_page) {
-            wp_redirect(get_permalink($checkout_page->ID));
-        } else {
-            wp_redirect(home_url('/checkout'));
-        }
+
+        // Use the standard WooCommerce function to get the checkout URL.
+        $checkout_url = wc_get_checkout_url();
+        wp_redirect($checkout_url);
         exit;
     }
 
