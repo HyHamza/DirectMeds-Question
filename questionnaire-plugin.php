@@ -587,13 +587,14 @@ function qp_handle_checkout_submission() {
             qp_log_message('=== STEP 12 FAILED: Payment failed. Full gateway response below. ===');
             qp_log_message($result); // Log the entire result object/array
 
-            $error_message = 'An unknown payment error occurred. Please try again or contact support.';
+            // Default to a more helpful message, as the gateway may not provide one.
+            $error_message = 'Your payment could not be processed. Please double-check your card number, expiration date, and CVC, and try again.';
 
             // Attempt to extract a more specific error message from the gateway response
             if (is_array($result) && !empty($result['messages'])) {
                 // This is the WooCommerce standard way of passing messages
                 $error_message = $result['messages'];
-            } elseif (isset($result['responsetext'])) {
+            } elseif (isset($result['responsetext']) && !empty(trim($result['responsetext']))) {
                 // NMI often uses 'responsetext' for the human-readable error
                 $error_message = $result['responsetext'];
             }
@@ -615,13 +616,17 @@ function qp_handle_checkout_submission() {
             $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
         }
 
-        // Always redirect back to the checkout page on payment failure.
-        qp_log_message('=== Redirecting back to checkout page after payment failure ===');
+        // Always redirect back to the custom checkout page on payment failure.
+        qp_log_message('=== Redirecting back to custom checkout page after payment failure ===');
         unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
 
-        // Use the standard WooCommerce function to get the checkout URL.
-        $checkout_url = wc_get_checkout_url();
-        wp_redirect($checkout_url);
+        $checkout_page = get_page_by_path('checkout');
+        if ($checkout_page) {
+            wp_redirect(get_permalink($checkout_page->ID));
+        } else {
+            // Fallback if the custom checkout page is not found
+            wp_redirect(home_url());
+        }
         exit;
     }
 
