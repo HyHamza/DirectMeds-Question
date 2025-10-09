@@ -558,10 +558,13 @@ function qp_handle_checkout_submission() {
         }
 
         qp_log_message('=== STEP 10: Checking test mode ===');
-        if ($nmi_gateway->get_option('test_mode') === 'yes') {
-            qp_log_message('=== Test mode enabled - auto completing ===');
+        // More robust test mode check. Some gateways use a public property, others use the get_option method.
+        $is_test_mode = (isset($nmi_gateway->testmode) && $nmi_gateway->testmode) || $nmi_gateway->get_option('test_mode') === 'yes';
+
+        if ($is_test_mode) {
+            qp_log_message('=== Test mode enabled - auto completing order. ===');
             $order->payment_complete();
-            $order->update_status('processing', 'Test mode payment completed.');
+            $order->update_status('processing', 'Test mode payment completed via custom checkout.');
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
@@ -570,6 +573,15 @@ function qp_handle_checkout_submission() {
         }
 
         qp_log_message('=== STEP 11: Processing payment ===');
+
+        // Log the sanitized data being sent to the gateway for debugging
+        $sanitized_post_data = [
+            'ccnumber' => isset($_POST['ccnumber']) ? 'ends in ' . substr(sanitize_text_field($_POST['ccnumber']), -4) : 'not set',
+            'ccexp' => isset($_POST['ccexp']) ? sanitize_text_field($_POST['ccexp']) : 'not set',
+            'cvv' => isset($_POST['cvv']) ? 'set' : 'not set', // Don't log the CVC itself
+        ];
+        qp_log_message('Sanitized POST data sent to gateway: ' . print_r($sanitized_post_data, true));
+
         $order->set_payment_method($nmi_gateway);
         $order->save();
         $result = $nmi_gateway->process_payment($order->get_id());
@@ -587,11 +599,26 @@ function qp_handle_checkout_submission() {
             qp_log_message('=== STEP 12 FAILED: Payment failed. Full gateway response below. ===');
             qp_log_message($result); // Log the entire result object/array
 
+            // Check for WooCommerce notices set by the gateway, which often contain the real error.
+            $error_messages_from_notices = [];
+            if (function_exists('wc_get_notices')) {
+                $notices = wc_get_notices('error');
+                if (!empty($notices)) {
+                    foreach ($notices as $notice) {
+                        // The notice is an array with a 'notice' key
+                        $error_messages_from_notices[] = $notice['notice'];
+                    }
+                    qp_log_message('Found WC notices (errors): ' . implode('; ', $error_messages_from_notices));
+                }
+            }
+
             // Default to a more helpful message, as the gateway may not provide one.
             $error_message = 'Your payment could not be processed. Please double-check your card number, expiration date, and CVC, and try again.';
 
-            // Attempt to extract a more specific error message from the gateway response
-            if (is_array($result) && !empty($result['messages'])) {
+            // Attempt to extract a more specific error message, prioritizing WC notices.
+            if (!empty($error_messages_from_notices)) {
+                $error_message = implode(' ', $error_messages_from_notices);
+            } elseif (is_array($result) && !empty($result['messages'])) {
                 // This is the WooCommerce standard way of passing messages
                 $error_message = $result['messages'];
             } elseif (isset($result['responsetext']) && !empty(trim($result['responsetext']))) {
