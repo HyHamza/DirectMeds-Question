@@ -439,6 +439,7 @@ function qp_get_next_page($current_slug, $data) {
 }
 
 function qp_handle_checkout_submission() {
+    register_shutdown_function('qp_fatal_error_handler');
     qp_log_message('=== STEP 1: Handler called ===');
 
     if (!isset($_SESSION['WeightLossAdvocates_data']) || !function_exists('wc_create_order')) {
@@ -489,6 +490,10 @@ function qp_handle_checkout_submission() {
             throw new Exception('We were unable to create your order. Please try again or contact us for assistance.');
         }
 
+        // Set a fallback redirect URL in case of a fatal error later on.
+        $_SESSION['qp_redirect_on_fatal'] = $order->get_checkout_order_received_url();
+        qp_log_message('Fallback redirect URL set in session: ' . $_SESSION['qp_redirect_on_fatal']);
+
         qp_log_message('=== STEP 6: Adding product to order ===');
         $order->add_product($product, 1);
 
@@ -523,6 +528,7 @@ function qp_handle_checkout_submission() {
             $order->update_status('pending', 'Payment gateway not available.');
             qp_log_message('=== Redirecting to order received page ===');
             unset($_SESSION['WeightLossAdvocates_data']);
+            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         }
@@ -533,6 +539,7 @@ function qp_handle_checkout_submission() {
             $order->payment_complete();
             $order->update_status('processing', 'Test mode payment completed.');
             unset($_SESSION['WeightLossAdvocates_data']);
+            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
             wp_redirect($order->get_checkout_order_received_url());
             exit;
@@ -548,6 +555,7 @@ function qp_handle_checkout_submission() {
             qp_log_message('=== STEP 12: Payment successful ===');
             $order->payment_complete();
             unset($_SESSION['WeightLossAdvocates_data']);
+            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
             wp_redirect($order->get_checkout_order_received_url());
             exit;
@@ -570,12 +578,14 @@ function qp_handle_checkout_submission() {
             // CRITICAL: Redirect to order received page even on error
             qp_log_message('=== Redirecting to order page after error ===');
             unset($_SESSION['WeightLossAdvocates_data']);
+            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         }
 
         qp_log_message('=== No order found, redirecting to checkout ===');
         // Redirect back to checkout page
+        unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
         $checkout_page = get_page_by_path('checkout');
         if ($checkout_page) {
             wp_redirect(get_permalink($checkout_page->ID));
@@ -588,6 +598,7 @@ function qp_handle_checkout_submission() {
     // FALLBACK: This should NEVER be reached
     qp_log_message('=== CRITICAL: Reached end of function without redirect! ===');
     if ($order && $order->get_id()) {
+        unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
         wp_redirect($order->get_checkout_order_received_url());
     } else {
         wp_redirect(home_url());
@@ -596,6 +607,32 @@ function qp_handle_checkout_submission() {
 }
 add_action('admin_post_nopriv_checkout_submit', 'qp_handle_checkout_submission');
 add_action('admin_post_checkout_submit', 'qp_handle_checkout_submission');
+
+// --- Fatal Error Handler ---
+
+function qp_fatal_error_handler() {
+    // Check if there's a URL to redirect to in the session
+    if (isset($_SESSION['qp_redirect_on_fatal'])) {
+        $redirect_url = $_SESSION['qp_redirect_on_fatal'];
+        unset($_SESSION['qp_redirect_on_fatal']); // Clean up session
+
+        $error = error_get_last();
+
+        // Check if the last error was a fatal error
+        if ($error !== NULL && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_PARSE])) {
+            qp_log_message('=== FATAL ERROR HANDLER TRIGGERED ===');
+            qp_log_message('Fatal Error: ' . print_r($error, true));
+            qp_log_message('Redirecting to fallback URL: ' . $redirect_url);
+
+            // Ensure no output has been sent
+            if (!headers_sent()) {
+                wp_redirect($redirect_url);
+                exit;
+            }
+        }
+    }
+}
+
 
 // --- Custom Logging Functions ---
 
