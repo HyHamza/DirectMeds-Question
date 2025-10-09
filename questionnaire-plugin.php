@@ -439,10 +439,10 @@ function qp_get_next_page($current_slug, $data) {
 }
 
 function qp_handle_checkout_submission() {
-    error_log('=== STEP 1: Handler called ===');
+    qp_log_message('=== STEP 1: Handler called ===');
 
     if (!isset($_SESSION['WeightLossAdvocates_data']) || !function_exists('wc_create_order')) {
-        error_log('=== STEP 1 FAILED: Session or WC missing ===');
+        qp_log_message('=== STEP 1 FAILED: Session or WC missing ===');
         wp_redirect(home_url());
         exit;
     }
@@ -450,7 +450,7 @@ function qp_handle_checkout_submission() {
     $order = null;
 
     try {
-        error_log('=== STEP 2: Inside try block ===');
+        qp_log_message('=== STEP 2: Inside try block ===');
 
         // Server-side validation for CC expiration
         if (isset($_POST['billing_cardexp_month']) && isset($_POST['billing_cardexp_year'])) {
@@ -463,36 +463,36 @@ function qp_handle_checkout_submission() {
         $product_id = sanitize_text_field($data['product'] ?? '1');
         $dosage = sanitize_text_field($data['dosage'] ?? 'default');
 
-        error_log('=== STEP 3: Getting product data ===');
+        qp_log_message('=== STEP 3: Getting product data ===');
         $products = get_product_prices();
         $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
 
         if (!$sku) {
-            error_log('=== STEP 3 FAILED: SKU not found ===');
+            qp_log_message('=== STEP 3 FAILED: SKU not found ===');
             throw new Exception('Product configuration not found. Please try again.');
         }
 
-        error_log('=== STEP 4: Getting WC product ===');
+        qp_log_message('=== STEP 4: Getting WC product ===');
         $product_id_wc = wc_get_product_id_by_sku($sku);
         if (!$product_id_wc) {
-            error_log('=== STEP 4 FAILED: WC product not found ===');
+            qp_log_message('=== STEP 4 FAILED: WC product not found ===');
             throw new Exception('Product not found in the store. Please contact support.');
         }
 
         $product = wc_get_product($product_id_wc);
         $price = $data['price'] ?? $product->get_price();
 
-        error_log('=== STEP 5: Creating order ===');
+        qp_log_message('=== STEP 5: Creating order ===');
         $order = wc_create_order();
         if (!$order || is_wp_error($order)) {
-            error_log('=== STEP 5 FAILED: Order creation failed ===');
+            qp_log_message('=== STEP 5 FAILED: Order creation failed ===');
             throw new Exception('We were unable to create your order. Please try again or contact us for assistance.');
         }
 
-        error_log('=== STEP 6: Adding product to order ===');
+        qp_log_message('=== STEP 6: Adding product to order ===');
         $order->add_product($product, 1);
 
-        error_log('=== STEP 7: Setting address ===');
+        qp_log_message('=== STEP 7: Setting address ===');
         $address = array(
             'first_name' => sanitize_text_field($data['shipping_firstname']),
             'last_name'  => sanitize_text_field($data['shipping_lastname']),
@@ -509,50 +509,50 @@ function qp_handle_checkout_submission() {
         $order->set_total($price);
         $order->save();
 
-        error_log('=== STEP 8: Order created - ID: ' . $order->get_id() . ' ===');
+        qp_log_message('=== STEP 8: Order created - ID: ' . $order->get_id() . ' ===');
 
-        error_log('=== STEP 9: Getting payment gateways ===');
+        qp_log_message('=== STEP 9: Getting payment gateways ===');
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
-        error_log('Available gateways: ' . implode(', ', array_keys($payment_gateways)));
+        qp_log_message('Available gateways: ' . implode(', ', array_keys($payment_gateways)));
 
         $nmi_gateway = $payment_gateways['nmi'] ?? null;
 
         if (!$nmi_gateway) {
-            error_log('=== STEP 9 FAILED: NMI gateway not available ===');
+            qp_log_message('=== STEP 9 FAILED: NMI gateway not available ===');
             // IMPORTANT: Still redirect even if payment fails
             $order->update_status('pending', 'Payment gateway not available.');
-            error_log('=== Redirecting to order received page ===');
+            qp_log_message('=== Redirecting to order received page ===');
             unset($_SESSION['WeightLossAdvocates_data']);
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         }
 
-        error_log('=== STEP 10: Checking test mode ===');
+        qp_log_message('=== STEP 10: Checking test mode ===');
         if ($nmi_gateway->get_option('test_mode') === 'yes') {
-            error_log('=== Test mode enabled - auto completing ===');
+            qp_log_message('=== Test mode enabled - auto completing ===');
             $order->payment_complete();
             $order->update_status('processing', 'Test mode payment completed.');
             unset($_SESSION['WeightLossAdvocates_data']);
-            error_log('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
+            qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         }
 
-        error_log('=== STEP 11: Processing payment ===');
+        qp_log_message('=== STEP 11: Processing payment ===');
         $order->set_payment_method($nmi_gateway);
         $order->save();
         $result = $nmi_gateway->process_payment($order->get_id());
-        error_log('Payment result: ' . print_r($result, true));
+        qp_log_message('Payment result: ' . print_r($result, true));
 
         if (is_array($result) && !empty($result['result']) && $result['result'] === 'success') {
-            error_log('=== STEP 12: Payment successful ===');
+            qp_log_message('=== STEP 12: Payment successful ===');
             $order->payment_complete();
             unset($_SESSION['WeightLossAdvocates_data']);
-            error_log('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
+            qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         } else {
-            error_log('=== STEP 12 FAILED: Payment failed ===');
+            qp_log_message('=== STEP 12 FAILED: Payment failed ===');
             $error_message = 'Payment failed. Please check your payment details and try again.';
             if (is_array($result) && !empty($result['messages'])) {
                 $error_message = $result['messages'];
@@ -561,20 +561,20 @@ function qp_handle_checkout_submission() {
         }
 
     } catch (Exception $e) {
-        error_log('=== EXCEPTION CAUGHT: ' . $e->getMessage() . ' ===');
+        qp_log_message('=== EXCEPTION CAUGHT: ' . $e->getMessage() . ' ===');
 
         if ($order && is_a($order, 'WC_Order') && $order->get_id()) {
-            error_log('=== Updating order ' . $order->get_id() . ' to failed ===');
+            qp_log_message('=== Updating order ' . $order->get_id() . ' to failed ===');
             $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
 
             // CRITICAL: Redirect to order received page even on error
-            error_log('=== Redirecting to order page after error ===');
+            qp_log_message('=== Redirecting to order page after error ===');
             unset($_SESSION['WeightLossAdvocates_data']);
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         }
 
-        error_log('=== No order found, redirecting to checkout ===');
+        qp_log_message('=== No order found, redirecting to checkout ===');
         // Redirect back to checkout page
         $checkout_page = get_page_by_path('checkout');
         if ($checkout_page) {
@@ -586,7 +586,7 @@ function qp_handle_checkout_submission() {
     }
 
     // FALLBACK: This should NEVER be reached
-    error_log('=== CRITICAL: Reached end of function without redirect! ===');
+    qp_log_message('=== CRITICAL: Reached end of function without redirect! ===');
     if ($order && $order->get_id()) {
         wp_redirect($order->get_checkout_order_received_url());
     } else {
@@ -596,6 +596,31 @@ function qp_handle_checkout_submission() {
 }
 add_action('admin_post_nopriv_checkout_submit', 'qp_handle_checkout_submission');
 add_action('admin_post_checkout_submit', 'qp_handle_checkout_submission');
+
+// --- Custom Logging Functions ---
+
+function qp_log_message($message) {
+    if (!is_string($message)) {
+        $message = print_r($message, true);
+    }
+    $logs = get_option('qp_debug_log', []);
+    // Prepend new messages to the top
+    array_unshift($logs, date('Y-m-d H:i:s') . ' - ' . $message);
+    // Keep the log from getting too big
+    if (count($logs) > 200) {
+        $logs = array_slice($logs, 0, 200);
+    }
+    update_option('qp_debug_log', $logs, false); // 'false' for not autoloading
+}
+
+function qp_get_logs() {
+    return get_option('qp_debug_log', []);
+}
+
+function qp_clear_logs() {
+    delete_option('qp_debug_log');
+}
+
 
 function qp_admin_menu() {
     add_menu_page(
@@ -607,8 +632,60 @@ function qp_admin_menu() {
         'dashicons-clipboard',
         20
     );
+    // Add the submenu page for the debug log
+    add_submenu_page(
+        'WeightLossAdvocates-orders', // Parent slug
+        'Debug Log',                  // Page title
+        'Debug Log',                  // Menu title
+        'manage_options',             // Capability
+        'WeightLossAdvocates-debug-log',  // Menu slug
+        'qp_debug_log_page_html'      // Function to display the page
+    );
 }
 add_action('admin_menu', 'qp_admin_menu');
+
+function qp_debug_log_page_html() {
+    // Check if the user has the capability to manage options
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    // Check if the clear log button was clicked and verify nonce
+    if (isset($_POST['qp_clear_logs_nonce']) && wp_verify_nonce($_POST['qp_clear_logs_nonce'], 'qp_clear_logs_action')) {
+        if (isset($_POST['clear_logs'])) {
+            qp_clear_logs();
+            echo '<div class="updated"><p>Debug log cleared.</p></div>';
+        }
+    }
+
+    $logs = qp_get_logs();
+    ?>
+    <div class="wrap">
+        <h1>Debug Log</h1>
+        <p>This page displays the latest debug messages from the plugin. The log is automatically pruned to the most recent 200 entries.</p>
+
+        <form method="post" action="">
+            <?php wp_nonce_field('qp_clear_logs_action', 'qp_clear_logs_nonce'); ?>
+            <p>
+                <input type="submit" name="clear_logs" class="button button-primary" value="Clear Log">
+            </p>
+        </form>
+
+        <hr>
+
+        <div id="log-container" style="background: #fff; border: 1px solid #ccd0d4; padding: 10px; height: 600px; overflow-y: scroll; font-family: monospace;">
+            <?php
+            if (empty($logs)) {
+                echo '<p>No log entries found.</p>';
+            } else {
+                // Use a <pre> tag to preserve formatting, including line breaks
+                echo '<pre>' . implode("\n", array_map('esc_html', $logs)) . '</pre>';
+            }
+            ?>
+        </div>
+    </div>
+    <?php
+}
 
 function qp_orders_page_html() {
     global $wpdb;
