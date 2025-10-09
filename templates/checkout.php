@@ -239,7 +239,38 @@
 </script>
 <script src="../assets/js_from_site/checkout.js"></script>
 <script>
-    // This script is no longer needed with the standardized fields.
+document.addEventListener('DOMContentLoaded', function () {
+    const cardNumberInput = document.getElementById('nmi-card-number');
+    const cardExpiryInput = document.getElementById('nmi-card-expiry');
+    const cardCvcInput = document.getElementById('nmi-card-cvc');
+
+    // Format card number with spaces every 4 digits
+    cardNumberInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        let formattedValue = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) {
+                formattedValue += ' ';
+            }
+            formattedValue += value[i];
+        }
+        e.target.value = formattedValue.trim();
+    });
+
+    // Format expiry date as MM / YY
+    cardExpiryInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+            value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Limit CVC to 4 digits
+    cardCvcInput.addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+    });
+});
 </script>
 </body>
 </html>
