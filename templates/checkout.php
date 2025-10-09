@@ -121,82 +121,32 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="ccnumber">Card Number</label><br>
-                                            <input type="tel" name="ccnumber" required id="CreditCardNumber"
+                                            <label for="nmi-card-number">Card Number</label><br>
+                                            <input type="tel" name="nmi-card-number" required id="nmi-card-number"
                                                    alt="Credit Card Number"
-                                                   value=""
                                                    data-validation="required"
-                                                   class="form-control required" placeholder="••••••••••••••••"
-                                                   maxlength="16"/>
+                                                   class="form-control required" placeholder="•••• •••• •••• ••••"
+                                                   />
                                         </div>
-                                        <div class="col">
-                                            <label for="billing_cardexp_month">Exp Month</label><br>
-                                            <select name="billing_cardexp_month" id="ExpMonth"
-                                                    class=" form-control  input-lg required">
-                                                                                                    <option value="01" >
-                                                        01 - January                                                    </option>
-                                                                                                    <option value="02" >
-                                                        02 - February                                                    </option>
-                                                                                                    <option value="03" >
-                                                        03 - March                                                    </option>
-                                                                                                    <option value="04" >
-                                                        04 - April                                                    </option>
-                                                                                                    <option value="05" >
-                                                        05 - May                                                    </option>
-                                                                                                    <option value="06" >
-                                                        06 - June                                                    </option>
-                                                                                                    <option value="07" >
-                                                        07 - July                                                    </option>
-                                                                                                    <option value="08" >
-                                                        08 - August                                                    </option>
-                                                                                                    <option value="09" >
-                                                        09 - September                                                    </option>
-                                                                                                    <option value="10" >
-                                                        10 - October                                                    </option>
-                                                                                                    <option value="11" >
-                                                        11 - November                                                    </option>
-                                                                                                    <option value="12" >
-                                                        12 - December                                                    </option>
-                                                                                            </select>
+                                        <div class="col-8">
+                                            <label for="nmi-card-expiry">Expiration</label><br>
+                                            <input type="tel" name="nmi-card-expiry" required id="nmi-card-expiry"
+                                                   alt="Expiration"
+                                                   data-validation="required"
+                                                   class="form-control required" placeholder="MM / YY"
+                                                   />
                                         </div>
-                                        <div class="col">
-                                            <label for="billing_cardexp_year">Exp Year</label><br>
-                                            <select alt="Exp Year" name="billing_cardexp_year" id="ExpYear" required
-                                                    class="form-control  input-lg  required">
-                                                                                                    <option value="2025" >2025</option>
-                                                                                                    <option value="2026" >2026</option>
-                                                                                                    <option value="2027" >2027</option>
-                                                                                                    <option value="2028" >2028</option>
-                                                                                                    <option value="2029" >2029</option>
-                                                                                                    <option value="2030" >2030</option>
-                                                                                                    <option value="2031" >2031</option>
-                                                                                                    <option value="2032" >2032</option>
-                                                                                                    <option value="2033" >2033</option>
-                                                                                                    <option value="2034" >2034</option>
-                                                                                                    <option value="2035" >2035</option>
-                                                                                                    <option value="2036" >2036</option>
-                                                                                                    <option value="2037" >2037</option>
-                                                                                                    <option value="2038" >2038</option>
-                                                                                                    <option value="2039" >2039</option>
-                                                                                                    <option value="2040" >2040</option>
-                                                                                            </select>
+                                        <div class="col-4">
+                                            <label for="nmi-card-cvc">CVC</label><br>
+                                            <input type="tel" name="nmi-card-cvc" required id="nmi-card-cvc"
+                                                   alt="CVC"
+                                                   data-validation="required"
+                                                   class="form-control required" placeholder="•••"
+                                                   />
                                         </div>
-                                        <input type="hidden" name="ccexp" id="ccexp" value="">
                                     </div>
                                     <div class="row d-flex mb-3">
-                                        <div class="col-4 col-sm-3">
-                                            <label for="cvv">Cvv</label><br>
-                                            <input type="text"
-                                                   alt="CVV"
-                                                   class="form-control ub-input-item single text form_elem_first_name required"
-                                                   maxlength="4"
-                                                   required name="cvv"
-                                                   value=""
-                                                   placeholder="&bull;&bull;&bull;" data-toggle="tooltip"
-                                                   data-placement="auto left"
-                                                   title="CVV" data-validation="required"
-                                            >
-                                        </div>
+
                                     </div>
                                     <div class="row">
                                         <div class="col-12">
@@ -289,23 +239,7 @@
 </script>
 <script src="../assets/js_from_site/checkout.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const expMonthEl = document.getElementById('ExpMonth');
-        const expYearEl = document.getElementById('ExpYear');
-        const ccexpEl = document.getElementById('ccexp');
-
-        function updateCcexp() {
-            const month = expMonthEl.value;
-            const year = expYearEl.value.slice(-2); // Get last two digits of the year
-            ccexpEl.value = month + year;
-        }
-
-        expMonthEl.addEventListener('change', updateCcexp);
-        expYearEl.addEventListener('change', updateCcexp);
-
-        // Initial update
-        updateCcexp();
-    });
+    // This script is no longer needed with the standardized fields.
 </script>
 </body>
 </html>
