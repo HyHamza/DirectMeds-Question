@@ -450,6 +450,14 @@ function qp_handle_checkout_submission() {
 
     $order = null;
 
+    // Manually load WooCommerce notice functions to prevent fatal error in gateway.
+    if ( ! function_exists( 'wc_add_notice' ) && defined('WP_PLUGIN_DIR') ) {
+        $notice_functions_path = WP_PLUGIN_DIR . '/woocommerce/includes/wc-notice-functions.php';
+        if ( file_exists( $notice_functions_path ) ) {
+            require_once $notice_functions_path;
+        }
+    }
+
     try {
         qp_log_message('=== STEP 2: Inside try block ===');
 
