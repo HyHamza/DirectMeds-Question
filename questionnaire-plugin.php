@@ -458,6 +458,16 @@ function qp_handle_checkout_submission() {
         }
     }
 
+    // Manually initialize the WooCommerce session and customer, as they are not loaded by default in admin-post.php.
+    // This is crucial for functions like wc_add_notice() to work correctly, as they rely on the session handler.
+    if ( function_exists('WC') && null === WC()->session ) {
+        WC()->session = new WC_Session_Handler();
+        WC()->session->init();
+    }
+    if ( function_exists('WC') && null === WC()->customer ) {
+        WC()->customer = new WC_Customer( get_current_user_id(), true );
+    }
+
     try {
         qp_log_message('=== STEP 2: Inside try block ===');
 
