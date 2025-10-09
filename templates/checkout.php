@@ -27,6 +27,21 @@
                 max-width: calc(100% - 24px);
             }
         }
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .form-control.is-valid {
+            border-color: #28a745;
+        }
     </style>
 </head>
 <body style="background-color:#f8f8f7;">
@@ -127,6 +142,7 @@
                                                    data-validation="required"
                                                    class="form-control required" placeholder="•••• •••• •••• ••••"
                                                    />
+                                            <div class="error-message" id="card-number-error"></div>
                                         </div>
                                         <div class="col-8">
                                             <label for="nmi-card-expiry">Expiration</label><br>
@@ -135,6 +151,7 @@
                                                    data-validation="required"
                                                    class="form-control required" placeholder="MM / YY"
                                                    />
+                                            <div class="error-message" id="card-expiry-error"></div>
                                         </div>
                                         <div class="col-4">
                                             <label for="nmi-card-cvc">CVC</label><br>
@@ -143,6 +160,7 @@
                                                    data-validation="required"
                                                    class="form-control required" placeholder="•••"
                                                    />
+                                            <div class="error-message" id="card-cvc-error"></div>
                                         </div>
                                     </div>
                                     <div class="row d-flex mb-3">
@@ -158,7 +176,7 @@
                                     </div>
 
                                     <div class="d-grid gap-2">
-                                        <button class="btn ctaBtn1 btnsubmit">
+                                        <button class="btn ctaBtn1 btnsubmit" type="submit">
                                             Continue
                                         </button>
                                     </div>
@@ -228,14 +246,16 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', function () {
-        OSForm.cardFormatter()
-        OSForm.prefetchGateway('prefetch-gateway.php', (productArray, body) => {
-    if (productArray.length === 0) {
-        return;
-    }
-
-    body.append(`product`, productArray[0]);
-})    });
+        if (typeof OSForm !== 'undefined') {
+            OSForm.cardFormatter();
+            OSForm.prefetchGateway('prefetch-gateway.php', (productArray, body) => {
+                if (productArray.length === 0) {
+                    return;
+                }
+                body.append(`product`, productArray[0]);
+            });
+        }
+    });
 </script>
 <script src="../assets/js_from_site/checkout.js"></script>
 <script>
@@ -243,10 +263,216 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardNumberInput = document.getElementById('nmi-card-number');
     const cardExpiryInput = document.getElementById('nmi-card-expiry');
     const cardCvcInput = document.getElementById('nmi-card-cvc');
+    const form = document.getElementById('ccForm');
+    
+    const cardNumberError = document.getElementById('card-number-error');
+    const cardExpiryError = document.getElementById('card-expiry-error');
+    const cardCvcError = document.getElementById('card-cvc-error');
+
+    // Luhn Algorithm for card validation
+    function luhnCheck(cardNumber) {
+        const digits = cardNumber.replace(/\D/g, '');
+        let sum = 0;
+        let isEven = false;
+        
+        for (let i = digits.length - 1; i >= 0; i--) {
+            let digit = parseInt(digits[i]);
+            
+            if (isEven) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+            
+            sum += digit;
+            isEven = !isEven;
+        }
+        
+        return sum % 10 === 0;
+    }
+
+    // Detect card type
+    function getCardType(number) {
+        const patterns = {
+            visa: /^4/,
+            mastercard: /^5[1-5]/,
+            amex: /^3[47]/,
+            discover: /^6(?:011|5)/,
+            diners: /^3(?:0[0-5]|[68])/,
+            jcb: /^35/
+        };
+        
+        const cleaned = number.replace(/\D/g, '');
+        
+        for (const [type, pattern] of Object.entries(patterns)) {
+            if (pattern.test(cleaned)) {
+                return type;
+            }
+        }
+        
+        return 'unknown';
+    }
+
+    // Get expected card length
+    function getCardLength(type) {
+        const lengths = {
+            visa: 16,
+            mastercard: 16,
+            amex: 15,
+            discover: 16,
+            diners: 14,
+            jcb: 16
+        };
+        return lengths[type] || 16;
+    }
+
+    // Get expected CVC length
+    function getCvcLength(type) {
+        return type === 'amex' ? 4 : 3;
+    }
+
+    // Validate card number
+    function validateCardNumber() {
+        const value = cardNumberInput.value.replace(/\D/g, '');
+        const cardType = getCardType(value);
+        const expectedLength = getCardLength(cardType);
+        
+        cardNumberInput.classList.remove('is-valid', 'is-invalid');
+        cardNumberError.classList.remove('show');
+        
+        if (value.length === 0) {
+            return false;
+        }
+        
+        if (value.length < 13) {
+            cardNumberInput.classList.add('is-invalid');
+            cardNumberError.textContent = 'Card number is too short';
+            cardNumberError.classList.add('show');
+            return false;
+        }
+        
+        if (value.length > 19) {
+            cardNumberInput.classList.add('is-invalid');
+            cardNumberError.textContent = 'Card number is too long';
+            cardNumberError.classList.add('show');
+            return false;
+        }
+        
+        if (cardType === 'unknown') {
+            cardNumberInput.classList.add('is-invalid');
+            cardNumberError.textContent = 'Card type not recognized';
+            cardNumberError.classList.add('show');
+            return false;
+        }
+        
+        if (value.length !== expectedLength) {
+            cardNumberInput.classList.add('is-invalid');
+            cardNumberError.textContent = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} card must be ${expectedLength} digits`;
+            cardNumberError.classList.add('show');
+            return false;
+        }
+        
+        if (!luhnCheck(value)) {
+            cardNumberInput.classList.add('is-invalid');
+            cardNumberError.textContent = 'Invalid card number';
+            cardNumberError.classList.add('show');
+            return false;
+        }
+        
+        cardNumberInput.classList.add('is-valid');
+        return true;
+    }
+
+    // Validate expiry date
+    function validateExpiry() {
+        const value = cardExpiryInput.value.replace(/\D/g, '');
+        
+        cardExpiryInput.classList.remove('is-valid', 'is-invalid');
+        cardExpiryError.classList.remove('show');
+        
+        if (value.length === 0) {
+            return false;
+        }
+        
+        if (value.length < 4) {
+            cardExpiryInput.classList.add('is-invalid');
+            cardExpiryError.textContent = 'Expiry date incomplete';
+            cardExpiryError.classList.add('show');
+            return false;
+        }
+        
+        const month = parseInt(value.substring(0, 2));
+        const year = parseInt('20' + value.substring(2, 4));
+        
+        if (month < 1 || month > 12) {
+            cardExpiryInput.classList.add('is-invalid');
+            cardExpiryError.textContent = 'Invalid month (01-12)';
+            cardExpiryError.classList.add('show');
+            return false;
+        }
+        
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            cardExpiryInput.classList.add('is-invalid');
+            cardExpiryError.textContent = 'Card has expired';
+            cardExpiryError.classList.add('show');
+            return false;
+        }
+        
+        if (year > currentYear + 20) {
+            cardExpiryInput.classList.add('is-invalid');
+            cardExpiryError.textContent = 'Invalid expiry year';
+            cardExpiryError.classList.add('show');
+            return false;
+        }
+        
+        cardExpiryInput.classList.add('is-valid');
+        return true;
+    }
+
+    // Validate CVC
+    function validateCvc() {
+        const value = cardCvcInput.value.replace(/\D/g, '');
+        const cardNumber = cardNumberInput.value.replace(/\D/g, '');
+        const cardType = getCardType(cardNumber);
+        const expectedLength = getCvcLength(cardType);
+        
+        cardCvcInput.classList.remove('is-valid', 'is-invalid');
+        cardCvcError.classList.remove('show');
+        
+        if (value.length === 0) {
+            return false;
+        }
+        
+        if (value.length < 3) {
+            cardCvcInput.classList.add('is-invalid');
+            cardCvcError.textContent = 'CVC is too short';
+            cardCvcError.classList.add('show');
+            return false;
+        }
+        
+        if (value.length !== expectedLength) {
+            cardCvcInput.classList.add('is-invalid');
+            cardCvcError.textContent = `CVC must be ${expectedLength} digits`;
+            cardCvcError.classList.add('show');
+            return false;
+        }
+        
+        cardCvcInput.classList.add('is-valid');
+        return true;
+    }
 
     // Format card number with spaces every 4 digits
     cardNumberInput.addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, '');
+        
+        // Limit to 19 digits (longest card number)
+        value = value.substring(0, 19);
+        
         let formattedValue = '';
         for (let i = 0; i < value.length; i++) {
             if (i > 0 && i % 4 === 0) {
@@ -260,15 +486,81 @@ document.addEventListener('DOMContentLoaded', function () {
     // Format expiry date as MM / YY
     cardExpiryInput.addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, '');
+        
+        // Limit to 4 digits
+        value = value.substring(0, 4);
+        
         if (value.length > 2) {
             value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
         }
         e.target.value = value;
     });
 
-    // Limit CVC to 4 digits
+    // Limit CVC based on card type
     cardCvcInput.addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        const cardNumber = cardNumberInput.value.replace(/\D/g, '');
+        const cardType = getCardType(cardNumber);
+        const maxLength = getCvcLength(cardType);
+        
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, maxLength);
+    });
+
+    // Validate on blur
+    cardNumberInput.addEventListener('blur', validateCardNumber);
+    cardExpiryInput.addEventListener('blur', validateExpiry);
+    cardCvcInput.addEventListener('blur', validateCvc);
+
+    // Real-time validation while typing (after first blur)
+    let cardNumberTouched = false;
+    let cardExpiryTouched = false;
+    let cardCvcTouched = false;
+
+    cardNumberInput.addEventListener('blur', function() {
+        cardNumberTouched = true;
+    });
+    cardExpiryInput.addEventListener('blur', function() {
+        cardExpiryTouched = true;
+    });
+    cardCvcInput.addEventListener('blur', function() {
+        cardCvcTouched = true;
+    });
+
+    cardNumberInput.addEventListener('input', function() {
+        if (cardNumberTouched) {
+            validateCardNumber();
+        }
+    });
+    cardExpiryInput.addEventListener('input', function() {
+        if (cardExpiryTouched) {
+            validateExpiry();
+        }
+    });
+    cardCvcInput.addEventListener('input', function() {
+        if (cardCvcTouched) {
+            validateCvc();
+        }
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        const isCardValid = validateCardNumber();
+        const isExpiryValid = validateExpiry();
+        const isCvcValid = validateCvc();
+        
+        if (!isCardValid || !isExpiryValid || !isCvcValid) {
+            e.preventDefault();
+            
+            // Scroll to first error
+            if (!isCardValid) {
+                cardNumberInput.focus();
+            } else if (!isExpiryValid) {
+                cardExpiryInput.focus();
+            } else if (!isCvcValid) {
+                cardCvcInput.focus();
+            }
+            
+            return false;
+        }
     });
 });
 </script>
