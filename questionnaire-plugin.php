@@ -453,11 +453,17 @@ function qp_handle_checkout_submission() {
     try {
         qp_log_message('=== STEP 2: Inside try block ===');
 
-        // Server-side validation for CC expiration
-        if (isset($_POST['billing_cardexp_month']) && isset($_POST['billing_cardexp_year'])) {
-            $exp_month = sanitize_text_field($_POST['billing_cardexp_month']);
-            $exp_year = sanitize_text_field($_POST['billing_cardexp_year']);
-            $_POST['ccexp'] = $exp_month . substr($exp_year, -2);
+        // --- Compatibility Layer ---
+        // Map standardized form fields to the keys the gateway expects in $_POST.
+        if (isset($_POST['nmi-card-number'])) {
+            $_POST['ccnumber'] = sanitize_text_field($_POST['nmi-card-number']);
+        }
+        if (isset($_POST['nmi-card-cvc'])) {
+            $_POST['cvv'] = sanitize_text_field($_POST['nmi-card-cvc']);
+        }
+        if (isset($_POST['nmi-card-expiry'])) {
+            // Convert "MM / YY" to "MMYY"
+            $_POST['ccexp'] = preg_replace('/\D/', '', sanitize_text_field($_POST['nmi-card-expiry']));
         }
 
         $data = $_SESSION['WeightLossAdvocates_data'];
