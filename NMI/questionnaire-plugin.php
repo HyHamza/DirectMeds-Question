@@ -410,7 +410,7 @@ function qp_get_next_page($current_slug, $data) {
         case 'select':
             return 'shipping';
         case 'shipping':
-            return 'checkout';
+            return 'pay';
         default:
             break;
     }
