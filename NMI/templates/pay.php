@@ -65,8 +65,11 @@
                     <div class="spacer">&nbsp;</div>
 
                     <?php
-                    if (function_exists('wc_print_notices')) {
-                        wc_print_notices();
+                    // Display the error message passed in the URL, if it exists.
+                    if ( isset( $_GET['payment_error'] ) && ! empty( $_GET['payment_error'] ) ) {
+                        $error_message = sanitize_text_field( urldecode( $_GET['payment_error'] ) );
+                        // Using a basic WooCommerce-style error message block for consistency.
+                        echo '<div class="woocommerce-error" role="alert">' . esc_html( $error_message ) . '</div>';
                     }
                     ?>
 

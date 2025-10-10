@@ -1,10 +1,7 @@
 <?php
-// Since this template is loaded by WooCommerce, we can use its functions and globals
-global $wp;
-
-// Get the order ID from the endpoint
-$order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
-$order = wc_get_order( $order_id );
+// On the order-received page, WooCommerce makes the order object available globally.
+// Using this is more reliable than trying to parse the order ID from the URL.
+global $order;
 
 // Default values
 $order_number = '';

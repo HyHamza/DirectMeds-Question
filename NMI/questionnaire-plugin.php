@@ -638,15 +638,11 @@ function qp_handle_checkout_submission() {
 
     } catch (Exception $e) {
         qp_log_message('=== EXCEPTION CAUGHT: ' . $e->getMessage() . ' ===');
-
-        // Add the specific error message to be displayed on the checkout page.
-        if (function_exists('wc_add_notice')) {
-            wc_add_notice($e->getMessage(), 'error');
-        }
+        $error_message = $e->getMessage();
 
         if ($order && is_a($order, 'WC_Order') && $order->get_id()) {
             qp_log_message('=== Updating order ' . $order->get_id() . ' to failed ===');
-            $order->update_status('failed', sprintf('Checkout error: %s', $e->getMessage()));
+            $order->update_status('failed', sprintf('Checkout error: %s', $error_message));
         }
 
         // Always redirect back to the custom checkout page on payment failure.
@@ -656,7 +652,9 @@ function qp_handle_checkout_submission() {
         // The custom payment page slug is 'pay', not 'checkout'.
         $checkout_page = get_page_by_path('pay');
         if ($checkout_page) {
-            wp_redirect(get_permalink($checkout_page->ID));
+            // Pass the error message as a query parameter for direct display, as wc_add_notice is unreliable here.
+            $redirect_url = add_query_arg( 'payment_error', urlencode( $error_message ), get_permalink( $checkout_page->ID ) );
+            wp_redirect( $redirect_url );
         } else {
             // Fallback if the custom checkout page is not found
             wp_redirect(home_url());
