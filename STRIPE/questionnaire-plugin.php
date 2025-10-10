@@ -471,18 +471,8 @@ function qp_handle_checkout_submission() {
     try {
         qp_log_message('=== STEP 2: Inside try block ===');
 
-        // --- Compatibility Layer ---
-        // Map standardized form fields to the keys the gateway expects in $_POST.
-        if (isset($_POST['nmi-card-number'])) {
-            $_POST['ccnumber'] = sanitize_text_field($_POST['nmi-card-number']);
-        }
-        if (isset($_POST['nmi-card-cvc'])) {
-            $_POST['cvv'] = sanitize_text_field($_POST['nmi-card-cvc']);
-        }
-        if (isset($_POST['nmi-card-expiry'])) {
-            // Convert "MM / YY" to "MMYY"
-            $_POST['ccexp'] = preg_replace('/\D/', '', sanitize_text_field($_POST['nmi-card-expiry']));
-        }
+        // The Stripe gateway uses a tokenized approach (payment_method_id),
+        // so the direct mapping of card details is no longer needed.
 
         $data = $_SESSION['WeightLossAdvocates_data'];
         $product_id = sanitize_text_field($data['product'] ?? '1');
@@ -544,12 +534,12 @@ function qp_handle_checkout_submission() {
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
         qp_log_message('Available gateways: ' . implode(', ', array_keys($payment_gateways)));
 
-        $nmi_gateway = $payment_gateways['nmi'] ?? null;
+        $stripe_gateway = $payment_gateways['stripe'] ?? null;
 
-        if (!$nmi_gateway) {
-            qp_log_message('=== STEP 9 FAILED: NMI gateway not available ===');
+        if (!$stripe_gateway) {
+            qp_log_message('=== STEP 9 FAILED: Stripe gateway not available ===');
             // IMPORTANT: Still redirect even if payment fails
-            $order->update_status('pending', 'Payment gateway not available.');
+            $order->update_status('pending', 'Stripe payment gateway not available.');
             qp_log_message('=== Redirecting to order received page ===');
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
@@ -557,34 +547,22 @@ function qp_handle_checkout_submission() {
             exit;
         }
 
-        qp_log_message('=== STEP 10: Checking test mode ===');
-        // More robust test mode check. Some gateways use a public property, others use the get_option method.
-        $is_test_mode = (isset($nmi_gateway->testmode) && $nmi_gateway->testmode) || $nmi_gateway->get_option('test_mode') === 'yes';
+        // The Stripe plugin handles test mode automatically based on settings.
+        // No need for a manual check here.
 
-        if ($is_test_mode) {
-            qp_log_message('=== Test mode enabled - auto completing order. ===');
-            $order->payment_complete();
-            $order->update_status('processing', 'Test mode payment completed via custom checkout.');
-            unset($_SESSION['WeightLossAdvocates_data']);
-            unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
-            wp_redirect($order->get_checkout_order_received_url());
-            exit;
+        qp_log_message('=== STEP 10: Processing payment with Stripe ===');
+
+        // The Stripe plugin for WooCommerce uses a payment method ID posted from the frontend.
+        // We need to ensure it's set. The frontend JavaScript will handle creating this.
+        if (empty($_POST['payment_method'])) {
+            qp_log_message('Stripe payment method ID not found in POST data.');
+            throw new Exception("Your payment information could not be processed. Please try again.");
         }
+        // The Stripe plugin will pick up the 'payment_method' from $_POST automatically.
 
-        qp_log_message('=== STEP 11: Processing payment ===');
-
-        // Log the sanitized data being sent to the gateway for debugging
-        $sanitized_post_data = [
-            'ccnumber' => isset($_POST['ccnumber']) ? 'ends in ' . substr(sanitize_text_field($_POST['ccnumber']), -4) : 'not set',
-            'ccexp' => isset($_POST['ccexp']) ? sanitize_text_field($_POST['ccexp']) : 'not set',
-            'cvv' => isset($_POST['cvv']) ? 'set' : 'not set', // Don't log the CVC itself
-        ];
-        qp_log_message('Sanitized POST data sent to gateway: ' . print_r($sanitized_post_data, true));
-
-        $order->set_payment_method($nmi_gateway);
+        $order->set_payment_method($stripe_gateway);
         $order->save();
-        $result = $nmi_gateway->process_payment($order->get_id());
+        $result = $stripe_gateway->process_payment($order->get_id());
         qp_log_message('Payment result: ' . print_r($result, true));
 
         if (is_array($result) && !empty($result['result']) && $result['result'] === 'success') {
