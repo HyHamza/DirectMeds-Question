@@ -142,12 +142,35 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="card-element">Credit or debit card</label>
-                                            <div id="card-element" class="form-control" style="padding-top: 10px; padding-bottom: 10px;">
-                                              <!-- A Stripe Element will be inserted here. -->
-                                            </div>
-                                            <!-- Used to display form errors. -->
-                                            <div id="card-errors" role="alert" class="error-message show"></div>
+                                            <?php
+                                                $gateways = WC()->payment_gateways->get_available_payment_gateways();
+                                                $stripe_gateway = $gateways['stripe'] ?? null;
+                                                $publishable_key = '';
+                                                if ($stripe_gateway) {
+                                                    $test_mode = $stripe_gateway->get_option('testmode') === 'yes';
+                                                    if ($test_mode) {
+                                                        $publishable_key = $stripe_gateway->get_option('test_publishable_key');
+                                                    } else {
+                                                        $publishable_key = $stripe_gateway->get_option('publishable_key');
+                                                    }
+                                                }
+
+                                                if (empty($publishable_key)) :
+                                            ?>
+                                                <div class="woocommerce-error" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;">
+                                                    <strong>Payment Gateway Error:</strong> The payment system is not configured correctly. Please contact support.
+                                                    <?php if (current_user_can('manage_options')) : ?>
+                                                        <br><em><strong>Admin Note:</strong> The Stripe publishable key is missing. Please enter the API keys in the <a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=stripe')); ?>">Stripe settings</a>.</em>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php else : ?>
+                                                <label for="card-element">Credit or debit card</label>
+                                                <div id="card-element" class="form-control" style="padding-top: 10px; padding-bottom: 10px;">
+                                                  <!-- A Stripe Element will be inserted here. -->
+                                                </div>
+                                                <!-- Used to display form errors. -->
+                                                <div id="card-errors" role="alert" class="error-message show"></div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="row d-flex mb-3">
@@ -234,22 +257,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Only run Stripe.js if the publishable key is available.
+    <?php if (!empty($publishable_key)) : ?>
     // --- Stripe.js Implementation ---
 
-    <?php
-        $gateways = WC()->payment_gateways->get_available_payment_gateways();
-        $stripe_gateway = $gateways['stripe'] ?? null;
-        $publishable_key = '';
-        if ($stripe_gateway) {
-            $test_mode = $stripe_gateway->get_option('testmode') === 'yes';
-            if ($test_mode) {
-                $publishable_key = $stripe_gateway->get_option('test_publishable_key');
-            } else {
-                $publishable_key = $stripe_gateway->get_option('publishable_key');
-            }
-        }
-    ?>
-    var stripe = Stripe('<?php echo esc_js($publishable_key); ?>');
+    // The `$publishable_key` is now set in the PHP block above the form.
+    // We can use it directly here.
+    var stripe = Stripe('<?php echo isset($publishable_key) ? esc_js($publishable_key) : ''; ?>');
 
     var elements = stripe.elements();
 
@@ -329,6 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Submit the form
         form.submit();
     }
+    <?php endif; ?>
 });
 </script>
 </body>
