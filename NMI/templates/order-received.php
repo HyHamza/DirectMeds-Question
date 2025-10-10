@@ -1,17 +1,43 @@
 <?php
-// On the order-received page, WooCommerce makes the order object available globally.
-// Using this is more reliable than trying to parse the order ID from the URL.
-global $order;
+/**
+ * Custom Order Received Page Template
+ *
+ * This template provides a more robust way to retrieve the order details,
+ * preventing critical errors if WooCommerce globals are not yet set.
+ */
 
-// Default values
+// Initialize order variable
+$order = null;
+$order_id = 0;
+
+// 1. Get the order ID from the URL. WooCommerce typically places it in the URL like /order-received/1234/
+if ( isset( $_SERVER['REQUEST_URI'] ) && preg_match( '/order-received\/(\d+)/', $_SERVER['REQUEST_URI'], $matches ) ) {
+    $order_id = absint( $matches[1] );
+}
+
+// 2. Get the security key from the query string.
+$order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
+
+// 3. If we have an ID and a key, try to retrieve the order.
+if ( $order_id > 0 && ! empty( $order_key ) ) {
+    $order_candidate = wc_get_order( $order_id );
+
+    // 4. SECURITY CHECK: Verify the key matches the order. This is crucial to prevent
+    // users from viewing other people's orders by guessing IDs.
+    if ( $order_candidate && hash_equals( $order_candidate->get_order_key(), $order_key ) ) {
+        $order = $order_candidate;
+    }
+}
+
+// Default values for display
 $order_number = '';
 $order_date = '';
 $order_total = '';
 $payment_method = '';
 
+// If the order object is valid, populate the display variables.
 if ( $order ) {
     $order_number = $order->get_order_number();
-    // Format date nicely using WooCommerce function
     $order_date = wc_format_datetime( $order->get_date_created() );
     $order_total = $order->get_formatted_order_total();
     $payment_method = $order->get_payment_method_title();
