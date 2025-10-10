@@ -887,3 +887,15 @@ function qp_exclude_from_get_pages($pages) {
     return $pages;
 }
 add_filter('get_pages', 'qp_exclude_from_get_pages');
+
+function qp_custom_order_received_template( $template ) {
+    // is_order_received_page() is a WooCommerce conditional tag
+    if ( function_exists('is_order_received_page') && is_order_received_page() ) {
+        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/order-received.php';
+        if ( file_exists( $custom_template ) ) {
+            return $custom_template;
+        }
+    }
+    return $template;
+}
+add_filter( 'template_include', 'qp_custom_order_received_template', 99 );

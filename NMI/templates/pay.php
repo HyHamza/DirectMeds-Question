@@ -64,6 +64,12 @@
                     <div class="spacer">&nbsp;</div>
                     <div class="spacer">&nbsp;</div>
 
+                    <?php
+                    if (function_exists('wc_print_notices')) {
+                        wc_print_notices();
+                    }
+                    ?>
+
                     <center><h2>Your order is ready for payment.</h2></center>
                     <br>
                     <br>
