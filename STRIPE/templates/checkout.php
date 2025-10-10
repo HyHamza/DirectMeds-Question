@@ -65,6 +65,12 @@
                     <div class="spacer">&nbsp;</div>
 
                     <center><h2>Your order is ready for payment.</h2></center>
+                    <?php
+                        // Display WooCommerce notices (e.g., payment errors)
+                        if (function_exists('wc_print_notices')) {
+                            wc_print_notices();
+                        }
+                    ?>
                     <br>
                     <br>
                     <div class="row">
