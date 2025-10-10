@@ -136,12 +136,23 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="card-element">Credit or debit card</label>
-                                            <div id="card-element" class="form-control" style="padding-top: 10px; padding-bottom: 10px;">
-                                              <!-- A Stripe Element will be inserted here. -->
-                                            </div>
+                                            <label for="stripe-card-number">Card Number</label><br>
+                                            <input type="tel" name="stripe-card-number" required id="stripe-card-number"
+                                                   class="form-control required" placeholder="•••• •••• •••• ••••" />
+                                        </div>
+                                        <div class="col-8">
+                                            <label for="stripe-card-expiry">Expiration</label><br>
+                                            <input type="tel" name="stripe-card-expiry" required id="stripe-card-expiry"
+                                                   class="form-control required" placeholder="MM / YY" />
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="stripe-card-cvc">CVC</label><br>
+                                            <input type="tel" name="stripe-card-cvc" required id="stripe-card-cvc"
+                                                   class="form-control required" placeholder="•••" />
+                                        </div>
+                                        <div class="col-12">
                                             <!-- Used to display form errors. -->
-                                            <div id="card-errors" role="alert" class="error-message show"></div>
+                                            <div id="card-errors" role="alert" class="error-message show" style="color: #dc3545; font-size: 14px; margin-top: 10px;"></div>
                                         </div>
                                     </div>
                                     <div class="row d-flex mb-3">
@@ -228,7 +239,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // --- Stripe.js Implementation ---
+    // --- Custom Stripe.js Integration for Separate Fields ---
 
     <?php
         $gateways = WC()->payment_gateways->get_available_payment_gateways();
@@ -245,75 +256,48 @@ document.addEventListener('DOMContentLoaded', function () {
     ?>
     var stripe = Stripe('<?php echo esc_js($publishable_key); ?>');
 
-    var elements = stripe.elements();
-
-    // Custom styling can be passed to options when creating an Element.
-    var style = {
-        base: {
-            color: '#32325d',
-            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-            fontSmoothing: 'antialiased',
-            fontSize: '16px',
-            '::placeholder': {
-                color: '#aab7c4'
-            }
-        },
-        invalid: {
-            color: '#fa755a',
-            iconColor: '#fa755a'
-        }
-    };
-
-    // Create an instance of the card Element.
-    var card = elements.create('card', {style: style});
-
-    // Add an instance of the card Element into the `card-element` <div>.
-    card.mount('#card-element');
-
-    // Handle real-time validation errors from the card Element.
-    card.on('change', function(event) {
-        var displayError = document.getElementById('card-errors');
-        if (event.error) {
-            displayError.textContent = event.error.message;
-        } else {
-            displayError.textContent = '';
-        }
-    });
-
-    // Handle form submission.
     var form = document.getElementById('ccForm');
+    var errorElement = document.getElementById('card-errors');
+
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        
-        // Disable the submit button to prevent repeated clicks
         form.querySelector('button').disabled = true;
+
+        // Collect card details from the separate input fields
+        var cardNumber = document.getElementById('stripe-card-number').value;
+        var cardExpiry = document.getElementById('stripe-card-expiry').value;
+        var cardCvc = document.getElementById('stripe-card-cvc').value;
+
+        // Parse expiry date
+        var expiryParts = cardExpiry.split(' / ');
+        var exp_month = expiryParts[0] || '';
+        var exp_year = expiryParts[1] || '';
 
         stripe.createPaymentMethod({
             type: 'card',
-            card: card,
+            card: {
+                number: cardNumber,
+                cvc: cardCvc,
+                exp_month: parseInt(exp_month),
+                exp_year: parseInt(exp_year),
+            },
             billing_details: {
-                // You can pre-fill this from your shipping form if needed
                 name: '<?php echo esc_js(($shipping_firstname ?? '') . ' ' . ($shipping_lastname ?? '')); ?>',
                 email: '<?php echo esc_js($shipping_email ?? ''); ?>',
             },
         }).then(function(result) {
             if (result.error) {
-                // Inform the user if there was an error.
-                var errorElement = document.getElementById('card-errors');
+                // Show error to your customer
                 errorElement.textContent = result.error.message;
-                // Re-enable the submit button
-                form.querySelector('button').disabled = false;
+                form.querySelector('button').disabled = false; // Re-enable submission
             } else {
-                // Send the token to your server.
+                // Send the payment method ID to your server
                 stripeTokenHandler(result.paymentMethod);
             }
         });
     });
 
-    // Submit the form with the token ID.
     function stripeTokenHandler(paymentMethod) {
-        // Insert the token ID into the form so it gets submitted to the server
-        var form = document.getElementById('ccForm');
         var hiddenInput = document.createElement('input');
         hiddenInput.setAttribute('type', 'hidden');
         hiddenInput.setAttribute('name', 'payment_method');
@@ -323,6 +307,38 @@ document.addEventListener('DOMContentLoaded', function () {
         // Submit the form
         form.submit();
     }
+
+    // --- Input Formatting ---
+    const cardNumberInput = document.getElementById('stripe-card-number');
+    const cardExpiryInput = document.getElementById('stripe-card-expiry');
+    const cardCvcInput = document.getElementById('stripe-card-cvc');
+
+    // Format card number with spaces
+    cardNumberInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        let formattedValue = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) {
+                formattedValue += ' ';
+            }
+            formattedValue += value[i];
+        }
+        e.target.value = formattedValue.trim();
+    });
+
+    // Format expiry date as MM / YY
+    cardExpiryInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+            value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Limit CVC length
+    cardCvcInput.addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+    });
 });
 </script>
 </body>
