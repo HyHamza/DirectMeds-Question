@@ -567,8 +567,11 @@ function qp_handle_checkout_submission() {
             $order->update_status('processing', 'Test mode payment completed via custom checkout.');
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
-            wp_redirect($order->get_checkout_order_received_url());
+            $redirect_url = $order->get_checkout_order_received_url();
+            // Remove the conflicting page_id query param that causes a 404 with the custom template.
+            $redirect_url = remove_query_arg( 'page_id', $redirect_url );
+            qp_log_message('=== Redirecting to: ' . $redirect_url . ' ===');
+            wp_redirect( $redirect_url );
             exit;
         }
 
@@ -592,8 +595,11 @@ function qp_handle_checkout_submission() {
             $order->payment_complete();
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            qp_log_message('=== Redirecting to: ' . $order->get_checkout_order_received_url() . ' ===');
-            wp_redirect($order->get_checkout_order_received_url());
+            $redirect_url = $order->get_checkout_order_received_url();
+            // Remove the conflicting page_id query param that causes a 404 with the custom template.
+            $redirect_url = remove_query_arg( 'page_id', $redirect_url );
+            qp_log_message('=== Redirecting to: ' . $redirect_url . ' ===');
+            wp_redirect( $redirect_url );
             exit;
         } else {
             qp_log_message('=== STEP 12 FAILED: Payment failed. Full gateway response below. ===');
@@ -647,7 +653,8 @@ function qp_handle_checkout_submission() {
         qp_log_message('=== Redirecting back to custom checkout page after payment failure ===');
         unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
 
-        $checkout_page = get_page_by_path('checkout');
+        // The custom payment page slug is 'pay', not 'checkout'.
+        $checkout_page = get_page_by_path('pay');
         if ($checkout_page) {
             wp_redirect(get_permalink($checkout_page->ID));
         } else {
