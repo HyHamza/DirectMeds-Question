@@ -3,7 +3,7 @@
  * Plugin Name: WeightLossAdvocates Plugin
  * Description: A custom plugin specially made for WeightLossAdvocates site.
  * Version: 1.0
- * Author: Hamza
+ * Author: Xiophider Team, Xiophider.com
  */
 
 if (!defined('ABSPATH')) {
@@ -1047,11 +1047,9 @@ function qp_product_settings_page_html() {
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Enter a valid WooCommerce SKU">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][name]" value="<?php echo esc_attr($dosage['name']); ?>" placeholder="Dosage Name (e.g., .25mg/week)">
                                         <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Regular Price">
-                                        <button type="button" class="button remove-repeater-item">Remove</button>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <button type="button" class="button add-repeater-item" data-type="dosages" data-product-id="<?php echo esc_attr($product_id); ?>">Add Dosage</button>
                         </div>
                     </div>
                 <?php endforeach; ?>

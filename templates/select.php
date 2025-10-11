@@ -19,27 +19,24 @@ foreach ($wc_products as $product) {
         $settings = $configured_products[$product_id];
         $internal_id = $settings['internal_id'];
 
-        $js_dosages = [];
-        foreach ($settings['dosages'] as $key => $dosage) {
-            $coupon_price = $dosage['price'] - ($settings['coupon']['type'] === 'one-time' ? $settings['coupon']['discount'] : 0);
-            $followup_price = $dosage['price'];
-            if ($settings['coupon']['type'] === 'lifetime') {
-                $followup_price -= $settings['coupon']['discount'];
-            }
-            
-            $js_dosages[$key === 0 ? 'default' : $dosage['name']] = [
-                'package_code' => $dosage['sku'],
-                'name' => $dosage['name'],
-                'price' => (float)$dosage['price'],
+        // Only use the first (default) dosage
+        $default_dosage = $settings['dosages'][0];
+        $coupon_price = $default_dosage['price'] - ($settings['coupon']['type'] === 'one-time' ? $settings['coupon']['discount'] : 0);
+        $followup_price = $default_dosage['price'];
+        if ($settings['coupon']['type'] === 'lifetime') {
+            $followup_price -= $settings['coupon']['discount'];
+        }
+        
+        $js_products[$internal_id] = [
+            'type' => 'Dynamic',
+            'dosage' => [
+                'package_code' => $default_dosage['sku'],
+                'name' => $default_dosage['name'],
+                'price' => (float)$default_dosage['price'],
                 'coupon_discount' => (float)$settings['coupon']['discount'],
                 'coupon_price' => $coupon_price,
                 'followup_price' => $followup_price,
-            ];
-        }
-
-        $js_products[$internal_id] = [
-            'type' => 'Dynamic', // Or some other identifier
-            'dosage' => $js_dosages,
+            ]
         ];
     }
 }
@@ -96,6 +93,7 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
         <input type="hidden" name="page_slug" value="select">
         <input type="hidden" name="selected_product_name" id="selected_product_name" value="<?php echo esc_attr($first_product_name); ?>">
         <input type="hidden" name="selected_product_image_url" id="selected_product_image_url" value="<?php echo esc_attr($first_product_image_url); ?>">
+        <input type="hidden" name="dosage" id="dosage" value="default">
         <div class="row">
             <div class="col-md-6">
                 <div class="spacer">&nbsp;</div>
@@ -180,19 +178,6 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
                         <div class="benefit-box" id="benefitBox"><p id="benefitText"></p></div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="dosageSelect" class="form-label">Select Weekly Starting Dosage</label>
-                        <select class="form-select form-select-lg w-100" id="dosageSelect" name="dosage" required>
-                             <?php
-                            if ($first_product_wc) {
-                                $first_product_settings = $configured_products[$first_product_wc->get_id()];
-                                foreach ($first_product_settings['dosages'] as $key => $dosage) {
-                                    echo '<option value="' . ($key === 0 ? 'default' : esc_attr($dosage['name'])) . '">' . esc_html($dosage['name']) . '</option>';
-                                }
-                            }
-                            ?>
-                        </select>
-                    </div>
                     <br>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn ctaBtn1">Checkout</button>
@@ -245,7 +230,7 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
                         <div class="col my-auto">
 
                             <h4>Patient Satisfaction Guarantee</h4>
-                            <p class="textalt2" style="font-size:12px;">Your satisfaction and success are our priority. If you decide before your prescription ships that our program isn’t for you, we’ll cancel your order and provide a full refund. While we cannot process refunds once your prescription has been shipped, our expert staff has lots of options at their disposal to help you hit your weightloss goal and you can cancel future shipments at any time. </p>
+                            <p class="textalt2" style="font-size:12px;">Your satisfaction and success are our priority. If you decide before your prescription ships that our program isn't for you, we'll cancel your order and provide a full refund. While we cannot process refunds once your prescription has been shipped, our expert staff has lots of options at their disposal to help you hit your weightloss goal and you can cancel future shipments at any time. </p>
 
                         </div>
                     </div>
@@ -308,7 +293,7 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
                 <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                     class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p>This medication was a life changer for me. I’m a 49-year-old female. I never had a problem with my weight until after the age of 45. Then during Covid, I gained 30 pounds and got up to 189. I was exercising regularly and trying to eat healthy, but could not lose any weight. I started Tirzepatide and lost 12 pounds the first month. I had very little side effects. The only thing I experienced was fatigue, a slight headache, and I felt very cold. Once I became used to the medication, after a couple of months, those side effects diminished. I’ve been on the medication for 6 months and have lost a total of 56 pounds. I’m now at 133 pounds. My goal weight is 130. I feel better than I did when I was in my 20s and 30s. This medication was life-changing for me. It not only helped me to lose weight, but it also lowered my A1C, lowered my triglycerides, and blood pressure.</p>
+            <p>This medication was a life changer for me. I'm a 49-year-old female. I never had a problem with my weight until after the age of 45. Then during Covid, I gained 30 pounds and got up to 189. I was exercising regularly and trying to eat healthy, but could not lose any weight. I started Tirzepatide and lost 12 pounds the first month. I had very little side effects. The only thing I experienced was fatigue, a slight headache, and I felt very cold. Once I became used to the medication, after a couple of months, those side effects diminished. I've been on the medication for 6 months and have lost a total of 56 pounds. I'm now at 133 pounds. My goal weight is 130. I feel better than I did when I was in my 20s and 30s. This medication was life-changing for me. It not only helped me to lose weight, but it also lowered my A1C, lowered my triglycerides, and blood pressure.</p>
 
         </div>
         <div class="col-lg-6  testimonial">
@@ -353,7 +338,7 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
                 <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                     class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p>I started at a size XXL/pants size 16 and 213 lbs. After a little over a year, I am now 125 lbs and a size small/pants size 2. Semaglutide literally reset my entire body chemistry and metabolism. I never dieted nor exercised the past year. I don’t want to lose any more weight, so I just went down to a 1 mg half dose to maintain my weight loss. I am so grateful for this medicine!</p>
+            <p>I started at a size XXL/pants size 16 and 213 lbs. After a little over a year, I am now 125 lbs and a size small/pants size 2. Semaglutide literally reset my entire body chemistry and metabolism. I never dieted nor exercised the past year. I don't want to lose any more weight, so I just went down to a 1 mg half dose to maintain my weight loss. I am so grateful for this medicine!</p>
 
         </div>
     </div>
@@ -365,7 +350,7 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
 
     document.addEventListener('DOMContentLoaded', function() {
         const productSelectors = document.querySelectorAll('.product-select');
-        const modeSelectors = document.querySelectorAll('input[name="product"], #protocolSelect, #paymentSelect, #dosageSelect');
+        const modeSelectors = document.querySelectorAll('input[name="product"], #protocolSelect, #paymentSelect');
         const protocolSelector = document.getElementById('protocolSelect');
         const paymentSelector = document.getElementById('paymentSelect');
         const toggleBenefit = document.getElementById("toggleBenefit");
@@ -387,7 +372,6 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
             const internalId = document.querySelector('input[name="product"]:checked').value;
             const protocolLengthOption = protocolSelector.selectedOptions[0];
             const paymentPlanKey = paymentSelector.value;
-            const dosageKey = dosageSelect.value;
 
             const couponBox = document.getElementById('couponBox');
             const couponDiscountAmount = document.getElementById('couponDiscountAmount');
@@ -395,7 +379,8 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
             const productData = products[internalId];
             if (!productData) return;
 
-            const dosageData = productData.dosage[dosageKey];
+            // Use the default (only) dosage
+            const dosageData = productData.dosage;
             if (!dosageData) return;
 
             let wcProductId = null;
@@ -469,11 +454,6 @@ $first_product_image_url = !empty($first_product_settings['custom_image_url']) ?
                 option.dataset.benefit = protocol.benefit;
                 option.dataset.labels = protocol.labels;
                 protocolSelector.options.add(option);
-            });
-            
-            dosageSelect.innerHTML = '';
-            settings.dosages.forEach((dosage, key) => {
-                dosageSelect.options.add(new Option(dosage.name, key === 0 ? 'default' : dosage.name));
             });
 
             updatePriceDetails();
