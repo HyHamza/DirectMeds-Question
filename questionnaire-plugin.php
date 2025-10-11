@@ -560,10 +560,11 @@ function qp_handle_checkout_submission() {
         }
 
         qp_log_message('=== STEP 4: Getting WC product ===');
-        $product_id_wc = wc_get_product_id_by_sku($sku);
+    // Trim the SKU before looking up the product to handle any whitespace issues.
+    $product_id_wc = wc_get_product_id_by_sku(trim($sku));
         if (!$product_id_wc) {
-            qp_log_message('=== STEP 4 FAILED: WC product not found ===');
-            throw new Exception('Product not found in the store. Please contact support.');
+        qp_log_message('=== STEP 4 FAILED: WC product not found for SKU: ' . $sku . ' ===');
+        throw new Exception('Product not found in the store. Please check the SKU configuration or contact support.');
         }
 
         $product = wc_get_product($product_id_wc);
@@ -882,7 +883,7 @@ function qp_product_settings_page_html() {
                     if (!empty($details['dosages'])) {
                         foreach ($details['dosages'] as $dosage_key => $dosage_value) {
                             $sanitized_details['dosages'][$dosage_key] = [
-                                'sku' => sanitize_text_field($dosage_value['sku']),
+                                'sku' => sanitize_text_field(trim($dosage_value['sku'])),
                                 'name' => sanitize_text_field($dosage_value['name']),
                                 'price' => sanitize_text_field($dosage_value['price']),
                             ];
