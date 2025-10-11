@@ -313,6 +313,15 @@ function qp_handle_form_submission() {
 
         $price = calculate_price($product_id, $protocol_length, $payment_plan, $dosage);
         $_SESSION['WeightLossAdvocates_data']['price'] = $price;
+
+        // Store selected product details in session
+        if (isset($_POST['selected_product_name'])) {
+            $_SESSION['WeightLossAdvocates_data']['selected_product_name'] = sanitize_text_field($_POST['selected_product_name']);
+        }
+        if (isset($_POST['selected_product_image_url'])) {
+            // Use esc_url_raw for sanitizing URLs that will be stored in the database or redirected.
+            $_SESSION['WeightLossAdvocates_data']['selected_product_image_url'] = esc_url_raw($_POST['selected_product_image_url']);
+        }
     }
 
     if ($page_slug === 'questionnaire-14' && isset($_POST['intake_goal_weight'])) {
@@ -917,7 +926,7 @@ function qp_product_settings_page_html() {
                                     <div class="repeater-item">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][value]" value="<?php echo esc_attr($protocol['value']); ?>" placeholder="Value (e.g., 90-day)">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][label]" value="<?php echo esc_attr($protocol['label']); ?>" placeholder="Dropdown Label">
-                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][discount]" value="<?php echo esc_attr($protocol['discount']); ?>" placeholder="Discount Amount">
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][discount]" value="<?php echo esc_attr($protocol['discount']); ?>" placeholder="Discount Amount ($)">
                                         <input type="number" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][months]" value="<?php echo esc_attr($protocol['months']); ?>" placeholder="Months">
                                         <textarea name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][benefit]" placeholder="Benefit description..."><?php echo esc_textarea($protocol['benefit']); ?></textarea>
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][labels]" value="<?php echo esc_attr($protocol['labels']); ?>" placeholder="color:Label,color:Label">
@@ -937,7 +946,7 @@ function qp_product_settings_page_html() {
                                     <div class="repeater-item">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Dosage SKU">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][name]" value="<?php echo esc_attr($dosage['name']); ?>" placeholder="Dosage Name (e.g., .25mg/week)">
-                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Price">
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Regular Price">
                                         <button type="button" class="button remove-repeater-item">Remove</button>
                                     </div>
                                 <?php endforeach; ?>
@@ -989,7 +998,7 @@ function qp_product_settings_page_html() {
                         newItemHtml = `<div class="repeater-item">
                             <input type="text" name="products[${productId}][protocol_lengths][${index}][value]" placeholder="Value">
                             <input type="text" name="products[${productId}][protocol_lengths][${index}][label]" placeholder="Dropdown Label">
-                            <input type="number" step="0.01" name="products[${productId}][protocol_lengths][${index}][discount]" placeholder="Discount Amount">
+                            <input type="number" step="0.01" name="products[${productId}][protocol_lengths][${index}][discount]" placeholder="Discount Amount ($)">
                             <input type="number" name="products[${productId}][protocol_lengths][${index}][months]" placeholder="Months">
                             <textarea name="products[${productId}][protocol_lengths][${index}][benefit]" placeholder="Benefit description..."></textarea>
                             <input type="text" name="products[${productId}][protocol_lengths][${index}][labels]" placeholder="color:Label,color:Label">
@@ -1000,7 +1009,7 @@ function qp_product_settings_page_html() {
                         newItemHtml = `<div class="repeater-item">
                             <input type="text" name="products[${productId}][dosages][${index}][sku]" placeholder="Dosage SKU">
                             <input type="text" name="products[${productId}][dosages][${index}][name]" placeholder="Dosage Name">
-                            <input type="number" step="0.01" name="products[${productId}][dosages][${index}][price]" placeholder="Price">
+                            <input type="number" step="0.01" name="products[${productId}][dosages][${index}][price]" placeholder="Regular Price">
                             <button type="button" class="button remove-repeater-item">Remove</button>
                         </div>`;
                         break;
@@ -1165,7 +1174,7 @@ add_filter('get_pages', 'qp_exclude_from_get_pages');
 function qp_custom_order_received_template( $template ) {
     // is_order_received_page() is a WooCommerce conditional tag
     if ( function_exists('is_order_received_page') && is_order_received_page() ) {
-        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/order-received.php';
+        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/thank-you.php';
         if ( file_exists( $custom_template ) ) {
             return $custom_template;
         }

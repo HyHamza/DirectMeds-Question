@@ -108,19 +108,27 @@
 
                     <center><h2>Your order is ready for payment.</h2></center>
                     <br>
+                     <!-- Order Summary Section -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Order Summary</h5>
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <img src="<?php echo esc_url($selected_product_image_url ?? ''); ?>" class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-0"><strong><?php echo esc_html($selected_product_name ?? 'Your Product'); ?></strong></p>
+                                </div>
+                                <div class="col-md-3 text-md-end">
+                                    <p class="mb-0"><strong>$<?php echo isset($price) ? number_format($price, 2) : '0.00'; ?></strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <br>
                     <div class="row">
                         <div class="col stats-item inversebg offsetbg">
                             <div class="row">
-                                <div class="col-4">
-                                    <img src="../assets/img_from_site/v2/product_<?php echo esc_attr($product ?? '1'); ?>.jpg" class="img-fluid">
-                                </div>
-                                <div class="col my-auto" style="font-size:14px">
-                                         Medication & Supplies<br/>
-                                        Payment Plan: Monthly<br/>
-                                        <small style="font-weight:400;">Your doctor will review and revise your dosage as needed.</small>
-                                </div>
-                                <hr id="shipping-divider">
                                 <div class="col my-auto">
                                     <b>Shipping to:</b><br>
                                     <?php echo esc_html($shipping_address1 ?? ''); ?><br>

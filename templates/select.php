@@ -45,6 +45,8 @@ foreach ($wc_products as $product) {
 }
 
 $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
+$first_product_name = $first_product_wc ? $first_product_wc->get_name() : '';
+$first_product_image_url = $first_product_wc ? wp_get_attachment_image_url($first_product_wc->get_image_id(), 'full') : '';
 ?>
 <!doctype html>
 <html lang="en">
@@ -90,6 +92,8 @@ $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="container">
         <input type="hidden" name="action" value="WeightLossAdvocates_submit">
         <input type="hidden" name="page_slug" value="select">
+        <input type="hidden" name="selected_product_name" id="selected_product_name" value="<?php echo esc_attr($first_product_name); ?>">
+        <input type="hidden" name="selected_product_image_url" id="selected_product_image_url" value="<?php echo esc_attr($first_product_image_url); ?>">
         <div class="row">
             <div class="col-md-6">
                 <div class="spacer">&nbsp;</div>
@@ -107,7 +111,7 @@ $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
                             $internal_id = $configured_products[$product->get_id()]['internal_id'];
                             ?>
                             <div class="col-6 col-lg-3">
-                                <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>">
+                                <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>" data-product-name="<?php echo esc_attr($product->get_name()); ?>" data-product-image-url="<?php echo esc_attr(wp_get_attachment_image_url($product->get_image_id(), 'full')); ?>">
                                     <input type="radio" name="product" value="<?php echo esc_attr($internal_id); ?>" <?php echo $is_first ? 'checked' : ''; ?>/>
                                      <img src="<?php echo wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'); ?>" class="img-fluid"><br>
                                     <div class="product-name"><?php echo wp_kses_post($product->get_name()); ?></div>
@@ -477,6 +481,13 @@ $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
                 const selectedProduct = event.target.closest('.product-select');
                 selectedProduct.classList.add('selected');
                 const internalId = selectedProduct.querySelector('input[name="product"]').value;
+
+                // Update hidden fields and main product image
+                const productName = selectedProduct.dataset.productName;
+                const productImageUrl = selectedProduct.dataset.productImageUrl;
+                document.getElementById('selected_product_name').value = productName;
+                document.getElementById('selected_product_image_url').value = productImageUrl;
+                document.getElementById('product-feature').src = productImageUrl;
                 
                 let wcProductId = null;
                 for (const [pid, details] of Object.entries(configuredProducts)) {
@@ -489,7 +500,6 @@ $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
                 if (wcProductId) {
                     updateDropdowns(wcProductId);
                     updateProductToggles(internalId);
-                    // Update main product image if you have a mapping for it
                 }
             });
         });
