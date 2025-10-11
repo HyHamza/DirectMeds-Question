@@ -91,60 +91,74 @@
                         </div>
                     </div>
                 </section><section class="container-fluid offsetbg">
+    <?php
+    $product_mapping = get_option('qp_product_mapping', []);
+    $wc_product_ids = !empty($product_mapping) ? array_keys($product_mapping) : [];
+    $products = !empty($wc_product_ids) ? wc_get_products(['include' => $wc_product_ids, 'status' => 'publish', 'limit' => -1]) : [];
+    $first_product_wc = !empty($products) ? current($products) : null;
+    ?>
     <form method="post" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" class="container">
         <input type="hidden" name="action" value="WeightLossAdvocates_submit">
         <input type="hidden" name="page_slug" value="select">
         <div class="row">
             <div class="col-md-6">
                 <div class="spacer">&nbsp;</div>
-                <img src="../assets/img_from_site/v2/product_1.jpg" class="img-fluid product-feature" id="product-feature" style="border-radius:75px;">                <div class="spacer">&nbsp;</div>
+                <img src="<?php echo $first_product_wc ? esc_url(wp_get_attachment_image_url($first_product_wc->get_image_id(), 'full')) : '../assets/img_from_site/v2/product_1.jpg'; ?>" class="img-fluid product-feature" id="product-feature" style="border-radius:75px;">
+                <div class="spacer">&nbsp;</div>
             </div>
             <div class="col-md-6"><br>
 
                 <h1>Select your Medication</h1>
                 <p>Medication & Doctor Consultation/Review Included</p>
 
-
                 <br><br>
 
-
                 <div class="row g-3 mb-3">
-                    <div class="col-6 col-lg-3">
-                    <div class="p-2 product-select selected">
-                        <input type="radio" name="product" value="1" checked/>
-                        <img src="../assets/img_from_site/v2/product_1_thumb.jpg" class="img-fluid"><br>
-                        <div class="product-name">Semaglutide <b>Injection</b></div>
-                    </div>
-                </div><div class="col-6 col-lg-3">
-                    <div class="p-2 product-select ">
-                        <input type="radio" name="product" value="2" />
-                        <img src="../assets/img_from_site/v2/product_2_thumb.jpg" class="img-fluid"><br>
-                        <div class="product-name">Tirzepatide <b>Injection</b></div>
-                    </div>
-                </div><div class="col-6 col-lg-3">
-                    <div class="p-2 product-select ">
-                        <input type="radio" name="product" value="4" />
-                        <img src="../assets/img_from_site/v2/product_4_thumb.jpg" class="img-fluid"><br>
-                        <div class="product-name">Semaglutide <b>Sublingual</b></div>
-                    </div>
-                </div><div class="col-6 col-lg-3">
-                    <div class="p-2 product-select ">
-                        <input type="radio" name="product" value="5" />
-                        <img src="../assets/img_from_site/v2/product_5_thumb.jpg" class="img-fluid"><br>
-                        <div class="product-name">Tirzepatide <b>Sublingual</b></div>
-                    </div>
-                </div>                </div>
- <div class="rating-wht">
+                    <?php if (!empty($products)) :
+                        $is_first = true;
+                        foreach ($products as $product) :
+                            $internal_id = isset($product_mapping[$product->get_id()]) ? $product_mapping[$product->get_id()] : '';
+                            if (empty($internal_id)) continue;
+                    ?>
+                            <div class="col-6 col-lg-3">
+                                <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>">
+                                    <input type="radio" name="product" value="<?php echo esc_attr($internal_id); ?>" <?php echo $is_first ? 'checked' : ''; ?>/>
+                                    <img src="<?php echo esc_url(wp_get_attachment_image_url($product->get_image_id(), 'thumbnail')); ?>" class="img-fluid"><br>
+                                    <div class="product-name"><?php echo wp_kses_post($product->get_name()); ?></div>
+                                </div>
+                            </div>
+                    <?php
+                            $is_first = false;
+                        endforeach;
+                    else :
+                    ?>
+                        <p>No products selected. Please configure the products in the admin panel.</p>
+                    <?php endif; ?>
+                </div>
+                <div class="rating-wht">
                     <strong>4.8</strong> <i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                                    class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-half"></i>
                     </div>
                 <br>
-                <div class="product-toggle product1" ><h6><b>Semaglutide Injection</b> (Same ingredients as Ozempic®)</h6><br>
-                    <div class="product-description"></div><p><b>Lowest Price Injection!</b> Lose up to 1-2lbs per week. The Once-Weekly weight loss medication prescribed by a doctor and delivered directly to you.</p><ul class="small2"><li>May experience more side effects.</li><li>Prescribed with Nausea Medication.</li><li>Lowest monthly cost!</li></ul></div><div class="product-toggle product2" style="display:none"><h6><b>Tirzepatide Injection</b> (Same ingredients as Mounjaro®)</h6><br>
-                    <div class="product-description"></div><p><b>Best Results!</b> Lose up to 1.5% of body fat per week. The Once-Weekly weight loss medication prescribed by a doctor and delivered directly to you.</p><ul class="small2"><li>Fewer side effects like nausea etc.</li><li>Customers report faster weight loss.</li><li>Best overall results!</li></ul></div><div class="product-toggle product4" style="display:none"><h6><b>Sublingual Semaglutide Oral Drops</b> (Same ingredients as Ozempic®)</h6><br>
-                    <div class="product-description"></div><p><b>Lowest Price/No Needles!</b> Lose up to 1lbs per week. Taken under the tongue every 1-2 days. Prescribed by a doctor and delivered directly to you.</p><ul class="small2"><li>May experience more side effects.</li><li>Prescribed with Nausea Medication.</li><li>No needles! (May have slightly slower results than injections)</li></ul></div><div class="product-toggle product5" style="display:none"><h6><b>Sublingual Tirzepatide Oral Drops</b> (Same ingredients as Mounjaro®)</h6><br>
-                    <div class="product-description"></div><p><b>No Needles/Better Results!</b> Lose up to 1.5% of body fat per week. Taken under the tongue every 1-2 days. Prescribed by a doctor and delivered directly to you!</p><ul class="small2"><li>Less side effects like nausea.</li><li>Customer report faster weight loss.</li><li>No needles! (May have slightly slower results than injections)</li></ul></div>                <span id="couponBox" class="coupon-box" style="display:none">
+                <?php if (!empty($products)) :
+                    $is_first = true;
+                    foreach ($products as $product) :
+                        $internal_id = isset($product_mapping[$product->get_id()]) ? $product_mapping[$product->get_id()] : '';
+                        if (empty($internal_id)) continue;
+                ?>
+                        <div class="product-toggle product<?php echo esc_attr($internal_id); ?>" style="<?php echo $is_first ? '' : 'display:none'; ?>">
+                            <h6><b><?php echo wp_kses_post($product->get_name()); ?></b></h6><br>
+                            <div class="product-description"><?php echo wp_kses_post($product->get_description()); ?></div>
+                        </div>
+                <?php
+                        $is_first = false;
+                    endforeach;
+                endif;
+                ?>
+                <span id="couponBox" class="coupon-box" style="display:none">
                         Discount Active! <span id="couponDiscountAmount" class="discount-amount"></span>
                 </span>
                 <div id="priceLine" class="product-price sticky-mobile"></div>
