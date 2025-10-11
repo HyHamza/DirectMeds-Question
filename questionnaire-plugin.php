@@ -313,6 +313,15 @@ function qp_handle_form_submission() {
 
         $price = calculate_price($product_id, $protocol_length, $payment_plan, $dosage);
         $_SESSION['WeightLossAdvocates_data']['price'] = $price;
+
+        // Store selected product details in session
+        if (isset($_POST['selected_product_name'])) {
+            $_SESSION['WeightLossAdvocates_data']['selected_product_name'] = sanitize_text_field($_POST['selected_product_name']);
+        }
+        if (isset($_POST['selected_product_image_url'])) {
+            // Use esc_url_raw for sanitizing URLs that will be stored in the database or redirected.
+            $_SESSION['WeightLossAdvocates_data']['selected_product_image_url'] = esc_url_raw($_POST['selected_product_image_url']);
+        }
     }
 
     if ($page_slug === 'questionnaire-14' && isset($_POST['intake_goal_weight'])) {
@@ -1165,7 +1174,7 @@ add_filter('get_pages', 'qp_exclude_from_get_pages');
 function qp_custom_order_received_template( $template ) {
     // is_order_received_page() is a WooCommerce conditional tag
     if ( function_exists('is_order_received_page') && is_order_received_page() ) {
-        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/order-received.php';
+        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/thank-you.php';
         if ( file_exists( $custom_template ) ) {
             return $custom_template;
         }
