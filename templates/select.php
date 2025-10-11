@@ -46,7 +46,9 @@ foreach ($wc_products as $product) {
 
 $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
 $first_product_name = $first_product_wc ? $first_product_wc->get_name() : '';
-$first_product_image_url = $first_product_wc ? wp_get_attachment_image_url($first_product_wc->get_image_id(), 'full') : '';
+// Prioritize custom image for the first product
+$first_product_settings = $first_product_wc ? ($configured_products[$first_product_wc->get_id()] ?? []) : [];
+$first_product_image_url = !empty($first_product_settings['custom_image_url']) ? $first_product_settings['custom_image_url'] : ($first_product_wc ? wp_get_attachment_image_url($first_product_wc->get_image_id(), 'full') : '');
 ?>
 <!doctype html>
 <html lang="en">
@@ -97,7 +99,7 @@ $first_product_image_url = $first_product_wc ? wp_get_attachment_image_url($firs
         <div class="row">
             <div class="col-md-6">
                 <div class="spacer">&nbsp;</div>
-                <img src="<?php echo $first_product_wc ? wp_get_attachment_image_url($first_product_wc->get_image_id(), 'full') : ''; ?>" class="img-fluid product-feature" id="product-feature" style="border-radius:75px;">
+                <img src="<?php echo esc_url($first_product_image_url); ?>" class="img-fluid product-feature" id="product-feature" style="border-radius:75px;">
                 <div class="spacer">&nbsp;</div>
             </div>
             <div class="col-md-6"><br>
@@ -108,12 +110,15 @@ $first_product_image_url = $first_product_wc ? wp_get_attachment_image_url($firs
                     <?php if (!empty($wc_products)) :
                         $is_first = true;
                         foreach ($wc_products as $product) :
-                            $internal_id = $configured_products[$product->get_id()]['internal_id'];
+                            $product_settings = $configured_products[$product->get_id()] ?? [];
+                            $image_url = !empty($product_settings['custom_image_url']) ? $product_settings['custom_image_url'] : wp_get_attachment_image_url($product->get_image_id(), 'thumbnail');
+                            $full_image_url = !empty($product_settings['custom_image_url']) ? $product_settings['custom_image_url'] : wp_get_attachment_image_url($product->get_image_id(), 'full');
+                            $internal_id = $product_settings['internal_id'] ?? $product->get_id();
                             ?>
                             <div class="col-6 col-lg-3">
-                                <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>" data-product-name="<?php echo esc_attr($product->get_name()); ?>" data-product-image-url="<?php echo esc_attr(wp_get_attachment_image_url($product->get_image_id(), 'full')); ?>">
+                                <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>" data-product-name="<?php echo esc_attr($product->get_name()); ?>" data-product-image-url="<?php echo esc_attr($full_image_url); ?>">
                                     <input type="radio" name="product" value="<?php echo esc_attr($internal_id); ?>" <?php echo $is_first ? 'checked' : ''; ?>/>
-                                     <img src="<?php echo wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'); ?>" class="img-fluid"><br>
+                                     <img src="<?php echo esc_url($image_url); ?>" class="img-fluid"><br>
                                     <div class="product-name"><?php echo wp_kses_post($product->get_name()); ?></div>
                                 </div>
                             </div>

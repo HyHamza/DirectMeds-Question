@@ -523,8 +523,36 @@ function qp_handle_checkout_submission() {
         $dosage = sanitize_text_field($data['dosage'] ?? 'default');
 
         qp_log_message('=== STEP 3: Getting product data ===');
-        $products = get_product_prices();
-        $sku = $products[$product_id]['dosage'][$dosage]['package_code'] ?? null;
+
+        $configured_products = get_option('qp_product_mapping', []);
+        $product_settings = null;
+        $sku = null;
+
+        // Find the product settings by internal_id
+        foreach ($configured_products as $wc_pid => $details) {
+            if (isset($details['internal_id']) && $details['internal_id'] == $product_id) {
+                $product_settings = $details;
+                break;
+            }
+        }
+
+        if ($product_settings) {
+            $dosage_data = null;
+            if ($dosage === 'default' && isset($product_settings['dosages'][0])) {
+                $dosage_data = $product_settings['dosages'][0];
+            } else {
+                foreach ($product_settings['dosages'] as $dosage_item) {
+                    if ($dosage_item['name'] === $dosage) {
+                        $dosage_data = $dosage_item;
+                        break;
+                    }
+                }
+            }
+
+            if ($dosage_data && isset($dosage_data['sku'])) {
+                $sku = $dosage_data['sku'];
+            }
+        }
 
         if (!$sku) {
             qp_log_message('=== STEP 3 FAILED: SKU not found ===');
@@ -790,6 +818,16 @@ function qp_admin_menu() {
 }
 add_action('admin_menu', 'qp_admin_menu');
 
+function qp_admin_enqueue_scripts($hook) {
+    // Only load scripts on our plugin's admin page
+    if ('weightlossadvocates_page_WeightLossAdvocates-product-settings' !== $hook) {
+        return;
+    }
+    // This will enqueue the Media Uploader script
+    wp_enqueue_media();
+}
+add_action('admin_enqueue_scripts', 'qp_admin_enqueue_scripts');
+
 function qp_product_settings_page_html() {
     // Check if WooCommerce is active
     if (!class_exists('WooCommerce')) {
@@ -806,6 +844,7 @@ function qp_product_settings_page_html() {
                     $sanitized_details = [
                         'enabled' => true,
                         'internal_id' => sanitize_text_field($details['internal_id']),
+                        'custom_image_url' => esc_url_raw($details['custom_image_url'] ?? ''),
                         'payment_plans' => [],
                         'protocol_lengths' => [],
                         'dosages' => [],
@@ -886,6 +925,17 @@ function qp_product_settings_page_html() {
                                 <tr>
                                     <th scope="row"><label>Internal ID</label></th>
                                     <td><input type="text" name="products[<?php echo esc_attr($product_id); ?>][internal_id]" value="<?php echo esc_attr($settings['internal_id'] ?? ''); ?>" placeholder="e.g., 1" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label>Custom Product Image</label></th>
+                                    <td>
+                                        <div class="image-preview-wrapper" style="margin-bottom: 10px;">
+                                            <img class="image-preview" src="<?php echo esc_url($settings['custom_image_url'] ?? ''); ?>" width="100" height="100" style="display: <?php echo empty($settings['custom_image_url']) ? 'none' : 'block'; ?>; border: 1px solid #ccc;">
+                                        </div>
+                                        <input type="hidden" name="products[<?php echo esc_attr($product_id); ?>][custom_image_url]" class="custom-image-url" value="<?php echo esc_url($settings['custom_image_url'] ?? ''); ?>">
+                                        <button type="button" class="button upload-image-button" style="display: <?php echo empty($settings['custom_image_url']) ? 'inline-block' : 'none'; ?>;">Upload Image</button>
+                                        <button type="button" class="button remove-image-button" style="display: <?php echo empty($settings['custom_image_url']) ? 'none' : 'inline-block'; ?>;">Remove Image</button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="row"><label>Coupon Discount</label></th>
@@ -1019,6 +1069,53 @@ function qp_product_settings_page_html() {
 
             if (e.target.classList.contains('remove-repeater-item')) {
                 e.target.closest('.repeater-item').remove();
+            }
+        });
+
+        // Media Uploader Logic
+        let frame;
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('upload-image-button')) {
+                e.preventDefault();
+                const button = e.target;
+                const wrapper = button.closest('td');
+
+                if (frame) {
+                    frame.open();
+                    return;
+                }
+
+                frame = wp.media({
+                    title: 'Select or Upload Media',
+                    button: {
+                        text: 'Use this media'
+                    },
+                    multiple: false
+                });
+
+                frame.on('select', function() {
+                    const attachment = frame.state().get('selection').first().toJSON();
+                    wrapper.querySelector('.custom-image-url').value = attachment.url;
+                    const preview = wrapper.querySelector('.image-preview');
+                    preview.src = attachment.url;
+                    preview.style.display = 'block';
+                    button.style.display = 'none';
+                    wrapper.querySelector('.remove-image-button').style.display = 'inline-block';
+                });
+
+                frame.open();
+            }
+
+            if (e.target.classList.contains('remove-image-button')) {
+                e.preventDefault();
+                const button = e.target;
+                const wrapper = button.closest('td');
+                wrapper.querySelector('.custom-image-url').value = '';
+                const preview = wrapper.querySelector('.image-preview');
+                preview.src = '';
+                preview.style.display = 'none';
+                button.style.display = 'none';
+                wrapper.querySelector('.upload-image-button').style.display = 'inline-block';
             }
         });
     });
