@@ -2,32 +2,48 @@
 /**
  * Custom Order Received Page Template
  *
- * This template provides a more robust way to retrieve the order details,
- * preventing critical errors if WooCommerce globals are not yet set.
+ * This template uses a robust, two-step logic to retrieve order details,
+ * preventing both critical errors and "Invalid Order" messages.
  */
 
 // Initialize order variable
 $order = null;
-$order_id = 0;
 
-// 1. Get the order ID from the URL. WooCommerce typically places it in the URL like /order-received/1234/
-if ( isset( $_SERVER['REQUEST_URI'] ) && preg_match( '/order-received\/(\d+)/', $_SERVER['REQUEST_URI'], $matches ) ) {
-    $order_id = absint( $matches[1] );
-}
+// STEP 1: Try to use the standard WooCommerce global $order object first.
+// This is the cleanest and most reliable method when it's available.
+global $order;
 
-// 2. Get the security key from the query string.
-$order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
+// If the global $order isn't a valid WC_Order object, proceed to the fallback method.
+if ( ! is_a( $order, 'WC_Order' ) ) {
 
-// 3. If we have an ID and a key, try to retrieve the order.
-if ( $order_id > 0 && ! empty( $order_key ) ) {
-    $order_candidate = wc_get_order( $order_id );
+    // STEP 2: Fallback to parsing the URL manually.
+    // This is a safeguard for scenarios where the global object isn't ready.
+    $order_id = 0;
 
-    // 4. SECURITY CHECK: Verify the key matches the order. This is crucial to prevent
-    // users from viewing other people's orders by guessing IDs.
-    if ( $order_candidate && hash_equals( $order_candidate->get_order_key(), $order_key ) ) {
-        $order = $order_candidate;
+    // Get the order ID from the URL (e.g., /order-received/1234/)
+    if ( isset( $_SERVER['REQUEST_URI'] ) && preg_match( '/order-received\/(\d+)/', $_SERVER['REQUEST_URI'], $matches ) ) {
+        $order_id = absint( $matches[1] );
+    }
+
+    // Get the security key from the query string.
+    $order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
+
+    // If we have an ID and a key, try to retrieve and validate the order.
+    if ( $order_id > 0 && ! empty( $order_key ) ) {
+        $order_candidate = wc_get_order( $order_id );
+
+        // SECURITY CHECK: Verify the key matches the order.
+        if ( $order_candidate && hash_equals( $order_candidate->get_order_key(), $order_key ) ) {
+            // If validation passes, assign the order object.
+            $order = $order_candidate;
+        }
     }
 }
+
+
+// --- Display Logic ---
+// The rest of the template remains the same. It will only proceed if the $order
+// object was successfully retrieved by either of the methods above.
 
 // Default values for display
 $order_number = '';
