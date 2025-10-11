@@ -225,47 +225,72 @@ function qp_start_session() {
 }
 add_action('init', 'qp_start_session', 1);
 
-function get_product_prices() {
-    $json_path = plugin_dir_path(__FILE__) . 'data/products.json';
-    if (file_exists($json_path)) {
-        $json_data = file_get_contents($json_path);
-        return json_decode($json_data, true);
+function calculate_price($internal_id, $protocol_length, $payment_plan, $dosage_key) {
+    $configured_products = get_option('qp_product_mapping', []);
+    $product_settings = null;
+
+    // Find the product settings by internal_id
+    foreach ($configured_products as $pid => $details) {
+        if (isset($details['internal_id']) && $details['internal_id'] == $internal_id) {
+            $product_settings = $details;
+            break;
+        }
     }
-    return [];
-}
 
-function calculate_price($product_id, $protocol_length, $payment_plan, $dosage) {
-    $products = get_product_prices();
-    $protocol_discounts = [
-        'month-to-month' => -50,
-        '90-day' => 0,
-        '180-day' => 25,
-        '360-day' => 50,
-    ];
-    $protocol_months = [
-        'month-to-month' => 1,
-        '90-day' => 3,
-        '180-day' => 6,
-        '360-day' => 12,
-    ];
+    if (!$product_settings) {
+        return 0; // Product not found or not configured
+    }
 
-    if (!isset($products[$product_id])) return 0;
+    $dosage_data = null;
+    if ($dosage_key === 'default' && isset($product_settings['dosages'][0])) {
+        $dosage_data = $product_settings['dosages'][0];
+    } else {
+        foreach ($product_settings['dosages'] as $dosage) {
+            if ($dosage['name'] === $dosage_key) {
+                $dosage_data = $dosage;
+                break;
+            }
+        }
+    }
 
-    $product = $products[$product_id];
-    $dosage_data = $product['dosage'][$dosage] ?? $product['dosage']['default'];
+    if (!$dosage_data) {
+        return 0; // Dosage not found
+    }
 
-    $price = $dosage_data['price'];
-    $coupon_discount = $dosage_data['coupon_discount'];
-    $coupon_price = $dosage_data['coupon_price'];
-    $followup_price = $dosage_data['followup_price'];
-    $coupon_type = ($coupon_discount > 0) ? (($coupon_price == $followup_price) ? 'lifetime' : 'one-time') : null;
+    $price = (float)$dosage_data['price'];
+    $coupon_discount = (float)$product_settings['coupon']['discount'];
+    $coupon_type = $product_settings['coupon']['type'];
 
-    $protocol_discount = $protocol_discounts[$protocol_length] ?? 0;
-    $months = $protocol_months[$protocol_length] ?? 1;
+    $protocol_info = null;
+    foreach ($product_settings['protocol_lengths'] as $protocol) {
+        if ($protocol['value'] === $protocol_length) {
+            $protocol_info = $protocol;
+            break;
+        }
+    }
 
-    if ($payment_plan == 'upfront' && $protocol_length != 'month-to-month') {
-        $upfront_discount = 0.1;
-        $price_today = (($price - $protocol_discount - ($coupon_type == 'lifetime' ? $coupon_discount : 0)) * $months) * (1 - $upfront_discount) - ($coupon_type == 'one-time' ? $coupon_discount : 0);
+    if (!$protocol_info) {
+        return 0; // Protocol not found
+    }
+
+    $protocol_discount = (float)$protocol_info['discount'];
+    $months = (int)$protocol_info['months'];
+
+    $payment_plan_info = $product_settings['payment_plans'][$payment_plan] ?? null;
+
+    $price_today = 0;
+    $coupon_price = $price - ($coupon_type === 'one-time' ? $coupon_discount : 0);
+    if ($coupon_type === 'lifetime') {
+        $price -= $coupon_discount;
+    }
+
+    if ($payment_plan_info && strpos(strtolower($payment_plan_info['label']), 'upfront') !== false && $months > 1) {
+        $upfront_discount = (float)$payment_plan_info['discount'];
+        // Ensure the discount is treated as a percentage, e.g., 0.1 for 10%
+        $price_today = (($price - $protocol_discount) * $months) * (1 - $upfront_discount);
+        if ($coupon_type === 'one-time') {
+            $price_today -= $coupon_discount;
+        }
     } else {
         $price_today = $coupon_price - $protocol_discount;
     }
@@ -757,95 +782,234 @@ function qp_admin_menu() {
 add_action('admin_menu', 'qp_admin_menu');
 
 function qp_product_settings_page_html() {
-    // Handle form submission
-    if (isset($_POST['submit']) && isset($_POST['qp_product_settings_nonce']) && wp_verify_nonce(sanitize_key($_POST['qp_product_settings_nonce']), 'qp_product_settings_action')) {
-        $product_mapping = [];
-        if (isset($_POST['qp_product_wc_id']) && isset($_POST['qp_product_internal_id'])) {
-            $wc_ids = array_map('intval', (array)$_POST['qp_product_wc_id']);
-            $internal_ids = array_map('sanitize_text_field', (array)$_POST['qp_product_internal_id']);
+    // Check if WooCommerce is active
+    if (!class_exists('WooCommerce')) {
+        echo '<div class="notice notice-error"><p>WooCommerce is not active. This plugin requires WooCommerce to function.</p></div>';
+        return;
+    }
 
-            foreach ($wc_ids as $index => $wc_id) {
-                if ($wc_id > 0 && !empty($internal_ids[$index])) {
-                    $product_mapping[$wc_id] = $internal_ids[$index];
+    // Handle form submission for saving product configurations
+    if (isset($_POST['submit']) && isset($_POST['qp_product_settings_nonce']) && wp_verify_nonce(sanitize_key($_POST['qp_product_settings_nonce']), 'qp_product_settings_action')) {
+        $configured_products = [];
+        if (isset($_POST['products'])) {
+            foreach ($_POST['products'] as $product_id => $details) {
+                if (isset($details['enabled'])) {
+                    $sanitized_details = [
+                        'enabled' => true,
+                        'internal_id' => sanitize_text_field($details['internal_id']),
+                        'payment_plans' => [],
+                        'protocol_lengths' => [],
+                        'dosages' => [],
+                        'coupon' => [
+                            'discount' => sanitize_text_field($details['coupon']['discount'] ?? 0),
+                            'type' => sanitize_text_field($details['coupon']['type'] ?? 'one-time'),
+                        ],
+                    ];
+
+                    // Sanitize payment plans
+                    if (!empty($details['payment_plans'])) {
+                        foreach ($details['payment_plans'] as $plan_key => $plan_value) {
+                            $sanitized_details['payment_plans'][$plan_key] = [
+                                'label' => sanitize_text_field($plan_value['label']),
+                                'discount' => sanitize_text_field($plan_value['discount']),
+                            ];
+                        }
+                    }
+
+                    // Sanitize protocol lengths
+                    if (!empty($details['protocol_lengths'])) {
+                        foreach ($details['protocol_lengths'] as $protocol_key => $protocol_value) {
+                            $sanitized_details['protocol_lengths'][$protocol_key] = [
+                                'value' => sanitize_text_field($protocol_value['value']),
+                                'label' => sanitize_text_field($protocol_value['label']),
+                                'discount' => sanitize_text_field($protocol_value['discount']),
+                                'months' => sanitize_text_field($protocol_value['months']),
+                                'benefit' => sanitize_textarea_field($protocol_value['benefit']),
+                                'labels' => sanitize_text_field($protocol_value['labels']),
+                            ];
+                        }
+                    }
+
+                    // Sanitize dosages
+                    if (!empty($details['dosages'])) {
+                        foreach ($details['dosages'] as $dosage_key => $dosage_value) {
+                            $sanitized_details['dosages'][$dosage_key] = [
+                                'sku' => sanitize_text_field($dosage_value['sku']),
+                                'name' => sanitize_text_field($dosage_value['name']),
+                                'price' => sanitize_text_field($dosage_value['price']),
+                            ];
+                        }
+                    }
+
+                    $configured_products[(int)$product_id] = $sanitized_details;
                 }
             }
         }
-        update_option('qp_product_mapping', $product_mapping);
-        echo '<div class="notice notice-success is-dismissible"><p>Settings saved.</p></div>';
+        update_option('qp_product_mapping', $configured_products);
+        echo '<div class="notice notice-success is-dismissible"><p>Settings saved successfully.</p></div>';
     }
 
-    // Get saved mapping
-    $product_mapping = get_option('qp_product_mapping', []);
-
-    // Get all WooCommerce products
+    // Retrieve saved settings and all WooCommerce products
+    $configured_products = get_option('qp_product_mapping', []);
     $all_products = wc_get_products(['status' => 'publish', 'limit' => -1]);
     ?>
     <div class="wrap">
         <h1>Product Settings</h1>
-        <p>Select the WooCommerce products to display and map them to the internal IDs (e.g., 1, 2, 4, 5) used by the original pricing script.</p>
+        <p>Select which WooCommerce products to display on the questionnaire and configure their pricing, payment, and dosage options.</p>
         <form method="post" action="">
             <?php wp_nonce_field('qp_product_settings_action', 'qp_product_settings_nonce'); ?>
-            <table class="form-table" id="product-mapping-table">
-                <thead>
-                    <tr>
-                        <th>WooCommerce Product</th>
-                        <th>Internal Product ID</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($product_mapping as $wc_id => $internal_id) :
-                        $product = wc_get_product($wc_id);
-                        if ($product) : ?>
-                            <tr>
-                                <td>
-                                    <select name="qp_product_wc_id[]">
-                                        <?php foreach ($all_products as $p) : ?>
-                                            <option value="<?php echo esc_attr($p->get_id()); ?>" <?php selected($p->get_id(), $wc_id); ?>>
-                                                <?php echo esc_html($p->get_name()); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <td><input type="text" name="qp_product_internal_id[]" value="<?php echo esc_attr($internal_id); ?>" placeholder="e.g., 1"/></td>
-                                <td><button type="button" class="button remove-row">Remove</button></td>
-                            </tr>
-                        <?php endif;
-                    endforeach; ?>
-                </tbody>
-            </table>
-            <button type="button" id="add-row" class="button">Add Product Mapping</button>
+
+            <div id="product-settings-accordion">
+                <?php foreach ($all_products as $product) :
+                    $product_id = $product->get_id();
+                    $is_enabled = isset($configured_products[$product_id]['enabled']);
+                    $settings = $configured_products[$product_id] ?? [];
+                ?>
+                    <div class="product-settings-card">
+                        <div class="product-settings-header">
+                            <h3>
+                                <input type="checkbox" name="products[<?php echo esc_attr($product_id); ?>][enabled]" <?php checked($is_enabled); ?>>
+                                <?php echo esc_html($product->get_name()); ?>
+                            </h3>
+                        </div>
+                        <div class="product-settings-content" style="<?php echo $is_enabled ? 'display: block;' : 'display: none;'; ?>">
+                            <table class="form-table">
+                                <tr>
+                                    <th scope="row"><label>Internal ID</label></th>
+                                    <td><input type="text" name="products[<?php echo esc_attr($product_id); ?>][internal_id]" value="<?php echo esc_attr($settings['internal_id'] ?? ''); ?>" placeholder="e.g., 1" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label>Coupon Discount</label></th>
+                                    <td>
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][coupon][discount]" value="<?php echo esc_attr($settings['coupon']['discount'] ?? 0); ?>" placeholder="e.g., 100" />
+                                        <select name="products[<?php echo esc_attr($product_id); ?>][coupon][type]">
+                                            <option value="one-time" <?php selected($settings['coupon']['type'] ?? '', 'one-time'); ?>>One-time</option>
+                                            <option value="lifetime" <?php selected($settings['coupon']['type'] ?? '', 'lifetime'); ?>>Lifetime</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h4>Payment Plans</h4>
+                            <div class="payment-plans-repeater">
+                                <?php
+                                $payment_plans = $settings['payment_plans'] ?? [['label' => 'Paid monthly', 'discount' => '0'], ['label' => 'Paid upfront', 'discount' => '0.1']];
+                                foreach ($payment_plans as $key => $plan) : ?>
+                                    <div class="repeater-item">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][payment_plans][<?php echo $key; ?>][label]" value="<?php echo esc_attr($plan['label']); ?>" placeholder="Label (e.g., Paid monthly)">
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][payment_plans][<?php echo $key; ?>][discount]" value="<?php echo esc_attr($plan['discount']); ?>" placeholder="Discount (e.g., 0.1 for 10%)">
+                                        <button type="button" class="button remove-repeater-item">Remove</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="button add-repeater-item" data-type="payment_plans" data-product-id="<?php echo esc_attr($product_id); ?>">Add Payment Plan</button>
+
+                            <hr>
+
+                            <h4>Subscription Lengths</h4>
+                            <div class="protocol-lengths-repeater">
+                                <?php
+                                $protocols = $settings['protocol_lengths'] ?? [
+                                    ['value' => 'month-to-month', 'label' => 'Month-to-Month (+$50/mo)', 'discount' => '-50', 'months' => '1', 'benefit' => 'Benefit text...', 'labels' => 'blue:No Commitment'],
+                                    ['value' => '90-day', 'label' => '90-Day Supply (Standard)', 'discount' => '0', 'months' => '3', 'benefit' => 'Benefit text...', 'labels' => 'green:Best Value'],
+                                ];
+                                foreach ($protocols as $key => $protocol) : ?>
+                                    <div class="repeater-item">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][value]" value="<?php echo esc_attr($protocol['value']); ?>" placeholder="Value (e.g., 90-day)">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][label]" value="<?php echo esc_attr($protocol['label']); ?>" placeholder="Dropdown Label">
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][discount]" value="<?php echo esc_attr($protocol['discount']); ?>" placeholder="Discount Amount">
+                                        <input type="number" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][months]" value="<?php echo esc_attr($protocol['months']); ?>" placeholder="Months">
+                                        <textarea name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][benefit]" placeholder="Benefit description..."><?php echo esc_textarea($protocol['benefit']); ?></textarea>
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][protocol_lengths][<?php echo $key; ?>][labels]" value="<?php echo esc_attr($protocol['labels']); ?>" placeholder="color:Label,color:Label">
+                                        <button type="button" class="button remove-repeater-item">Remove</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="button add-repeater-item" data-type="protocol_lengths" data-product-id="<?php echo esc_attr($product_id); ?>">Add Subscription Length</button>
+
+                            <hr>
+
+                            <h4>Dosages</h4>
+                            <div class="dosages-repeater">
+                                <?php
+                                $dosages = $settings['dosages'] ?? [['sku' => 'SKU001', 'name' => 'Standard Dosage', 'price' => '297']];
+                                foreach ($dosages as $key => $dosage) : ?>
+                                    <div class="repeater-item">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Dosage SKU">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][name]" value="<?php echo esc_attr($dosage['name']); ?>" placeholder="Dosage Name (e.g., .25mg/week)">
+                                        <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Price">
+                                        <button type="button" class="button remove-repeater-item">Remove</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="button add-repeater-item" data-type="dosages" data-product-id="<?php echo esc_attr($product_id); ?>">Add Dosage</button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
             <?php submit_button(); ?>
         </form>
     </div>
+    <style>
+        .product-settings-card { border: 1px solid #ccd0d4; margin-bottom: 10px; }
+        .product-settings-header { background: #f6f7f7; padding: 10px; cursor: pointer; }
+        .product-settings-header h3 { margin: 0; font-size: 1.2em; }
+        .product-settings-content { padding: 15px; border-top: 1px solid #ccd0d4; }
+        .repeater-item { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; border: 1px solid #e0e0e0; margin-bottom: 10px; align-items: center; }
+        .repeater-item input, .repeater-item textarea { flex: 1 1 auto; }
+        .repeater-item textarea { min-height: 50px; }
+    </style>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const tableBody = document.querySelector('#product-mapping-table tbody');
-        const addRowButton = document.getElementById('add-row');
-
-        const newRowHtml = `
-            <tr>
-                <td>
-                    <select name="qp_product_wc_id[]">
-                        <?php foreach ($all_products as $p) : ?>
-                            <option value="<?php echo esc_attr($p->get_id()); ?>">
-                                <?php echo esc_html($p->get_name()); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td><input type="text" name="qp_product_internal_id[]" placeholder="e.g., 1"/></td>
-                <td><button type="button" class="button remove-row">Remove</button></td>
-            </tr>
-        `;
-
-        addRowButton.addEventListener('click', function() {
-            tableBody.insertAdjacentHTML('beforeend', newRowHtml);
+        document.querySelectorAll('.product-settings-header input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const content = this.closest('.product-settings-card').querySelector('.product-settings-content');
+                content.style.display = this.checked ? 'block' : 'none';
+            });
         });
 
-        tableBody.addEventListener('click', function(e) {
-            if (e.target && e.target.classList.contains('remove-row')) {
-                e.target.closest('tr').remove();
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('add-repeater-item')) {
+                const repeater = e.target.previousElementSibling;
+                const type = e.target.dataset.type;
+                const productId = e.target.dataset.productId;
+                const index = repeater.children.length;
+                let newItemHtml = '';
+
+                switch(type) {
+                    case 'payment_plans':
+                        newItemHtml = `<div class="repeater-item">
+                            <input type="text" name="products[${productId}][payment_plans][${index}][label]" placeholder="Label">
+                            <input type="number" step="0.01" name="products[${productId}][payment_plans][${index}][discount]" placeholder="Discount">
+                            <button type="button" class="button remove-repeater-item">Remove</button>
+                        </div>`;
+                        break;
+                    case 'protocol_lengths':
+                        newItemHtml = `<div class="repeater-item">
+                            <input type="text" name="products[${productId}][protocol_lengths][${index}][value]" placeholder="Value">
+                            <input type="text" name="products[${productId}][protocol_lengths][${index}][label]" placeholder="Dropdown Label">
+                            <input type="number" step="0.01" name="products[${productId}][protocol_lengths][${index}][discount]" placeholder="Discount Amount">
+                            <input type="number" name="products[${productId}][protocol_lengths][${index}][months]" placeholder="Months">
+                            <textarea name="products[${productId}][protocol_lengths][${index}][benefit]" placeholder="Benefit description..."></textarea>
+                            <input type="text" name="products[${productId}][protocol_lengths][${index}][labels]" placeholder="color:Label,color:Label">
+                            <button type="button" class="button remove-repeater-item">Remove</button>
+                        </div>`;
+                        break;
+                    case 'dosages':
+                        newItemHtml = `<div class="repeater-item">
+                            <input type="text" name="products[${productId}][dosages][${index}][sku]" placeholder="Dosage SKU">
+                            <input type="text" name="products[${productId}][dosages][${index}][name]" placeholder="Dosage Name">
+                            <input type="number" step="0.01" name="products[${productId}][dosages][${index}][price]" placeholder="Price">
+                            <button type="button" class="button remove-repeater-item">Remove</button>
+                        </div>`;
+                        break;
+                }
+                repeater.insertAdjacentHTML('beforeend', newItemHtml);
+            }
+
+            if (e.target.classList.contains('remove-repeater-item')) {
+                e.target.closest('.repeater-item').remove();
             }
         });
     });
