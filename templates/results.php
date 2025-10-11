@@ -443,322 +443,67 @@
     </div>
 </section>
 <script>
-    (function() {
-        // Build Vimeo players lazily
-        const frames = Array.from(document.querySelectorAll('#video-testimonials .vimeo-frame'));
-        const players = [];
+   // Timer function
+function startTimer(duration, display) {
+    let timer = duration, minutes, seconds;
+    setInterval(() => {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
 
-        // Compute the video aspect and vertically center the iframe inside a fixed 9:16 frame
-        async function centerIframeVertically(player, frameEl) {
-            const iframe = frameEl.querySelector('iframe');
-            if (!iframe) return;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            try {
-                const [vw, vh] = await Promise.all([player.getVideoWidth(), player.getVideoHeight()]);
-                if (!vw || !vh) return;
+        display.textContent = minutes + ":" + seconds;
 
-                const cw = frameEl.clientWidth;
-                const ch = frameEl.clientHeight; // fixed 9:16 by CSS
-                const contentHeight = Math.round((vh / vw) * cw);
-
-                // Base iframe styles
-                iframe.style.position = 'absolute';
-                iframe.style.left = '0';
-                iframe.style.width = '100%';
-                iframe.style.transform = 'none';
-
-                if (contentHeight >= ch) {
-                    // Video is taller than the frame: fill height
-                    iframe.style.height = '100%';
-                    iframe.style.top = '0';
-                } else {
-                    // Video is shorter than the frame: set actual height and center with exact offset
-                    const offset = Math.round((ch - contentHeight) / 2);
-                    iframe.style.height = contentHeight + 'px';
-                    iframe.style.top = offset + 'px';
-                }
-            } catch (e) {
-                /* no-op */
-            }
+        if (--timer < 0) {
+            timer = 0;
         }
+    }, 1000);
+}
 
-        function buildPlayerFor(el) {
-            if (el.dataset.playerBuilt) return; // idempotent
-            const vimeoId = el.getAttribute('data-vimeo-id');
-            const title = el.getAttribute('data-title') || '';
+// Combined window.onload - fires both confetti and timer
+window.onload = function () {
+    
 
-            // Add spinner overlay
-            let spinner = el.querySelector('.vimeo-spinner');
-            if (!spinner) {
-                spinner = document.createElement('div');
-                spinner.className = 'vimeo-spinner';
-                const dot = document.createElement('div');
-                dot.className = 'spinner-dot';
-                spinner.appendChild(dot);
-                el.appendChild(spinner);
-            }
+    // Start the timer
+    const tenMinutes = 60 * 10,
+        display = document.querySelector('#timer');
+    startTimer(tenMinutes, display);
+};
 
-            const options = {
-                id: vimeoId,
-                responsive: true,
-                autopause: true,
-                autoplay: false,
-                byline: false,
-                portrait: false,
-                title: false,
-                controls: true,
-                muted: false
-            };
 
-            const p = new Vimeo.Player(el, options);
-            el._playerRef = p;
 
-            // Hide spinner once metadata is loaded / playback ready
-            const hideSpinner = () => { if (spinner) spinner.style.display = 'none'; };
-            const showSpinner = () => { if (spinner) spinner.style.display = 'flex'; };
-
-            p.on('loaded', hideSpinner);
-            p.on('bufferend', hideSpinner);
-            p.on('bufferstart', showSpinner);
-            p.on('play', () => {
-                // Pause all other players when one starts
-                players.forEach(other => { if (other !== p) other.pause().catch(()=>{}); });
-            });
-            p.on('error', (e) => {
-                if (spinner) spinner.innerHTML = '<span style="color:#fff;font-size:12px;text-align:center;padding:8px 10px;background:rgba(0,0,0,0.6);border-radius:8px;">Video unavailable</span>';
-            });
-
-            // Center on load and when player signals readiness
-            p.on('loaded', () => centerIframeVertically(p, el));
-            // Re-center on play just in case controls/metrics shift heights
-            p.on('play', () => centerIframeVertically(p, el));
-
-            players.push(p);
-            el.dataset.playerBuilt = '1';
-        }
-
-        // Init Swiper with eager slide building for all visible slides and responsive updates
-        const vimeoSwiper = new Swiper('.vimeo-carousel', {
-            slidesPerView: 1.1,
-            spaceBetween: 16,
-            centeredSlides: true,
-            loop: false,
-            watchOverflow: true,
-            keyboard: { enabled: true },
-            a11y: { enabled: true },
-            pagination: {
-                el: '.vimeo-carousel .swiper-pagination',
-                clickable: true,
-                dynamicBullets: true
-            },
-            navigation: {
-                nextEl: '.vimeo-carousel .swiper-button-next',
-                prevEl: '.vimeo-carousel .swiper-button-prev'
-            },
-            breakpoints: {
-                640: { slidesPerView: 1.2, spaceBetween: 18 },
-                768: { slidesPerView: 2.2, spaceBetween: 20 },
-                1024: { slidesPerView: 3, spaceBetween: 24, centeredSlides: false },
-                1280: { slidesPerView: 4, spaceBetween: 24, centeredSlides: false },
-                1536: { slidesPerView: 4, spaceBetween: 28, centeredSlides: false }
-            },
-            on: {
-                init(swiper) {
-                    buildVisibleNow(swiper);
-                },
-                slideChange(swiper) {
-                    // Pause others and build any newly visible
-                    players.forEach(p => p.pause().catch(()=>{}));
-                    buildVisibleNow(swiper);
-                },
-                transitionEnd(swiper) {
-                    buildVisibleNow(swiper);
-                },
-                resize(swiper) {
-                    buildVisibleNow(swiper);
-                }
-            }
+// Calculate review and delivery dates
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate and display the review date
+    const reviewDateElement = document.getElementById('review-date');
+    if (reviewDateElement) {
+        const now = new Date();
+        now.setHours(now.getHours() + 5);
+        const reviewDate = now.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric'
         });
-
-        // Helper: build players for all frames that are actually visible in the viewport of this Swiper
-        function buildVisibleNow(swiper) {
-            const containerRect = swiper.el.getBoundingClientRect();
-            swiper.slides.forEach(slide => {
-                const rect = slide.getBoundingClientRect();
-                const horizontallyVisible = rect.right > containerRect.left && rect.left < containerRect.right;
-                const verticallyVisible = rect.bottom > containerRect.top && rect.top < containerRect.bottom;
-                if (horizontallyVisible && verticallyVisible) {
-                    const frame = slide.querySelector('.vimeo-frame');
-                    if (frame) {
-                        if (!frame.dataset.playerBuilt) {
-                            buildPlayerFor(frame);
-                        } else if (frame._playerRef) {
-                            centerIframeVertically(frame._playerRef, frame);
-                        }
-                    }
-                }
-            });
-        }
-
-        // Re-center all visible players on window resize (debounced)
-        let _resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(_resizeTimer);
-            _resizeTimer = setTimeout(() => {
-                document.querySelectorAll('#video-testimonials .vimeo-frame').forEach(frame => {
-                    const idx = Array.from(document.querySelectorAll('#video-testimonials .vimeo-frame')).indexOf(frame);
-                    const player = players[idx];
-                    if (player) centerIframeVertically(player, frame);
-                });
-            }, 120);
-        });
-    })();
-</script>
-<!-- Testimonials -->    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="squares" style="color:#CADFF3;">
-
-                    <div class="row">
-
-                        <div class="col terms">
-                            <!--<div class="row">
-                                <div class="col">
-                                    <div class="footer"><center><a href="terms.php">Terms & Conditions</a> | <a href="privacy.php">Privacy Policy</a> | <a href="terms.php#refunds">Refund Policy</a> | <a href="https://Weight Loss Advocates.everflowclient.io/affiliate/signup" target="_blank" rel="nofollow">Affiliates</a> | <a href="contact.php">Contact Us</a> <br><br>Weight Loss Advocates, LLC</center></div><br><br><br>                                    <br><br></div>
-                            </div>-->
-                            <p> *Results vary based on starting weight and program adherence. Inches lost from hips,
-                                waist, chest, thighs and arms in the first month.</p>
-
-
-                            <p>
-                                Results from RX Path may vary. Medication prescriptions are at the discretion of medical
-                                providers and may not be suitable for everyone. Our Prescription plans typically result
-                                in 1-2 lbs per week weight loss in 4 weeks, involving a healthy diet and exercise
-                                changes. Consult a healthcare professional before using RX Path or starting any weight
-                                loss program.
-                                *Based on the average weight loss in three 68-week clinical trials of patients without
-                                diabetes who reached and maintained a dose of 2.4 mg/week of treatment, along with a
-                                reduced-calorie diet and increased physical activity. See details.
-                                Medication is included in the cost of the Weight Loss Advocates Program.
-                                The trademarks, service
-                                marks, trade names (Wegovy® ,Ozempic®), and products displayed on this Internet site are
-                                protected and belong to their respetive owners.</p>
-                            <p>
-                                Medical treatment is provided and approved by a Medical Doctor. </p>
-                            <div class="footer-badge"><script src="https://static.legitscript.com/seals/29752987.js"></script></div>
-<script>
-    const intervalId = setInterval(() => {
-        const el = document.querySelector('a[href^="https://www.legitscript.com"]'); // Adjust the selector as needed
-        if (el) {
-            // Perform your action here, e.g., hide the element
-            el.style.target = '_blank';
-            clearInterval(intervalId);
-        }
-    }, 100); // Checks every 100ms
-</script>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</form>
-
-
-<script>
-    confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: {y: 0.6},
-    });
-
-    window.onload = function () {
-        confetti();
-
-        const count = 200,
-            defaults = {
-                origin: {y: 0.7},
-            };
-
-        function fire(particleRatio, opts) {
-            confetti(
-                Object.assign({}, defaults, opts, {
-                    particleCount: Math.floor(count * particleRatio),
-                })
-            );
-        }
-
-        fire(0.25, {
-            spread: 26,
-            startVelocity: 55,
-        });
-
-        fire(0.2, {
-            spread: 60,
-        });
-
-        fire(0.35, {
-            spread: 100,
-            decay: 0.91,
-            scalar: 0.8,
-        });
-
-        fire(0.1, {
-            spread: 120,
-            startVelocity: 25,
-            decay: 0.92,
-            scalar: 1.2,
-        });
-
-        fire(0.1, {
-            spread: 120,
-            startVelocity: 45,
-        });
-    };
-
-    function startTimer(duration, display) {
-        let timer = duration, minutes, seconds;
-        setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            display.textContent = minutes + ":" + seconds;
-
-            if (--timer < 0) {
-                timer = 0;
-            }
-        }, 1000);
+        reviewDateElement.textContent = reviewDate;
     }
 
-    window.onload = () => {
-        const tenMinutes = 60 * 10,
-            display = document.querySelector('#timer');
-        startTimer(tenMinutes, display);
-    };
+    // Calculate and display the delivery date
+    const deliveryDateElement = document.getElementById('delivery-date');
+    if (deliveryDateElement) {
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 5);
+        const deliveryDay = deliveryDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const deliveryMonth = deliveryDate.toLocaleDateString('en-US', { month: 'long' });
+        const deliveryDayOfMonth = deliveryDate.getDate();
+        deliveryDateElement.textContent = `${deliveryDay}, ${deliveryMonth} ${deliveryDayOfMonth}!`;
+    }
+});
 </script>
 <script src="../assets/js/bootstrap.bundle.min.js"
 
        ></script>
-<script>
-    /*! lozad.js - v1.5.0 - 2018-07-16 https://github.com/ApoorvSaxena/lozad.js Apoorv Saxena; Licensed MIT */
-    !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):t.lozad=e()}(this,function(){"use strict";function t(t){t.setAttribute("data-loaded",!0)}var e=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var r=arguments[e];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(t[n]=r[n])}return t},r=document.documentMode,n={rootMargin:"0px",threshold:0,load:function(t){if("picture"===t.nodeName.toLowerCase()){var e=document.createElement("img");r&&t.getAttribute("data-iesrc")&&(e.src=t.getAttribute("data-iesrc")),t.getAttribute("data-alt")&&(e.alt=t.getAttribute("data-alt")),t.appendChild(e)}t.getAttribute("data-src")&&(t.src=t.getAttribute("data-src")),t.getAttribute("data-srcset")&&(t.srcset=t.getAttribute("data-srcset")),t.getAttribute("data-background-image")&&(t.style.backgroundImage="url('"+t.getAttribute("data-background-image")+"')")},loaded:function(){}},o=function(t){return"true"===t.getAttribute("data-loaded")};return function(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:".lozad",a=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=e({},n,a),d=i.rootMargin,u=i.threshold,c=i.load,s=i.loaded,g=void 0;return window.IntersectionObserver&&(g=new IntersectionObserver(function(e,r){return function(n,a){n.forEach(function(n){n.intersectionRatio>0&&(a.unobserve(n.target),o(n.target)||(e(n.target),t(n.target),r(n.target)))})}}(c,s),{rootMargin:d,threshold:u})),{observe:function(){for(var e=function(t){return t instanceof Element?[t]:t instanceof NodeList?t:document.querySelectorAll(t)}(r),n=0;n<e.length;n++)o(e[n])||(g?g.observe(e[n]):(c(e[n]),t(e[n]),s(e[n])))},triggerLoad:function(e){o(e)||(c(e),t(e),s(e))}}}});
-</script>
-<script>
-    window.lazyLoad = lozad('.lazyload' );
-    window.lazyLoad.observe();
-</script><script>
-    smartlook('identify', 'cid-68e274b7b12a4c705a1b37d9825d2b7f', {
-        "offer": "dm-offers",
-        "click_id": "",
-        "affiliate": "",
-        "sub_affiliate": "",
-        "aff_click_id": ""
-    });
-</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Calculate and display the review date
@@ -786,207 +531,6 @@
         }
     });
 </script>
-<script>
-const etAllowedKeys = [
-    'event_key',
-    'event_type',
-    'event_location',
-    'aff_id',
-    'sub_aff_id',
-    'everflow_offer_id',
-    'offer_id',
-    'external_customer_id',
-    'source_id',
-    'everflow_uid',
-    'page',
-    'everflow_transaction_id',
-    'ip_address',
-    'user_agent'
-];
-const etEndpoint = "https://theweightlossadvocates.com/api-dm/s";
 
-function etSubmit(data) {
-    if (typeof data != 'object') {
-        // Submitted data was not in a valid format
-        return;
-    }
-    fetch(etEndpoint, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    })
-        .catch(error => {
-            // Failing silently for now
-        });
-}
-</script>
-<script type="text/javascript">
-    var sub5Override = null;
-    EF.configure({tld: "theweightlossadvocates.com"});
-    var previousId = EF.getTransactionId();
-    var pageEventsFired = false;
-    var waitForClick = false;
-    var eventsAttempted = 0;
-    var noise = 0;
-
-    var etSubmitData = {
-        'event_key': 'click',
-        'event_type': 'everflow_click',
-        'event_location': 'website',
-        'aff_id': '',
-        'sub_aff_id': '',
-        'everflow_offer_id': '',
-        'offer_id': 'dm-offers',
-        'external_customer_id': 'cid-68e274b7b12a4c705a1b37d9825d2b7f',
-        'source_id': '',
-        'everflow_uid': '',
-        'page': 'results',
-        'ip_address': '34.46.237.233',
-        'user_agent': 'curl/8.5.0',
-        'noise': noise,
-        'sub1': '',
-        'sub2': '',
-        'sub3': '',
-        'sub4': '',
-        'sub5': '',
-        'fb_ad_id': '',
-        'adv5': "",
-    };
-
-    function getQueryParam(key) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(key);
-    }
-
-        // If an ID already exists, we don't want to generate a new click
-    if (previousId == "") {
-        waitForClick = true;
-        EF.click({
-            tracking_domain: "https://www.s83hzm3ak.com",
-            offer_id: EF.urlParameter('oid'),
-            affiliate_id: EF.urlParameter('affid'),
-            source_id: EF.urlParameter('source_id'),
-            sub1: EF.urlParameter('sub1'),
-            sub2: EF.urlParameter('sub2'),
-            sub3: EF.urlParameter('sub3'),
-            sub4: EF.urlParameter('sub4'),
-            sub5: null ?? EF.urlParameter('sub5'),
-            fbclid: EF.urlParameter('fbclid'),
-            gclid: EF.urlParameter('gclid'),
-            ttclid: EF.urlParameter('ttclid'),
-            sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
-            uid: EF.urlParameter('uid'),
-            transaction_id: EF.urlParameter('_ef_transaction_id'),
-            Adv1: 'cid-68e274b7b12a4c705a1b37d9825d2b7f',
-            // coupon_code: EF.urlParameter('coupon_code'),//Note: caused intermittent tracking issues when present
-            parameters: {
-                sccid: EF.urlParameter('sccid') ?? EF.urlParameter('ScCid'),
-                "subid": EF.urlParameter('source_id'),
-                "utm_source": EF.urlParameter('sub1'),
-                "utm_medium": EF.urlParameter('sub2'),
-                "utm_campaign": EF.urlParameter('sub3'),
-                "utm_content": EF.urlParameter('sub4'),
-                "AffClickID": EF.urlParameter('sub5'),
-                "click_id": EF.urlParameter('_ef_transaction_id'),
-            }
-        }).then(function(transId){
-            if (typeof transId == 'string' && transId !== '') {
-                storeTransIdOnServer(transId, '_ef_transaction_id');
-                firePageEvents(transId);
-            }
-        });
-        if (getQueryParam('oid') != null || getQueryParam('_ef_transaction_id') != null) {
-            etSubmitData['everflow_transaction_id'] = '';
-            etSubmitData['event_key'] = 'click';
-            etSubmit(etSubmitData);
-        }
-    }
-
-    function storeTransIdOnServer(transId,key) {
-        if (transId != "" && transId != null && transId != undefined) {
-            var url = new URL(window.location.href);
-            var img = document.createElement('img');
-            var pathname = url.pathname.split("/").filter((value) => value)[0] ?? '';
-            if (pathname != "") {
-                pathname = pathname + '/';
-            }
-            if (pathname.indexOf('.php') > -1) {
-                pathname = '';
-            }
-            img.src = url.origin + '/' + pathname + 'storeTransId.php?' + key + '=' + transId;
-            img.style.visibility = 'hidden';
-            img.style.height = '0px';
-            img.style.width = '0px';
-            document.body.appendChild(img);
-        }
-    }
-
-    function firePageEvents(transId = null) {
-        if (pageEventsFired || eventsAttempted >= 20 || false) {
-            return;
-        }
-
-        let efOfferId = null;
-        let efTransactionId = null;
-        let eventId = null;
-        let advEventId = null;
-        let oidEventExclusions = [];
-        let exclusionMatched = false;
-        let couponCode = null;
-        if (oidEventExclusions.some((oid) => oid == efOfferId)) {
-            eventId = null;
-            advEventId = null;
-            exclusionMatched = true;
-        }
-        let conversionDetails = {
-            offer_id: '',
-            adv1: 'cid-68e274b7b12a4c705a1b37d9825d2b7f',
-            adv2: '',
-            adv3: '',
-            adv4: null ?? (typeof getCookie === "function" ? getCookie('_fbp') : null),
-            adv5: "",
-        };
-
-        if (advEventId) {
-            conversionDetails.adv_event_id = advEventId;
-        } else if (eventId) {
-            conversionDetails.event_id = eventId;
-        }
-        if (transId) {
-            conversionDetails.transaction_id = transId;
-        }
-        // URL value should overwrite the generated one
-        if (efTransactionId) {
-            conversionDetails.transaction_id = efTransactionId;
-        }
-        if (couponCode) {
-            conversionDetails.coupon_code = couponCode;
-        }
-
-        if ((advEventId && true) || eventId || exclusionMatched
-            || false) {
-                            EF.configure({ tracking_domain: "https://www.s83hzm3ak.com"});
-                EF.conversion(conversionDetails).then((results) => {
-                    eventsAttempted++;
-                    if (results.conversion_id && results.transaction_id) {
-                        pageEventsFired = true;
-                    } else {
-                        setTimeout(firePageEvents,500,transId);
-                    }
-                });
-                etSubmitData['event_key'] = 'invalid_event';
-                etSubmitData['event_type'] = 'everflow_' + (advEventId == null && eventId == null ? 'conversion' : 'event');
-                etSubmitData['everflow_transaction_id'] = efTransactionId ? efTransactionId : (transId ? transId : '');
-                etSubmitData['noise'] = noise;
-                etSubmit(etSubmitData);
-                noise = 1;
-                                }
-    }
-    if (!waitForClick) {
-        firePageEvents();
-    }
-</script>
 </body>
 </html>
