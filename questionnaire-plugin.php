@@ -472,6 +472,34 @@ function qp_get_next_page($current_slug, $data) {
     return 'questionnaire-1';
 }
 
+/**
+ * Case-insensitive version of wc_get_product_id_by_sku.
+ *
+ * @param string $sku The product SKU.
+ * @return int The product ID, or 0 if not found.
+ */
+function qp_get_product_id_by_sku_case_insensitive($sku) {
+    global $wpdb;
+
+    // Trim the SKU to remove leading/trailing whitespace.
+    $sku = trim($sku);
+    if (empty($sku)) {
+        return 0;
+    }
+
+    // Query the database for a post_id where the meta_key is '_sku'
+    // and the meta_value matches the SKU in a case-insensitive manner.
+    $product_id = $wpdb->get_var($wpdb->prepare("
+        SELECT post_id
+        FROM {$wpdb->prefix}postmeta
+        WHERE meta_key = '_sku' AND LOWER(meta_value) = LOWER('%s')
+    ", $sku));
+
+    // If a product ID is found, return it as an integer. Otherwise, return 0.
+    return (int) $product_id;
+}
+
+
 function qp_handle_checkout_submission() {
     register_shutdown_function('qp_fatal_error_handler');
     qp_log_message('=== STEP 1: Handler called ===');
@@ -560,11 +588,11 @@ function qp_handle_checkout_submission() {
         }
 
         qp_log_message('=== STEP 4: Getting WC product ===');
-    // Trim the SKU before looking up the product to handle any whitespace issues.
-    $product_id_wc = wc_get_product_id_by_sku(trim($sku));
+        // Use the new case-insensitive function for a more robust lookup.
+        $product_id_wc = qp_get_product_id_by_sku_case_insensitive($sku);
         if (!$product_id_wc) {
-        qp_log_message('=== STEP 4 FAILED: WC product not found for SKU: ' . $sku . ' ===');
-        throw new Exception('Product not found in the store. Please check the SKU configuration or contact support.');
+            qp_log_message('=== STEP 4 FAILED: WC product not found for SKU: ' . $sku . ' ===');
+            throw new Exception('Product not found in the store. Please check the SKU configuration or contact support.');
         }
 
         $product = wc_get_product($product_id_wc);
