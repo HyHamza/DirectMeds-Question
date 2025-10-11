@@ -591,7 +591,22 @@ function qp_handle_checkout_submission() {
         // Use the new case-insensitive function for a more robust lookup.
         $product_id_wc = qp_get_product_id_by_sku_case_insensitive($sku);
         if (!$product_id_wc) {
-            qp_log_message('=== STEP 4 FAILED: WC product not found for SKU: ' . $sku . ' ===');
+            qp_log_message('=== STEP 4 FAILED: WC product not found for SKU: "' . $sku . '" ===');
+
+            // --- Enhanced Diagnostic Logging ---
+            global $wpdb;
+            $all_skus = $wpdb->get_col("
+                SELECT meta_value
+                FROM {$wpdb->prefix}postmeta
+                WHERE meta_key = '_sku' AND meta_value != ''
+            ");
+            if (!empty($all_skus)) {
+                qp_log_message('All available SKUs in the database: ' . implode(', ', $all_skus));
+            } else {
+                qp_log_message('Could not retrieve any SKUs from the database.');
+            }
+            // --- End Enhanced Diagnostic Logging ---
+
             throw new Exception('Product not found in the store. Please check the SKU configuration or contact support.');
         }
 
@@ -1020,10 +1035,17 @@ function qp_product_settings_page_html() {
                             <h4>Dosages</h4>
                             <div class="dosages-repeater">
                                 <?php
-                                $dosages = $settings['dosages'] ?? [['sku' => 'SKU001', 'name' => 'Standard Dosage', 'price' => '297']];
+                                <?php
+                                // Improvement: Pre-populate the default SKU with the actual product SKU to prevent errors.
+                                $default_sku = $product->get_sku();
+                                if (empty($default_sku)) {
+                                    // If the main product has no SKU, fallback to a clear placeholder to force user input.
+                                    $default_sku = '';
+                                }
+                                $dosages = $settings['dosages'] ?? [['sku' => $default_sku, 'name' => 'Standard Dosage', 'price' => '297']];
                                 foreach ($dosages as $key => $dosage) : ?>
                                     <div class="repeater-item">
-                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Dosage SKU">
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Enter a valid WooCommerce SKU" required>
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][name]" value="<?php echo esc_attr($dosage['name']); ?>" placeholder="Dosage Name (e.g., .25mg/week)">
                                         <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Regular Price">
                                         <button type="button" class="button remove-repeater-item">Remove</button>
