@@ -99,7 +99,7 @@ $first_product_wc = !empty($wc_products) ? current($wc_products) : null;
                             <div class="col-6 col-lg-3">
                                 <div class="p-2 product-select <?php echo $is_first ? 'selected' : ''; ?>">
                                     <input type="radio" name="product" value="<?php echo esc_attr($internal_id); ?>" <?php echo $is_first ? 'checked' : ''; ?>/>
-                                    <img src="<?php echo esc_url(wp_get_attachment_image_url($product->get_image_id(), 'thumbnail')); ?>" class="img-fluid"><br>
+                                     <img src="<?php echo wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'); ?>" class="img-fluid"><br>
                                     <div class="product-name"><?php echo wp_kses_post($product->get_name()); ?></div>
                                 </div>
                             </div>
