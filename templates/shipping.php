@@ -134,6 +134,9 @@
                     <div class="card-body">
                         <h1>Where do we send your medication?</h1>
                         <br>
+                        <?php if (isset($_GET['password_error'])) : ?>
+                            <p class="error" style="color: red;">Passwords do not match. Please try again.</p>
+                        <?php endif; ?>
                         <div class="row">
                             <div class="spacer">&nbsp;</div>
                             <div class="col-12">
@@ -314,6 +317,17 @@
             submitButton.disabled = true;
         }
     }
+                            <div class="spacer">&nbsp;</div>
+                            <h4>Create Your Patient Portal Account</h4>
+                            <div class="col-12">
+                                <label for="password">Password</label><br>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="confirm_password">Confirm Password</label><br>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <small id="password_match_error" style="color: red; display: none;">Passwords do not match.</small>
+                            </div>
 </script>                            <div class="spacer">&nbsp;</div>
                             <div class="col">
                                 <input type="checkbox" name="dm_mailing_list" value="yes" style="opacity:1;position:relative;">
@@ -418,6 +432,27 @@
                 submitButton.disabled = false;
             }
         });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const errorMessage = document.getElementById('password_match_error');
+        const submitButton = document.getElementById('btnSubmit');
+
+        function validatePasswords() {
+            if (password.value !== confirmPassword.value) {
+                errorMessage.style.display = 'block';
+                submitButton.disabled = true;
+            } else {
+                errorMessage.style.display = 'none';
+                submitButton.disabled = false;
+            }
+        }
+
+        password.addEventListener('input', validatePasswords);
+        confirmPassword.addEventListener('input', validatePasswords);
     });
 </script>
 </body>

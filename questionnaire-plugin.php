@@ -341,14 +341,27 @@ function qp_handle_form_submission() {
     // Handle patient creation from shipping page
     if ($page_slug === 'shipping' && isset($_POST['password']) && isset($_SESSION['WeightLossAdvocates_data']['shipping_email'])) {
         global $wpdb;
+
+        // Password validation
+        if ($_POST['password'] !== $_POST['confirm_password']) {
+            // Handle password mismatch error
+            $shipping_page = get_page_by_path('shipping');
+            if ($shipping_page) {
+                // Redirect back with an error message
+                wp_redirect(add_query_arg('password_error', '1', get_permalink($shipping_page->ID)));
+                exit;
+            }
+        }
+
         $patient_table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
         $email = sanitize_email($_SESSION['WeightLossAdvocates_data']['shipping_email']);
-        $password = wp_hash_password(sanitize_text_field($_POST['password']));
 
         // Check if user already exists
         $existing_user = $wpdb->get_row($wpdb->prepare("SELECT id FROM $patient_table_name WHERE email = %s", $email));
+        $patient_id = null;
 
         if (!$existing_user) {
+            $password = wp_hash_password(sanitize_text_field($_POST['password']));
             $wpdb->insert(
                 $patient_table_name,
                 array(
@@ -357,6 +370,13 @@ function qp_handle_form_submission() {
                     'created_at' => current_time('mysql'),
                 )
             );
+            $patient_id = $wpdb->insert_id;
+        } else {
+            $patient_id = $existing_user->id;
+        }
+
+        if ($patient_id) {
+            $_SESSION['WeightLossAdvocates_data']['patient_id'] = $patient_id;
         }
     }
 
@@ -499,6 +519,42 @@ function qp_get_product_id_by_sku_case_insensitive($sku) {
     return (int) $product_id;
 }
 
+function qp_create_custom_order($order, $data, $status) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'WeightLossAdvocates_orders';
+
+    $product_name = 'N/A';
+    // Get product name from order items
+    $items = $order->get_items();
+    if (!empty($items)) {
+        $first_item = reset($items);
+        $product_name = $first_item->get_name();
+    }
+
+    $wpdb->insert(
+        $table_name,
+        array(
+            'patient_id'        => $data['patient_id'] ?? 0,
+            'created_at'        => current_time('mysql'),
+            'first_name'        => sanitize_text_field($data['shipping_firstname']),
+            'last_name'         => sanitize_text_field($data['shipping_lastname']),
+            'phone'             => sanitize_text_field($data['shipping_phone']),
+            'email'             => sanitize_email($data['shipping_email']),
+            'shipping_address1' => sanitize_text_field($data['shipping_address1']),
+            'shipping_city'     => sanitize_text_field($data['shipping_city']),
+            'shipping_state'    => sanitize_text_field($data['shipping_state']),
+            'shipping_zipcode'  => sanitize_text_field($data['shipping_zipcode']),
+            'medication'        => $product_name,
+            'dosage'            => sanitize_text_field($data['dosage'] ?? 'default'),
+            'payment_plan'      => sanitize_text_field($data['payment_plan'] ?? 'monthly'),
+            'protocol_length'   => sanitize_text_field($data['protocol_length'] ?? '90-day'),
+            'price'             => $order->get_total(),
+            'status'            => $status,
+            'bmi'               => $data['intake_bmi'] ?? 0,
+            'full_data'         => serialize($data)
+        )
+    );
+}
 
 function qp_handle_checkout_submission() {
     register_shutdown_function('qp_fatal_error_handler');
@@ -699,6 +755,7 @@ function qp_handle_checkout_submission() {
         if (is_array($result) && !empty($result['result']) && $result['result'] === 'success') {
             qp_log_message('=== STEP 12: Payment successful ===');
             $order->payment_complete();
+            qp_create_custom_order($order, $data, 'completed');
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
             $redirect_url = $order->get_checkout_order_received_url();
@@ -749,6 +806,7 @@ function qp_handle_checkout_submission() {
         if ($order && is_a($order, 'WC_Order') && $order->get_id()) {
             qp_log_message('=== Updating order ' . $order->get_id() . ' to failed ===');
             $order->update_status('failed', sprintf('Checkout error: %s', $error_message));
+            qp_create_custom_order($order, $data, 'failed');
         }
 
         // Always redirect back to the custom checkout page on payment failure.
@@ -780,6 +838,43 @@ function qp_handle_checkout_submission() {
 }
 add_action('admin_post_nopriv_checkout_submit', 'qp_handle_checkout_submission');
 add_action('admin_post_checkout_submit', 'qp_handle_checkout_submission');
+
+function qp_handle_patient_login() {
+    global $wpdb;
+    $patient_table_name = $wpdb->prefix . 'WeightLossAdvocates_patients';
+
+    $email = sanitize_email($_POST['email']);
+    $password = $_POST['password']; // Don't sanitize password before checking
+
+    $patient = $wpdb->get_row($wpdb->prepare("SELECT * FROM $patient_table_name WHERE email = %s", $email));
+
+    if ($patient && wp_check_password($password, $patient->password)) {
+        // Start session if not already started
+        if (!session_id()) {
+            session_start();
+        }
+        $_SESSION['patient_id'] = $patient->id;
+        $_SESSION['patient_email'] = $patient->email;
+
+        $portal_page = get_page_by_path('patient-portal');
+        if ($portal_page) {
+            wp_redirect(get_permalink($portal_page->ID));
+            exit;
+        }
+    } else {
+        $login_page = get_page_by_path('patient-login');
+        if ($login_page) {
+            wp_redirect(add_query_arg('login_error', '1', get_permalink($login_page->ID)));
+            exit;
+        }
+    }
+
+    // Fallback redirect
+    wp_redirect(home_url());
+    exit;
+}
+add_action('admin_post_nopriv_patient_login', 'qp_handle_patient_login');
+add_action('admin_post_patient_login', 'qp_handle_patient_login');
 
 // --- Fatal Error Handler ---
 
