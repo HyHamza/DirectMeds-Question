@@ -1035,7 +1035,6 @@ function qp_product_settings_page_html() {
                             <h4>Dosages</h4>
                             <div class="dosages-repeater">
                                 <?php
-                                <?php
                                 // Improvement: Pre-populate the default SKU with the actual product SKU to prevent errors.
                                 $default_sku = $product->get_sku();
                                 if (empty($default_sku)) {
