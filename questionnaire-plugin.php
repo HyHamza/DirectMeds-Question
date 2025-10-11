@@ -286,11 +286,7 @@ function calculate_price($internal_id, $protocol_length, $payment_plan, $dosage_
 
     if ($payment_plan_info && strpos(strtolower($payment_plan_info['label']), 'upfront') !== false && $months > 1) {
         $upfront_discount = (float)$payment_plan_info['discount'];
-        // Ensure the discount is treated as a percentage, e.g., 0.1 for 10%
-        $price_today = (($price - $protocol_discount) * $months) * (1 - $upfront_discount);
-        if ($coupon_type === 'one-time') {
-            $price_today -= $coupon_discount;
-        }
+        $price_today = (($price - $protocol_discount) * $months) * (1 - $upfront_discount) - ($coupon_type === 'one-time' ? $coupon_discount : 0);
     } else {
         $price_today = $coupon_price - $protocol_discount;
     }
