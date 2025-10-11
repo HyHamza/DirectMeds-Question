@@ -275,7 +275,7 @@ function calculate_price($internal_id, $protocol_length, $payment_plan, $dosage_
 
     $protocol_discount = (float)$protocol_info['discount'];
     $months = (int)$protocol_info['months'];
-
+    
     $payment_plan_info = $product_settings['payment_plans'][$payment_plan] ?? null;
 
     $price_today = 0;
@@ -286,7 +286,11 @@ function calculate_price($internal_id, $protocol_length, $payment_plan, $dosage_
 
     if ($payment_plan_info && strpos(strtolower($payment_plan_info['label']), 'upfront') !== false && $months > 1) {
         $upfront_discount = (float)$payment_plan_info['discount'];
-        $price_today = (($price - $protocol_discount) * $months) * (1 - $upfront_discount) - ($coupon_type === 'one-time' ? $coupon_discount : 0);
+        // Ensure the discount is treated as a percentage, e.g., 0.1 for 10%
+        $price_today = (($price - $protocol_discount) * $months) * (1 - $upfront_discount);
+        if ($coupon_type === 'one-time') {
+            $price_today -= $coupon_discount;
+        }
     } else {
         $price_today = $coupon_price - $protocol_discount;
     }
@@ -825,7 +829,7 @@ function qp_product_settings_page_html() {
                             ];
                         }
                     }
-
+                    
                     // Sanitize dosages
                     if (!empty($details['dosages'])) {
                         foreach ($details['dosages'] as $dosage_key => $dosage_value) {
@@ -922,7 +926,7 @@ function qp_product_settings_page_html() {
                                 <?php endforeach; ?>
                             </div>
                             <button type="button" class="button add-repeater-item" data-type="protocol_lengths" data-product-id="<?php echo esc_attr($product_id); ?>">Add Subscription Length</button>
-
+                            
                             <hr>
 
                             <h4>Dosages</h4>
