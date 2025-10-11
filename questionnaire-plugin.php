@@ -673,9 +673,7 @@ function qp_handle_checkout_submission() {
             $order->update_status('processing', 'Test mode payment completed via custom checkout.');
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            $redirect_url = $order->get_checkout_order_received_url();
-            // Remove the conflicting page_id query param that causes a 404 with the custom template.
-            $redirect_url = remove_query_arg( 'page_id', $redirect_url );
+            $redirect_url = get_permalink(get_page_by_path('thank-you'));
             qp_log_message('=== Redirecting to: ' . $redirect_url . ' ===');
             wp_redirect( $redirect_url );
             exit;
@@ -701,9 +699,7 @@ function qp_handle_checkout_submission() {
             $order->payment_complete();
             unset($_SESSION['WeightLossAdvocates_data']);
             unset($_SESSION['qp_redirect_on_fatal']); // Clear the fallback redirect
-            $redirect_url = $order->get_checkout_order_received_url();
-            // Remove the conflicting page_id query param that causes a 404 with the custom template.
-            $redirect_url = remove_query_arg( 'page_id', $redirect_url );
+            $redirect_url = get_permalink(get_page_by_path('thank-you'));
             qp_log_message('=== Redirecting to: ' . $redirect_url . ' ===');
             wp_redirect( $redirect_url );
             exit;
@@ -1336,15 +1332,3 @@ function qp_exclude_from_get_pages($pages) {
     return $pages;
 }
 add_filter('get_pages', 'qp_exclude_from_get_pages');
-
-function qp_custom_order_received_template( $template ) {
-    // is_order_received_page() is a WooCommerce conditional tag
-    if ( function_exists('is_order_received_page') && is_order_received_page() ) {
-        $custom_template = plugin_dir_path( __FILE__ ) . 'templates/thank-you.php';
-        if ( file_exists( $custom_template ) ) {
-            return $custom_template;
-        }
-    }
-    return $template;
-}
-add_filter( 'template_include', 'qp_custom_order_received_template', 99 );
