@@ -1,9 +1,10 @@
 <?php
 /**
- * Plugin Name: WeightLossAdvocates Plugin
+ * Plugin Name: WLA Plugin
  * Description: A custom plugin specially made for WeightLossAdvocates site.
  * Version: 1.0
- * Author: Xiophider Team, Xiophider.com
+ * Author: Xiophider Team
+ * Author URI: https://Xiophider.com
  */
 
 if (!defined('ABSPATH')) {
