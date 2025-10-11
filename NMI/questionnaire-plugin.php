@@ -745,8 +745,113 @@ function qp_admin_menu() {
         'WeightLossAdvocates-debug-log',  // Menu slug
         'qp_debug_log_page_html'      // Function to display the page
     );
+    add_submenu_page(
+        'WeightLossAdvocates-orders', // Parent slug
+        'Product Settings',           // Page title
+        'Product Settings',           // Menu title
+        'manage_options',             // Capability
+        'WeightLossAdvocates-product-settings', // Menu slug
+        'qp_product_settings_page_html' // Function to display the page
+    );
 }
 add_action('admin_menu', 'qp_admin_menu');
+
+function qp_product_settings_page_html() {
+    // Handle form submission
+    if (isset($_POST['submit']) && isset($_POST['qp_product_settings_nonce']) && wp_verify_nonce(sanitize_key($_POST['qp_product_settings_nonce']), 'qp_product_settings_action')) {
+        $product_mapping = [];
+        if (isset($_POST['qp_product_wc_id']) && isset($_POST['qp_product_internal_id'])) {
+            $wc_ids = array_map('intval', (array)$_POST['qp_product_wc_id']);
+            $internal_ids = array_map('sanitize_text_field', (array)$_POST['qp_product_internal_id']);
+
+            foreach ($wc_ids as $index => $wc_id) {
+                if ($wc_id > 0 && !empty($internal_ids[$index])) {
+                    $product_mapping[$wc_id] = $internal_ids[$index];
+                }
+            }
+        }
+        update_option('qp_product_mapping', $product_mapping);
+        echo '<div class="notice notice-success is-dismissible"><p>Settings saved.</p></div>';
+    }
+
+    // Get saved mapping
+    $product_mapping = get_option('qp_product_mapping', []);
+
+    // Get all WooCommerce products
+    $all_products = wc_get_products(['status' => 'publish', 'limit' => -1]);
+    ?>
+    <div class="wrap">
+        <h1>Product Settings</h1>
+        <p>Select the WooCommerce products to display and map them to the internal IDs (e.g., 1, 2, 4, 5) used by the original pricing script.</p>
+        <form method="post" action="">
+            <?php wp_nonce_field('qp_product_settings_action', 'qp_product_settings_nonce'); ?>
+            <table class="form-table" id="product-mapping-table">
+                <thead>
+                    <tr>
+                        <th>WooCommerce Product</th>
+                        <th>Internal Product ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($product_mapping as $wc_id => $internal_id) :
+                        $product = wc_get_product($wc_id);
+                        if ($product) : ?>
+                            <tr>
+                                <td>
+                                    <select name="qp_product_wc_id[]">
+                                        <?php foreach ($all_products as $p) : ?>
+                                            <option value="<?php echo esc_attr($p->get_id()); ?>" <?php selected($p->get_id(), $wc_id); ?>>
+                                                <?php echo esc_html($p->get_name()); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td><input type="text" name="qp_product_internal_id[]" value="<?php echo esc_attr($internal_id); ?>" placeholder="e.g., 1"/></td>
+                                <td><button type="button" class="button remove-row">Remove</button></td>
+                            </tr>
+                        <?php endif;
+                    endforeach; ?>
+                </tbody>
+            </table>
+            <button type="button" id="add-row" class="button">Add Product Mapping</button>
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableBody = document.querySelector('#product-mapping-table tbody');
+        const addRowButton = document.getElementById('add-row');
+
+        const newRowHtml = `
+            <tr>
+                <td>
+                    <select name="qp_product_wc_id[]">
+                        <?php foreach ($all_products as $p) : ?>
+                            <option value="<?php echo esc_attr($p->get_id()); ?>">
+                                <?php echo esc_html($p->get_name()); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+                <td><input type="text" name="qp_product_internal_id[]" placeholder="e.g., 1"/></td>
+                <td><button type="button" class="button remove-row">Remove</button></td>
+            </tr>
+        `;
+
+        addRowButton.addEventListener('click', function() {
+            tableBody.insertAdjacentHTML('beforeend', newRowHtml);
+        });
+
+        tableBody.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-row')) {
+                e.target.closest('tr').remove();
+            }
+        });
+    });
+    </script>
+    <?php
+}
 
 function qp_debug_log_page_html() {
     // Check if the user has the capability to manage options
