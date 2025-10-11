@@ -1044,7 +1044,7 @@ function qp_product_settings_page_html() {
                                 $dosages = $settings['dosages'] ?? [['sku' => $default_sku, 'name' => 'Standard Dosage', 'price' => '297']];
                                 foreach ($dosages as $key => $dosage) : ?>
                                     <div class="repeater-item">
-                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Enter a valid WooCommerce SKU" required>
+                                        <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][sku]" value="<?php echo esc_attr($dosage['sku']); ?>" placeholder="Enter a valid WooCommerce SKU">
                                         <input type="text" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][name]" value="<?php echo esc_attr($dosage['name']); ?>" placeholder="Dosage Name (e.g., .25mg/week)">
                                         <input type="number" step="0.01" name="products[<?php echo esc_attr($product_id); ?>][dosages][<?php echo $key; ?>][price]" value="<?php echo esc_attr($dosage['price']); ?>" placeholder="Regular Price">
                                         <button type="button" class="button remove-repeater-item">Remove</button>
@@ -1071,10 +1071,29 @@ function qp_product_settings_page_html() {
     </style>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the 'required' attribute on SKU fields based on the checkbox state
+        function updateSkuRequiredAttribute(checkbox) {
+            const card = checkbox.closest('.product-settings-card');
+            const content = card.querySelector('.product-settings-content');
+            const skuInputs = card.querySelectorAll('input[name*="[sku]"]');
+
+            content.style.display = checkbox.checked ? 'block' : 'none';
+            skuInputs.forEach(input => {
+                if (checkbox.checked) {
+                    input.setAttribute('required', 'required');
+                } else {
+                    input.removeAttribute('required');
+                }
+            });
+        }
+
         document.querySelectorAll('.product-settings-header input[type="checkbox"]').forEach(checkbox => {
+            // Set the initial state on page load
+            updateSkuRequiredAttribute(checkbox);
+
+            // Add change listener
             checkbox.addEventListener('change', function() {
-                const content = this.closest('.product-settings-card').querySelector('.product-settings-content');
-                content.style.display = this.checked ? 'block' : 'none';
+                updateSkuRequiredAttribute(this);
             });
         });
 
